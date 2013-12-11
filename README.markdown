@@ -8,7 +8,7 @@ Huh?
 
 OK, I agree, that was not very helpful. 
 
-Let's say you have a TObjectList<TPerson>, and you want to retrieve the first 5 TPerson objects that have an Age > 18. 
+Let's say you have a TObjectList<TPerson>, and you want to retrieve the first 2 TPerson objects that have an Age > 18. 
 
 The standard solution in Delphi would be something like this:
 
