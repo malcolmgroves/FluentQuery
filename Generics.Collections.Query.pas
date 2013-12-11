@@ -19,7 +19,7 @@ type
     property Current: T read DoGetCurrent;
   end;
 
-  TAtMostEnumerator<T> = class(TQueryEnumerator<T>)
+  TTakeEnumerator<T> = class(TQueryEnumerator<T>)
   private
     FMaxPassCount: Integer;
     FPassCount : Integer;
@@ -85,7 +85,7 @@ end;
 
 function TQueryEnumerator<T>.Take(Count: Integer): TQueryEnumerator<T>;
 begin
-  Result := TAtMostEnumerator<T>.Create(self, Count);
+  Result := TTakeEnumerator<T>.Create(self, Count);
 end;
 
 function TQueryEnumerator<T>.Where(
@@ -96,14 +96,14 @@ end;
 
 { TAtMostEnumerator<T> }
 
-constructor TAtMostEnumerator<T>.Create(Enumerator: TEnumerator<T>; PassCount : Integer);
+constructor TTakeEnumerator<T>.Create(Enumerator: TEnumerator<T>; PassCount : Integer);
 begin
   inherited Create(Enumerator);
   FPassCount := 0;
   FMaxPassCount := PassCount;
 end;
 
-function TAtMostEnumerator<T>.DoMoveNext: Boolean;
+function TTakeEnumerator<T>.DoMoveNext: Boolean;
 begin
   Result := FPassCount < FMaxPassCount;
 

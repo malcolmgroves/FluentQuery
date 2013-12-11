@@ -8,7 +8,7 @@ Huh?
 
 OK, I agree, that was not very helpful. 
 
-Let's say you have a TObjectList<TPerson>, and you want to retrieve the first 2 TPerson objects that have an Age > 18. 
+Let's say you have a TObjectList&lt;TPerson>, and you want to retrieve the first 2 TPerson objects that have an Age > 18. 
 
 The standard solution in Delphi would be something like this:
 
@@ -49,7 +49,7 @@ CollectionQuery lets you represent the same thing like this:
       end;
     end;
  
-It's about the same length of code, but it is, in my mind, much clearer. The statement of what objects we're going to act on (in the for..in statement) reads fairly naturally, and then the code that acts on them is self contained. 
+It's about the same length of code, but it is, in my mind, much clearer. The statement of what objects we're going to act on (in the for..in statement) reads fairly naturally, and the code that acts on the objects is self contained. 
 
 Further, over time you tend to build up a set of reusable Predicates appropriate to your objects and so for example, the LOver18 definition does not need to be declared locally. You can also chain them together, eg Where(Over18).Where(VisitedRecently).Where(HasPurchased)
 
@@ -58,4 +58,4 @@ I'm adding more "operators" ie. the From, Where and Take parts, as I need them, 
 
 Back Story
 ----------
-This issue of mixing Selection code and Action code has bugged me for awhile, but I've never really found a solution I'm happy with. I tried some [experiments](http://www.malcolmgroves.com/blog/?p=273) but was never satisfied that the cure was better than the disease. A session at the recent [Yow Conference](http://yowconference.com.au/) in Australia was the light bulb moment that led me to this.
+This issue of mixing Selection code and Action code has bugged me for awhile, but I've never really found a solution I'm happy with. I tried some [experiments](http://www.malcolmgroves.com/blog/?p=273) but was never satisfied that the cure was better than the disease. A functional languages session at the recent [Yow Conference](http://yowconference.com.au/) in Australia was the light bulb moment that led me to this.
