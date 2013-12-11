@@ -16,15 +16,15 @@ type
     procedure TearDown; override;
   published
     procedure TestPassThrough;
-    procedure TestAtMostLowerThanCount;
-    procedure TestAtMostEqualCount;
-    procedure TestAtMostGreaterThanCount;
-    procedure TestAtMostZero;
+    procedure TestTakeLowerThanCount;
+    procedure TestTakeEqualCount;
+    procedure TestTakeGreaterThanCount;
+    procedure TestTakeZero;
     procedure TestWhere;
     procedure TestWhereNone;
     procedure TestWhereAll;
-    procedure TestWhereAtMost;
-    procedure TestAtMostWhere;
+    procedure TestWhereTake;
+    procedure TestTakeWhere;
   end;
 
   TPerson = class
@@ -71,44 +71,44 @@ begin
 end;
 
 
-procedure TestTQueryInteger.TestAtMostEqualCount;
+procedure TestTQueryInteger.TestTakeEqualCount;
 var
   LPassCount, I, MaxPassCount : Integer;
 begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count;
-  for I in Query<Integer>.From(FIntegerCollection).AtMost(MaxPassCount) do
+  for I in Query<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
     Inc(LPassCount);
 
-  Check(LPassCount = MaxPassCount, 'AtMost = Collection.Count should enumerate all items');
+  Check(LPassCount = MaxPassCount, 'Take = Collection.Count should enumerate all items');
 end;
 
-procedure TestTQueryInteger.TestAtMostGreaterThanCount;
+procedure TestTQueryInteger.TestTakeGreaterThanCount;
 var
   LPassCount, I, MaxPassCount : Integer;
 begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count + 1;
-  for I in Query<Integer>.From(FIntegerCollection).AtMost(MaxPassCount) do
+  for I in Query<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
     Inc(LPassCount);
 
-  Check(LPassCount = FIntegerCollection.Count, 'AtMost > collection.count should enumerate all items');
+  Check(LPassCount = FIntegerCollection.Count, 'Take > collection.count should enumerate all items');
 end;
 
-procedure TestTQueryInteger.TestAtMostLowerThanCount;
+procedure TestTQueryInteger.TestTakeLowerThanCount;
 var
   LPassCount, I, MaxPassCount : Integer;
 begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count - 1;
 
-  for I in Query<Integer>.From(FIntegerCollection).AtMost(MaxPassCount) do
+  for I in Query<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
     Inc(LPassCount);
 
-  Check(LPassCount = MaxPassCount, 'AtMost < collection.count should not enumerate all items');
+  Check(LPassCount = MaxPassCount, 'Take < collection.count should not enumerate all items');
 end;
 
-procedure TestTQueryInteger.TestAtMostWhere;
+procedure TestTQueryInteger.TestTakeWhere;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -120,22 +120,22 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query<Integer>.From(FIntegerCollection).AtMost(5).Where(LEvenNumbers) do
+  for I in Query<Integer>.From(FIntegerCollection).Take(5).Where(LEvenNumbers) do
     Inc(LPassCount);
 
   Check(LPassCount = 2, 'Should enumerate even numbered items in the first 5');
 end;
 
-procedure TestTQueryInteger.TestAtMostZero;
+procedure TestTQueryInteger.TestTakeZero;
 var
   LPassCount, I, MaxPassCount : Integer;
 begin
   LPassCount := 0;
   MaxPassCount := 0;
-  for I in Query<Integer>.From(FIntegerCollection).AtMost(MaxPassCount) do
+  for I in Query<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
     Inc(LPassCount);
 
-  Check(LPassCount = MaxPassCount, 'AtMost = 0 should enumerate no items');
+  Check(LPassCount = MaxPassCount, 'Take = 0 should enumerate no items');
 end;
 
 procedure TestTQueryInteger.TestPassThrough;
@@ -183,7 +183,7 @@ begin
   Check(LPassCount = 10, 'Should enumerate all items');
 end;
 
-procedure TestTQueryInteger.TestWhereAtMost;
+procedure TestTQueryInteger.TestWhereTake;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -195,7 +195,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query<Integer>.From(FIntegerCollection).Where(LEvenNumbers).AtMost(3) do
+  for I in Query<Integer>.From(FIntegerCollection).Where(LEvenNumbers).Take(3) do
     Inc(LPassCount);
 
   Check(LPassCount = 3, 'Should enumerate the first 3 even numbered items');

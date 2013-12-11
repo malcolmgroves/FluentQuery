@@ -43,7 +43,7 @@ CollectionQuery lets you represent the same thing like this:
                    Result := Person.Age > 18;
                  end;
 
-      for LPerson in Query<TPerson>.From(FPersonCollection).Where(LOver18).AtMost(2) do
+      for LPerson in Query<TPerson>.From(FPersonCollection).Where(LOver18).Take(2) do
       begin
           // do something with your adult LPerson
       end;
@@ -53,7 +53,7 @@ It's about the same length of code, but it is, in my mind, much clearer. The sta
 
 Further, over time you tend to build up a set of reusable Predicates appropriate to your objects and so for example, the LOver18 definition does not need to be declared locally. You can also chain them together, eg Where(Over18).Where(VisitedRecently).Where(HasPurchased)
 
-I'm adding more "operators" ie. the From, Where and AtMost parts, as I need them, but the code is fairly simple if you want to add more.
+I'm adding more "operators" ie. the From, Where and Take parts, as I need them, but the code is fairly simple if you want to add more.
 
 
 Back Story

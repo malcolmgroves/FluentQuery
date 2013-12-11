@@ -14,7 +14,7 @@ type
     constructor Create(Enumerator : TEnumerator<T>); virtual;
     destructor Destroy; override;
     function GetEnumerator: TQueryEnumerator<T>;
-    function AtMost(Count : Integer): TQueryEnumerator<T>;
+    function Take(Count : Integer): TQueryEnumerator<T>;
     function Where(Predicate : TPredicate<T>) : TQueryEnumerator<T>;
     property Current: T read DoGetCurrent;
   end;
@@ -83,7 +83,7 @@ begin
   Result := self;
 end;
 
-function TQueryEnumerator<T>.AtMost(Count: Integer): TQueryEnumerator<T>;
+function TQueryEnumerator<T>.Take(Count: Integer): TQueryEnumerator<T>;
 begin
   Result := TAtMostEnumerator<T>.Create(self, Count);
 end;
