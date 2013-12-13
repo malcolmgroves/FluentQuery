@@ -53,9 +53,11 @@ It's about the same length of code, but it is, in my mind, much clearer. The sta
 
 Further, over time you tend to build up a set of reusable Predicates appropriate to your objects and so for example, the LOver18 definition does not need to be declared locally. You can also chain them together, eg Where(Over18).Where(VisitedRecently).Where(HasPurchased)
 
-I'm adding more "operators" ie. the From, Where and Take parts, as I need them, but the code is fairly simple if you want to add more.
+Query Operations Supported
+--------------------------
+Currently supports From, Where, Take and Skip operations. I'm adding more as I need them, but the code is fairly simple if you want to add more.
 
 
 Back Story
 ----------
-This issue of mixing Selection code and Action code has bugged me for awhile, but I've never really found a solution I'm happy with. I tried some [experiments](http://www.malcolmgroves.com/blog/?p=273) but was never satisfied that the cure was better than the disease. A functional languages session at the recent [Yow Conference](http://yowconference.com.au/) in Australia was the light bulb moment that led me to this.
+This issue of mixing Selection code and Action code has bugged me for awhile, but I've never really found a solution I'm happy with. I tried some [experiments](http://www.malcolmgroves.com/blog/?p=273) but was never satisfied that the cure was better than the disease. A series of functional languages sessions at the recent [Yow Conference](http://yowconference.com.au/) in Australia was the light bulb moment that led me to this. John Kaster later pointed me at the .NET Enumerable Extension Methods, that let me resolve my clumsy naming. 
