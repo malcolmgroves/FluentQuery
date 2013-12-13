@@ -14,7 +14,37 @@ type
     constructor Create(Enumerator : TEnumerator<T>); virtual;
     destructor Destroy; override;
     function GetEnumerator: TQueryEnumerator<T>;
+    ///	<summary>
+    ///	  Use Take when you want to limit the number of items that will be
+    ///	  enumerated.
+    ///	</summary>
+    ///	<param name="Count">
+    ///	  The maximum number of items to enumerate.
+    ///	</param>
+    ///	<returns>
+    ///	  Returns another TQueryEnumerator, so you can call other operators,
+    ///	  such as Where, to further filter the items enumerated.
+    ///	</returns>
+    ///	<remarks>
+    ///	  Note, it is possible to return less than Count items, if there are
+    ///	  fewer items in the collection, or fewer items left after earlier
+    ///	  operators (such as Where)
+    ///	</remarks>
     function Take(Count : Integer): TQueryEnumerator<T>;
+    ///	<summary>
+    ///	  Filter the items enumerated to only those that evaluate true when
+    ///	  passed into the Predicate
+    ///	</summary>
+    ///	<param name="Predicate">
+    ///	  An anonymous method that will be executed in turn against each item.
+    ///	  It should return True to include the item in the result, False to
+    ///	  exclude it.  
+    ///	</param>
+    ///	<returns>
+    ///	  Returns another TQueryEnumerator, so you can call other operators,
+    ///	  such as Take or even another Where operator to further filter the
+    ///	  items. 
+    ///	</returns>
     function Where(Predicate : TPredicate<T>) : TQueryEnumerator<T>;
     property Current: T read DoGetCurrent;
   end;
@@ -40,7 +70,19 @@ type
     constructor Create(Enumerator : TEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
   end;
 
+  ///	<summary>
+  ///	  Starting point of your query.
+  ///	</summary>
+  ///	<typeparam name="T">
+  ///	  The type of the individual items in the collection you are enumerating.
+  ///	  ie. If your From method (which comes next) specifies a
+  ///	  TList&lt;TPerson&gt;, T here will be a TPerson
+  ///	</typeparam>
   Query<T> = class
+    ///	<summary>
+    ///	  The second part of your query, specifying the source data from which
+    ///	  you wish to query.
+    ///	</summary>
     class function From(Collection : TEnumerable<T>) : TQueryEnumerator<T> ;
   end;
 
