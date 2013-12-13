@@ -25,6 +25,12 @@ type
     procedure TestWhereAll;
     procedure TestWhereTake;
     procedure TestTakeWhere;
+    procedure TestSkipLowerThanCount;
+    procedure TestSkipEqualCount;
+    procedure TestSkipGreaterThanCount;
+    procedure TestSkipZero;
+    procedure TestWhereSkip;
+    procedure TestSkipWhere;
   end;
 
   TPerson = class
@@ -148,6 +154,76 @@ begin
   Check(LPassCount = FIntegerCollection.Count, 'Passthrough Query should enumerate all items');
 end;
 
+procedure TestTQueryInteger.TestSkipEqualCount;
+var
+  LEnumerationCount, I, LSkipCount : Integer;
+begin
+  LEnumerationCount := 0;
+  LSkipCount := FIntegerCollection.Count;
+
+  for I in Query<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = 0, 'Skip of Collection.Count should have enumerated zero items');
+end;
+
+procedure TestTQueryInteger.TestSkipGreaterThanCount;
+var
+  LEnumerationCount, I, LSkipCount : Integer;
+begin
+  LEnumerationCount := 0;
+  LSkipCount := FIntegerCollection.Count + 2;
+
+  for I in Query<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = 0, 'Skip of Collection.Count + 2 should have enumerated zero items');
+end;
+
+procedure TestTQueryInteger.TestSkipLowerThanCount;
+var
+  LEnumerationCount, I, LSkipCount : Integer;
+begin
+  LEnumerationCount := 0;
+  LSkipCount := FIntegerCollection.Count - 2;
+
+  for I in Query<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = 2, 'Skip of Collection.Count - 2 should have enumerated 2 items');
+end;
+
+procedure TestTQueryInteger.TestSkipWhere;
+var
+  LPassCount, I : Integer;
+  LEvenNumbers : TPredicate<Integer>;
+begin
+  LPassCount := 0;
+
+  LEvenNumbers := function (Value : Integer) : Boolean
+                  begin
+                    Result := Value mod 2 = 0;
+                  end;
+
+  for I in Query<Integer>.From(FIntegerCollection).Skip(5).Where(LEvenNumbers) do
+    Inc(LPassCount);
+
+  Check(LPassCount = 3, 'Should enumerate even numbered items after 5');
+end;
+
+procedure TestTQueryInteger.TestSkipZero;
+var
+  LEnumerationCount, I, LSkipCount : Integer;
+begin
+  LEnumerationCount := 0;
+  LSkipCount := 0;
+
+  for I in Query<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = FIntegerCollection.Count, 'Skip of zero should have enumerated all items');
+end;
+
 procedure TestTQueryInteger.TestWhere;
 var
   LPassCount, I : Integer;
@@ -217,6 +293,24 @@ begin
     Inc(LPassCount);
 
   Check(LPassCount = 0, 'Should enumerate no items');
+end;
+
+procedure TestTQueryInteger.TestWhereSkip;
+var
+  LPassCount, I : Integer;
+  LEvenNumbers : TPredicate<Integer>;
+begin
+  LPassCount := 0;
+
+  LEvenNumbers := function (Value : Integer) : Boolean
+                  begin
+                    Result := Value mod 2 = 0;
+                  end;
+
+  for I in Query<Integer>.From(FIntegerCollection).Where(LEvenNumbers).Skip(3) do
+    Inc(LPassCount);
+
+  Check(LPassCount = 2, 'Should enumerate 8 and 10, the last 2 even numbered items');
 end;
 
 { TPerson }

@@ -15,6 +15,18 @@ type
     destructor Destroy; override;
     function GetEnumerator: TQueryEnumerator<T>;
     ///	<summary>
+    ///	  Use Skip when you want to ignore a specified number of items, before
+    ///	  enumerating the remainign items.
+    ///	</summary>
+    ///	<param name="Count">
+    ///	  The number of items to skip over.
+    ///	</param>
+    ///	<returns>
+    ///	  Returns another TQueryEnumerator, so you can call other operators,
+    ///	  such as Where and Take, to further filter the items enumerated.
+    ///	</returns>
+    function Skip(Count : Integer): TQueryEnumerator<T>;
+    ///	<summary>
     ///	  Use Take when you want to limit the number of items that will be
     ///	  enumerated.
     ///	</summary>
@@ -23,7 +35,7 @@ type
     ///	</param>
     ///	<returns>
     ///	  Returns another TQueryEnumerator, so you can call other operators,
-    ///	  such as Where, to further filter the items enumerated.
+    ///	  such as Where and Skip, to further filter the items enumerated.
     ///	</returns>
     ///	<remarks>
     ///	  Note, it is possible to return less than Count items, if there are
@@ -49,15 +61,24 @@ type
     property Current: T read DoGetCurrent;
   end;
 
-  TTakeEnumerator<T> = class(TQueryEnumerator<T>)
+  TSkipEnumerator<T> = class(TQueryEnumerator<T>)
   private
-    FMaxPassCount: Integer;
-    FPassCount : Integer;
+    FSkipCount: Integer;
+    FItemCount : Integer;
   protected
     function DoMoveNext: Boolean; override;
   public
-    constructor Create(Enumerator : TEnumerator<T>; PassCount : Integer); reintroduce;
-    property MaxPassCount : Integer read FMaxPassCount write FMaxPassCount;
+    constructor Create(Enumerator : TEnumerator<T>; SkipCount : Integer); reintroduce;
+  end;
+
+  TTakeEnumerator<T> = class(TQueryEnumerator<T>)
+  private
+    FTakeCount: Integer;
+    FItemCount : Integer;
+  protected
+    function DoMoveNext: Boolean; override;
+  public
+    constructor Create(Enumerator : TEnumerator<T>; TakeCount : Integer); reintroduce;
   end;
 
   TWhereEnumerator<T> = class(TQueryEnumerator<T>)
@@ -125,6 +146,11 @@ begin
   Result := self;
 end;
 
+function TQueryEnumerator<T>.Skip(Count: Integer): TQueryEnumerator<T>;
+begin
+  Result := TSkipEnumerator<T>.Create(self, Count);
+end;
+
 function TQueryEnumerator<T>.Take(Count: Integer): TQueryEnumerator<T>;
 begin
   Result := TTakeEnumerator<T>.Create(self, Count);
@@ -138,21 +164,21 @@ end;
 
 { TAtMostEnumerator<T> }
 
-constructor TTakeEnumerator<T>.Create(Enumerator: TEnumerator<T>; PassCount : Integer);
+constructor TTakeEnumerator<T>.Create(Enumerator: TEnumerator<T>; TakeCount : Integer);
 begin
   inherited Create(Enumerator);
-  FPassCount := 0;
-  FMaxPassCount := PassCount;
+  FItemCount := 0;
+  FTakeCount := TakeCount;
 end;
 
 function TTakeEnumerator<T>.DoMoveNext: Boolean;
 begin
-  Result := FPassCount < FMaxPassCount;
+  Result := FItemCount < FTakeCount;
 
   if Result then
   begin
     Result := inherited DoMoveNext;
-    Inc(FPassCount);
+    Inc(FItemCount);
   end;
 end;
 
@@ -193,5 +219,34 @@ begin
 end;
 
 
+
+{ TSkipEnumerator<T> }
+
+constructor TSkipEnumerator<T>.Create(Enumerator: TEnumerator<T>;
+  SkipCount: Integer);
+begin
+  inherited Create(Enumerator);
+  FItemCount := 0;
+  FSkipCount := SkipCount;
+end;
+
+function TSkipEnumerator<T>.DoMoveNext: Boolean;
+var
+  LEndOfList : Boolean;
+begin
+  LEndOFList := False;
+  while (FItemCount < FSkipCount) do
+  begin
+    Inc(FItemCount);
+    LEndOfList := not inherited DoMoveNext;
+    if LEndOfList then
+      break;
+  end;
+
+  if LEndOfList then
+    Result := not LEndOfList
+  else
+    Result := inherited DoMoveNext;
+end;
 
 end.
