@@ -64,8 +64,10 @@ Operation | Description
 From      | Specifies the TEnumerable from which you wish to Query. 
 Where     | Filter the items enumerated to only those that evaluate true when passed into the supplied Predicate 
 Take      | Take will enumerate up to the specified number of items and then stop.
-TakeWhile | TakeWhile will continue enumerating items until the supplied Predicate evaluates False, after which it will stop.
-Skip      | Skip will bypass the specified number of items from the start of the enumeration, after which it will enumerate the remaining items as normal. 
+TakeWhile | TakeWhile will continue enumerating items while the supplied Predicate evaluates True, after which it will ignore the remaining items.
+Skip      | Skip will bypass the specified number of items from the start of the enumeration, after which it will enumerate the remaining items as normal.
+SkipWhile | SkipWhile will bypass items at the start of the enumeration while the supplied Predicate evaluates True. Once the Predicate evaluates false, all remaining items will be enumerated as normal. 
+ 
 
 I'm adding more as I need them, but the code is fairly simple if you want to add more.
 
