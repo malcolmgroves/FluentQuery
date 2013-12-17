@@ -27,6 +27,20 @@ type
     ///	</returns>
     function Skip(Count : Integer): TQueryEnumerator<T>;
     ///	<summary>
+    ///	  Use SkipWhile when you want to keep ignoring all items at the start
+    ///	  of the enumeration while Predicate returns True. Once Predicate
+    ///	  returns false, all remaining items will be enumerated
+    ///	</summary>
+    ///	<param name="Predicate">
+    ///	  The Predicate that will be evaluated against each item, until it
+    ///	  returns False.
+    ///	</param>
+    ///	<returns>
+    ///	  Returns another TQueryEnumerator, so you can call other operators,
+    ///	  such as Where and Take, to further filter the items enumerated.
+    ///	</returns>
+    function SkipWhile(Predicate : TPredicate<T>) : TQueryEnumerator<T>;
+    ///	<summary>
     ///	  Use Take when you want to limit the number of items that will be
     ///	  enumerated.
     ///	</summary>
@@ -43,6 +57,20 @@ type
     ///	  operators (such as Where)
     ///	</remarks>
     function Take(Count : Integer): TQueryEnumerator<T>;
+    ///	<summary>
+    ///	  Use TakeWhile when you want to accept all items at the start of the
+    ///	  enumeration while Predicate returns True. Once Predicate returns
+    ///	  false, all remaining items will be ignored
+    ///	</summary>
+    ///	<param name="Predicate">
+    ///	  The Predicate that will be evaluated against each item, until it
+    ///	  returns False.
+    ///	</param>
+    ///	<returns>
+    ///	  Returns another TQueryEnumerator, so you can call other operators,
+    ///	  such as Where and Take, to further filter the items enumerated.
+    ///	</returns>
+    function TakeWhile(Predicate : TPredicate<T>): TQueryEnumerator<T>;
     ///	<summary>
     ///	  Filter the items enumerated to only those that evaluate true when
     ///	  passed into the Predicate
@@ -123,9 +151,21 @@ begin
   Result := TSkipEnumerator<T>.Create(self, Count);
 end;
 
+function TQueryEnumerator<T>.SkipWhile(
+  Predicate: TPredicate<T>): TQueryEnumerator<T>;
+begin
+  Result := TSkipWhileEnumerator<T>.Create(self, Predicate);
+end;
+
 function TQueryEnumerator<T>.Take(Count: Integer): TQueryEnumerator<T>;
 begin
   Result := TTakeEnumerator<T>.Create(self, Count);
+end;
+
+function TQueryEnumerator<T>.TakeWhile(
+  Predicate: TPredicate<T>): TQueryEnumerator<T>;
+begin
+  Result := TTakeWhileEnumerator<T>.Create(self, Predicate);
 end;
 
 function TQueryEnumerator<T>.Where(

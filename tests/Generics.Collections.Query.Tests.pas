@@ -31,6 +31,12 @@ type
     procedure TestSkipZero;
     procedure TestWhereSkip;
     procedure TestSkipWhere;
+    procedure TestSkipWhileTrue;
+    procedure TestSkipWhileFalse;
+    procedure TestSkipWhile;
+    procedure TestTakeWhileFalse;
+    procedure TestTakeWhileTrue;
+    procedure TestTakeWhile;
   end;
 
   TPerson = class
@@ -132,6 +138,57 @@ begin
   Check(LPassCount = 2, 'Should enumerate even numbered items in the first 5');
 end;
 
+procedure TestTQueryInteger.TestTakeWhile;
+var
+  LEnumerationCount, I : Integer;
+  LFourOrLess : TPredicate<Integer>;
+begin
+  LEnumerationCount := 0;
+  LFourOrLess := function (Value : Integer) : Boolean
+                 begin
+                   Result := Value <= 4;
+                 end;
+
+  for I in Query<Integer>.From(FIntegerCollection).TakeWhile(LFourOrLess) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = 4, 'TakeWhile 4 or less should have enumerated 4 items');
+end;
+
+procedure TestTQueryInteger.TestTakeWhileFalse;
+var
+  LEnumerationCount, I : Integer;
+  LFalse : TPredicate<Integer>;
+begin
+  LEnumerationCount := 0;
+  LFalse := function (Value : Integer) : Boolean
+            begin
+              Result := False;
+            end;
+
+  for I in Query<Integer>.From(FIntegerCollection).TakeWhile(LFalse) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = 0, 'TakeWhile False should have enumerated zero items');
+end;
+
+procedure TestTQueryInteger.TestTakeWhileTrue;
+var
+  LEnumerationCount, I : Integer;
+  LTrue : TPredicate<Integer>;
+begin
+  LEnumerationCount := 0;
+  LTrue := function (Value : Integer) : Boolean
+           begin
+             Result := True;
+           end;
+
+  for I in Query<Integer>.From(FIntegerCollection).TakeWhile(LTrue) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = FIntegerCollection.Count, 'TakeWhile True should have enumerated all items');
+end;
+
 procedure TestTQueryInteger.TestTakeZero;
 var
   LPassCount, I, MaxPassCount : Integer;
@@ -209,6 +266,57 @@ begin
     Inc(LPassCount);
 
   Check(LPassCount = 3, 'Should enumerate even numbered items after 5');
+end;
+
+procedure TestTQueryInteger.TestSkipWhile;
+var
+  LEnumerationCount, I : Integer;
+  LFourOrLess : TPredicate<Integer>;
+begin
+  LEnumerationCount := 0;
+  LFourOrLess := function (Value : Integer) : Boolean
+                 begin
+                   Result := Value <= 4;
+                 end;
+
+  for I in Query<Integer>.From(FIntegerCollection).SkipWhile(LFourOrLess) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = 6, 'SkipWhile 4 or less should have enumerated 6 items');
+end;
+
+procedure TestTQueryInteger.TestSkipWhileFalse;
+var
+  LEnumerationCount, I : Integer;
+  LFalsePredicate : TPredicate<Integer>;
+begin
+  LEnumerationCount := 0;
+  LFalsePredicate := function (Value : Integer) : Boolean
+                     begin
+                       Result := False;
+                     end;
+
+  for I in Query<Integer>.From(FIntegerCollection).SkipWhile(LFalsePredicate) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = FIntegerCollection.Count, 'SkipWhile False should have enumerated all items');
+end;
+
+procedure TestTQueryInteger.TestSkipWhileTrue;
+var
+  LEnumerationCount, I : Integer;
+  LTruePredicate : TPredicate<Integer>;
+begin
+  LEnumerationCount := 0;
+  LTruePredicate := function (Value : Integer) : Boolean
+                     begin
+                       Result := True;
+                     end;
+
+  for I in Query<Integer>.From(FIntegerCollection).SkipWhile(LTruePredicate) do
+    Inc(LEnumerationCount);
+
+  Check(LEnumerationCount = 0, 'SkipWhile True should have enumerated zero items');
 end;
 
 procedure TestTQueryInteger.TestSkipZero;

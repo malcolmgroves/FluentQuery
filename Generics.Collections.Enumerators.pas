@@ -15,6 +15,16 @@ type
     constructor Create(Enumerator : TEnumerator<T>; SkipCount : Integer); reintroduce;
   end;
 
+  TSkipWhileEnumerator<T> = class(TQueryEnumerator<T>)
+  private
+    FSkipWhilePredicate : TPredicate<T>;
+  protected
+    function DoMoveNext: Boolean; override;
+    function ShouldSkipItem : Boolean;
+  public
+    constructor Create(Enumerator : TEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
+  end;
+
   TTakeEnumerator<T> = class(TQueryEnumerator<T>)
   private
     FTakeCount: Integer;
@@ -23,6 +33,16 @@ type
     function DoMoveNext: Boolean; override;
   public
     constructor Create(Enumerator : TEnumerator<T>; TakeCount : Integer); reintroduce;
+  end;
+
+  TTakeWhileEnumerator<T> = class(TQueryEnumerator<T>)
+  private
+    FTakeWhilePredicate : TPredicate<T>;
+  protected
+    function DoMoveNext: Boolean; override;
+    function ShouldTakeItem : Boolean;
+  public
+    constructor Create(Enumerator : TEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
   end;
 
   TWhereEnumerator<T> = class(TQueryEnumerator<T>)
@@ -124,5 +144,82 @@ begin
 end;
 
 
+
+{ TSkipWhileEnumerator<T> }
+
+constructor TSkipWhileEnumerator<T>.Create(Enumerator: TEnumerator<T>;
+  Predicate: TPredicate<T>);
+begin
+  inherited Create(Enumerator);
+  FSkipWhilePredicate := Predicate;
+end;
+
+function TSkipWhileEnumerator<T>.DoMoveNext: Boolean;
+var
+  LEndOfList : Boolean;
+begin
+  repeat
+    LEndOfList := not inherited DoMoveNext;
+    if LEndOfList then
+      break;
+  until not ShouldSkipItem;
+
+  Result := not LEndOfList;
+end;
+
+function TSkipWhileEnumerator<T>.ShouldSkipItem: Boolean;
+begin
+    try
+      if Assigned(FSkipWhilePredicate) then
+        Result := FSkipWhilePredicate(Current)
+      else
+        Result := False;
+    except
+      on E : EArgumentOutOfRangeException do
+        Result := False;
+    end;
+end;
+
+{ TTakeWhileEnumerator<T> }
+
+constructor TTakeWhileEnumerator<T>.Create(Enumerator: TEnumerator<T>;
+  Predicate: TPredicate<T>);
+begin
+  inherited Create(Enumerator);
+  FTakeWhilePredicate := Predicate;
+end;
+
+function TTakeWhileEnumerator<T>.DoMoveNext: Boolean;
+var
+  LAtEnd : Boolean;
+begin
+  LAtEnd := not inherited DoMoveNext;
+
+  if LAtEnd then
+    Exit(False);
+
+  if ShouldTakeItem then
+    Result := True
+  else
+  begin
+    repeat
+      LAtEnd := not inherited DoMoveNext;
+    until LAtEnd;
+    Result := False
+  end;
+end;
+
+function TTakeWhileEnumerator<T>.ShouldTakeItem: Boolean;
+begin
+  try
+    if Assigned(FTakeWhilePredicate) then
+      Result := FTakeWhilePredicate(Current)
+    else
+      Result := False;
+  except
+    on E : EArgumentOutOfRangeException do
+      Result := False;
+  end;
+end;
 
 end.
