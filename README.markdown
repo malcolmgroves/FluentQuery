@@ -51,11 +51,23 @@ CollectionQuery lets you represent the same thing like this:
  
 It's about the same length of code, but it is, in my mind, much clearer. The statement of what objects we're going to act on (in the for..in statement) reads fairly naturally, and the code that acts on the objects is self contained. 
 
-Further, over time you tend to build up a set of reusable Predicates appropriate to your objects and so for example, the LOver18 definition does not need to be declared locally. You can also chain them together, eg Where(Over18).Where(VisitedRecently).Where(HasPurchased)
+Further, over time you tend to build up a set of reusable Predicates appropriate to your objects and so for example, the LOver18 definition does not need to be declared locally. 
+
+You can of course inlcude the same operation multiple times in your query, eg Where(Over18).Where(VisitedRecently).Where(HasPurchased)
 
 Query Operations Supported
 --------------------------
-Currently supports From, Where, Take and Skip operations. I'm adding more as I need them, but the code is fairly simple if you want to add more.
+Currently supports the following operations:
+
+Operation | Description 
+:-------- | :---------- 
+From      | Specifies the TEnumerable from which you wish to Query. 
+Where     | Filter the items enumerated to only those that evaluate true when passed into the supplied Predicate 
+Take      | Take will enumerate up to the specified number of items and then stop.
+TakeWhile | TakeWhile will continue enumerating items until the supplied Predicate evaluates False, after which it will stop.
+Skip      | Skip will bypass the specified number of items from the start of the enumeration, after which it will enumerate the remaining items as normal. 
+
+I'm adding more as I need them, but the code is fairly simple if you want to add more.
 
 
 Back Story

@@ -15,8 +15,9 @@ type
     destructor Destroy; override;
     function GetEnumerator: TQueryEnumerator<T>;
     ///	<summary>
-    ///	  Use Skip when you want to ignore a specified number of items, before
-    ///	  enumerating the remainign items.
+    ///	  Skip will bypass the specified number of items from the start of the
+    ///	  enumeration, after which it will enumerate the remaining items as
+    ///	  normal.
     ///	</summary>
     ///	<param name="Count">
     ///	  The number of items to skip over.
@@ -41,8 +42,7 @@ type
     ///	</returns>
     function SkipWhile(Predicate : TPredicate<T>) : TQueryEnumerator<T>;
     ///	<summary>
-    ///	  Use Take when you want to limit the number of items that will be
-    ///	  enumerated.
+    ///	  Take will enumerate up to the specified number of items and then stop.
     ///	</summary>
     ///	<param name="Count">
     ///	  The maximum number of items to enumerate.
@@ -58,9 +58,8 @@ type
     ///	</remarks>
     function Take(Count : Integer): TQueryEnumerator<T>;
     ///	<summary>
-    ///	  Use TakeWhile when you want to accept all items at the start of the
-    ///	  enumeration while Predicate returns True. Once Predicate returns
-    ///	  false, all remaining items will be ignored
+    ///	  TakeWhile will continue enumerating items until the supplied
+    ///	  Predicate evaluates False, after which it will stop.
     ///	</summary>
     ///	<param name="Predicate">
     ///	  The Predicate that will be evaluated against each item, until it
@@ -73,7 +72,7 @@ type
     function TakeWhile(Predicate : TPredicate<T>): TQueryEnumerator<T>;
     ///	<summary>
     ///	  Filter the items enumerated to only those that evaluate true when
-    ///	  passed into the Predicate
+    ///	  passed into the supplied Predicate
     ///	</summary>
     ///	<param name="Predicate">
     ///	  An anonymous method that will be executed in turn against each item.
