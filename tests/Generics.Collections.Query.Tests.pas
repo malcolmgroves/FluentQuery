@@ -599,6 +599,7 @@ begin
   Check(LPassCount = 3, 'Take(3) should enumerate 3 strings');
 end;
 
+
 initialization
   // Register any test cases with the test runner
   RegisterTest('TQuery', TestTQueryInteger.Suite);
