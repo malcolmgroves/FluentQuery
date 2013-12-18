@@ -3,7 +3,8 @@ unit Generics.Collections.Query.Tests;
 interface
 
 uses
-  TestFramework, System.Generics.Collections, Generics.Collections.Query;
+  TestFramework, System.Generics.Collections, Generics.Collections.Query,
+  System.Classes;
 
 type
   // Test methods for class TQueryEnumerator
@@ -59,10 +60,21 @@ type
     procedure TestObjectList;
   end;
 
+  TestTQueryTStrings = class(TTestCase)
+  strict private
+    FStrings: TStrings;
+  public
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestPassThrough;
+    procedure TestSkipTake;
+  end;
+
 
 implementation
 uses
-  System.SysUtils, System.Classes;
+  System.SysUtils;
 
 procedure TestTQueryInteger.SetUp;
 begin
@@ -535,9 +547,62 @@ begin
 end;
 
 
+{ TestTQueryTStrings }
+
+procedure TestTQueryTStrings.SetUp;
+begin
+  inherited;
+  FStrings := TStringList.Create;
+  FStrings.Add('1');
+  FStrings.Add('2');
+  FStrings.Add('3');
+  FStrings.Add('4');
+  FStrings.Add('5');
+  FStrings.Add('6');
+  FStrings.Add('7');
+  FStrings.Add('8');
+  FStrings.Add('9');
+  FStrings.Add('10');
+end;
+
+procedure TestTQueryTStrings.TearDown;
+begin
+  FStrings.Free;
+  inherited;
+end;
+
+procedure TestTQueryTStrings.TestPassThrough;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStrings) do
+    Inc(LPassCount);
+  Check(LPassCount = FStrings.Count, 'Passthrough Query should enumerate all strings');
+end;
+
+procedure TestTQueryTStrings.TestSkipTake;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>
+                   .From(FStrings)
+                   .Skip(4)
+                   .Take(3) do
+  begin
+    Inc(LPassCount);
+    Check((LString = '5') or (LString = '6') or (LString = '7'), 'Should Enumerate 5, 6 and 7');
+  end;
+  Check(LPassCount = 3, 'Take(3) should enumerate 3 strings');
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest('TQuery', TestTQueryInteger.Suite);
   RegisterTest('TQuery', TestTQueryPerson.Suite);
+  RegisterTest('TStrings', TestTQueryTStrings.Suite);
 end.
 

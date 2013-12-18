@@ -2,7 +2,7 @@ unit Generics.Collections.Query;
 
 interface
 uses
-  System.Generics.Collections, System.SysUtils;
+  System.Generics.Collections, System.SysUtils, System.Classes;
 
 type
   TQueryEnumerator<T> = class(TEnumerator<T>)
@@ -90,7 +90,6 @@ type
     property Current: T read DoGetCurrent;
   end;
 
-
   ///	<summary>
   ///	  Starting point of your query.
   ///	</summary>
@@ -104,7 +103,8 @@ type
     ///	  The second part of your query, specifying the source data from which
     ///	  you wish to query.
     ///	</summary>
-    class function From(Container : TEnumerable<T>) : TQueryEnumerator<T>;
+    class function From(Container : TEnumerable<T>) : TQueryEnumerator<T>; overload;
+    class function From(Strings : TStrings) : TQueryEnumerator<String>; overload;
   end;
 
   List<T> = class
@@ -120,11 +120,17 @@ implementation
 uses
   Generics.Collections.Enumerators;
 
+
 { Query<T> }
 
 class function Query<T>.From(Container: TEnumerable<T>): TQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(Container.GetEnumerator);
+end;
+
+class function Query<T>.From(Strings: TStrings): TQueryEnumerator<String>;
+begin
+  Result := TQueryEnumerator<String>.Create(TStringsEnumeratorWrapper.Create(Strings));
 end;
 
 { TQueryEnumerator<T> }
