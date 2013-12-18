@@ -28,9 +28,9 @@ type
     ///	</returns>
     function Skip(Count : Integer): TQueryEnumerator<T>;
     ///	<summary>
-    ///	  Use SkipWhile when you want to keep ignoring all items at the start
-    ///	  of the enumeration while Predicate returns True. Once Predicate
-    ///	  returns false, all remaining items will be enumerated
+    ///	  SkipWhile will bypass items at the start of the enumeration while the
+    ///	  supplied Predicate evaluates True. Once the Predicate evaluates
+    ///	  false, all remaining items will be enumerated as normal.
     ///	</summary>
     ///	<param name="Predicate">
     ///	  The Predicate that will be evaluated against each item, until it
@@ -58,8 +58,9 @@ type
     ///	</remarks>
     function Take(Count : Integer): TQueryEnumerator<T>;
     ///	<summary>
-    ///	  TakeWhile will continue enumerating items until the supplied
-    ///	  Predicate evaluates False, after which it will stop.
+    ///	  TakeWhile will continue enumerating items while the supplied
+    ///	  Predicate evaluates True, after which it will ignore the remaining
+    ///	  items.
     ///	</summary>
     ///	<param name="Predicate">
     ///	  The Predicate that will be evaluated against each item, until it
@@ -102,8 +103,16 @@ type
     ///	  The second part of your query, specifying the source data from which
     ///	  you wish to query.
     ///	</summary>
-    class function From(Collection : TEnumerable<T>) : TQueryEnumerator<T> ;
+    class function From(Container : TEnumerable<T>) : TQueryEnumerator<T>;
   end;
+
+  List<T> = class
+    class function From(Enumerator : TEnumerator<T>) : TList<T>;
+  end experimental;
+
+  ObjectList<T : class> = class
+    class function From(Enumerator : TEnumerator<T>; AOwnsObjects: Boolean = True) : TObjectList<T>;
+  end experimental;
 
 
 implementation
@@ -112,9 +121,9 @@ uses
 
 { Query<T> }
 
-class function Query<T>.From(Collection: TEnumerable<T>): TQueryEnumerator<T>;
+class function Query<T>.From(Container: TEnumerable<T>): TQueryEnumerator<T>;
 begin
-  Result := TQueryEnumerator<T>.Create(Collection.GetEnumerator);
+  Result := TQueryEnumerator<T>.Create(Container.GetEnumerator);
 end;
 
 { TQueryEnumerator<T> }
@@ -173,5 +182,43 @@ begin
   Result := TWhereEnumerator<T>.Create(self, Predicate);
 end;
 
+
+{ List<T> }
+
+class function List<T>.From(Enumerator: TEnumerator<T>): TList<T>;
+var
+  LList : TList<T>;
+  Item : T;
+begin
+  try
+    LList := TList<T>.Create;
+
+    while Enumerator.MoveNext do
+      LList.Add(Enumerator.Current);
+
+    Result := LList;
+  finally
+    Enumerator.Free;
+  end;
+end;
+
+{ ObjectList<T> }
+
+class function ObjectList<T>.From(Enumerator: TEnumerator<T>; AOwnsObjects: Boolean = True): TObjectList<T>;
+var
+  LObjectList : TObjectList<T>;
+  Item : T;
+begin
+  try
+    LObjectList := TObjectList<T>.Create(AOwnsObjects);
+
+    while Enumerator.MoveNext do
+      LObjectList.Add(Enumerator.Current);
+
+    Result := LObjectList;
+  finally
+    Enumerator.Free;
+  end;
+end;
 
 end.

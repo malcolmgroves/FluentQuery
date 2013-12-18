@@ -37,6 +37,7 @@ type
     procedure TestTakeWhileFalse;
     procedure TestTakeWhileTrue;
     procedure TestTakeWhile;
+    procedure TestList;
   end;
 
   TPerson = class
@@ -54,6 +55,7 @@ type
     procedure TearDown; override;
   published
     procedure TestPassThrough;
+    procedure TestObjectList;
   end;
 
 
@@ -199,6 +201,31 @@ begin
     Inc(LPassCount);
 
   Check(LPassCount = MaxPassCount, 'Take = 0 should enumerate no items');
+end;
+
+procedure TestTQueryInteger.TestList;
+var
+  LIntegerList : TList<Integer>;
+  LFourOrLess : TPredicate<Integer>;
+begin
+  LFourOrLess := function (Value : Integer) : Boolean
+                 begin
+                   Result := Value <= 4;
+                 end;
+
+
+  LIntegerList := List<Integer>.From(Query<Integer>
+                                      .From(FIntegerCollection)
+                                      .TakeWhile(LFourOrLess));
+  try
+    Check(LIntegerList.Count = 4, 'Should have 4 items in list');
+    Check(LIntegerList.Items[0] = 1, 'First item should be 1');
+    Check(LIntegerList.Items[1] = 2, 'Second item should be 2');
+    Check(LIntegerList.Items[2] = 3, 'Third item should be 3');
+    Check(LIntegerList.Items[3] = 4, 'Fourth item should be 4');
+  finally
+    LIntegerList.Free;
+  end;
 end;
 
 procedure TestTQueryInteger.TestPassThrough;
@@ -445,6 +472,30 @@ procedure TestTQueryPerson.TearDown;
 begin
   inherited;
   FPersonCollection.Free;
+end;
+
+procedure TestTQueryPerson.TestObjectList;
+var
+  LPersonList : TList<TPerson>;
+  L18OrMore : TPredicate<TPerson>;
+begin
+  L18OrMore := function (Value : TPerson) : Boolean
+               begin
+                 Result := Value.Age >= 18;
+               end;
+
+
+  LPersonList := ObjectList<TPerson>.From(Query<TPerson>
+                                            .From(FPersonCollection)
+                                            .Where(L18OrMore),
+                                          False);
+  try
+    Check(LPersonList.Count = 2, 'Should have 4 items in list');
+    Check(LPersonList.Items[0].Name = 'Malcolm', 'First item should be Malcolm');
+    Check(LPersonList.Items[1].Name = 'Julie', 'Second item should be Julie');
+  finally
+    LPersonList.Free;
+  end;
 end;
 
 procedure TestTQueryPerson.TestPassThrough;
