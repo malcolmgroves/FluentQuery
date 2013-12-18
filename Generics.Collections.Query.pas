@@ -14,6 +14,7 @@ type
     constructor Create(Enumerator : TEnumerator<T>); virtual;
     destructor Destroy; override;
     function GetEnumerator: TQueryEnumerator<T>;
+    function First : TQueryEnumerator<T>;
     ///	<summary>
     ///	  Skip will bypass the specified number of items from the start of the
     ///	  enumeration, after which it will enumerate the remaining items as
@@ -147,6 +148,11 @@ end;
 function TQueryEnumerator<T>.DoMoveNext: Boolean;
 begin
   Result := FUpstreamEnumerator.MoveNext;
+end;
+
+function TQueryEnumerator<T>.First: TQueryEnumerator<T>;
+begin
+  Result := TTakeEnumerator<T>.Create(self, 1);
 end;
 
 function TQueryEnumerator<T>.GetEnumerator: TQueryEnumerator<T>;

@@ -38,6 +38,7 @@ type
     procedure TestTakeWhileTrue;
     procedure TestTakeWhile;
     procedure TestList;
+    procedure TestFirst;
   end;
 
   TPerson = class
@@ -61,7 +62,7 @@ type
 
 implementation
 uses
-  System.SysUtils;
+  System.SysUtils, System.Classes;
 
 procedure TestTQueryInteger.SetUp;
 begin
@@ -134,7 +135,10 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query<Integer>.From(FIntegerCollection).Take(5).Where(LEvenNumbers) do
+  for I in Query<Integer>
+             .From(FIntegerCollection)
+             .Take(5)
+             .Where(LEvenNumbers) do
     Inc(LPassCount);
 
   Check(LPassCount = 2, 'Should enumerate even numbered items in the first 5');
@@ -201,6 +205,18 @@ begin
     Inc(LPassCount);
 
   Check(LPassCount = MaxPassCount, 'Take = 0 should enumerate no items');
+end;
+
+procedure TestTQueryInteger.TestFirst;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query<Integer>.From(FIntegerCollection).First do
+    Inc(LPassCount);
+
+  Check(LPassCount = 1, 'First on a non-empty collection should enumerate one item');
 end;
 
 procedure TestTQueryInteger.TestList;
@@ -289,7 +305,10 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query<Integer>.From(FIntegerCollection).Skip(5).Where(LEvenNumbers) do
+  for I in Query<Integer>
+             .From(FIntegerCollection)
+             .Skip(5)
+             .Where(LEvenNumbers) do
     Inc(LPassCount);
 
   Check(LPassCount = 3, 'Should enumerate even numbered items after 5');
@@ -406,7 +425,10 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query<Integer>.From(FIntegerCollection).Where(LEvenNumbers).Take(3) do
+  for I in Query<Integer>
+             .From(FIntegerCollection)
+             .Where(LEvenNumbers)
+             .Take(3) do
     Inc(LPassCount);
 
   Check(LPassCount = 3, 'Should enumerate the first 3 even numbered items');
@@ -442,7 +464,10 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query<Integer>.From(FIntegerCollection).Where(LEvenNumbers).Skip(3) do
+  for I in Query<Integer>
+             .From(FIntegerCollection)
+             .Where(LEvenNumbers)
+             .Skip(3) do
     Inc(LPassCount);
 
   Check(LPassCount = 2, 'Should enumerate 8 and 10, the last 2 even numbered items');
