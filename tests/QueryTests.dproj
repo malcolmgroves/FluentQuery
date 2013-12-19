@@ -93,6 +93,7 @@
         <DCCReference Include="..\Generics.Collections.Query.pas"/>
         <DCCReference Include="..\Generics.Collections.EnumerationDelegates.pas"/>
         <DCCReference Include="..\Generics.Collections.Enumerators.pas"/>
+        <DCCReference Include="..\Generics.Collections.Query.Interfaces.pas"/>
         <None Include="ModelSupport_QueryTests\default.txaPackage"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

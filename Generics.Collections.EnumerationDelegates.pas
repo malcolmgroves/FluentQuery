@@ -2,17 +2,16 @@ unit Generics.Collections.EnumerationDelegates;
 
 interface
 uses
-  Generics.Collections, System.SysUtils;
+  Generics.Collections, System.SysUtils, Generics.Collections.Query.Interfaces;
 
 type
   TEnumerationDelegate<T> = class
   private
-    FEnumerator : TEnumerator<T>;
+    FEnumerator : IMinimalEnumerator<T>;
   public
     function MoveNext: Boolean; virtual;
     function GetCurrent: T; virtual;
-    constructor Create(Enumerator : TEnumerator<T>); virtual;
-    destructor Destroy; override;
+    constructor Create(Enumerator : IMinimalEnumerator<T>); virtual;
   end;
 
   TTakeEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
@@ -21,7 +20,7 @@ type
     FItemCount : Integer;
   public
     function MoveNext: Boolean; override;
-    constructor Create(Enumerator : TEnumerator<T>; TakeCount : Integer); reintroduce;
+    constructor Create(Enumerator : IMinimalEnumerator<T>; TakeCount : Integer); reintroduce;
   end;
 
   TSkipEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
@@ -30,7 +29,7 @@ type
     FItemCount : Integer;
   public
     function MoveNext: Boolean; override;
-    constructor Create(Enumerator : TEnumerator<T>; SkipCount : Integer); reintroduce;
+    constructor Create(Enumerator : IMinimalEnumerator<T>; SkipCount : Integer); reintroduce;
   end;
 
   TSkipWhileEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
@@ -40,7 +39,7 @@ type
     function ShouldSkipItem : Boolean;
   public
     function MoveNext: Boolean; override;
-    constructor Create(Enumerator : TEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
+    constructor Create(Enumerator : IMinimalEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
   end;
 
   TTakeWhileEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
@@ -50,7 +49,7 @@ type
     function ShouldTakeItem : Boolean;
   public
     function MoveNext: Boolean; override;
-    constructor Create(Enumerator : TEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
+    constructor Create(Enumerator : IMinimalEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
   end;
 
   TWhereEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
@@ -60,23 +59,18 @@ type
     function ShouldIncludeItem : Boolean;
   public
     function MoveNext: Boolean; override;
-    constructor Create(Enumerator : TEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
+    constructor Create(Enumerator : IMinimalEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
   end;
 
 implementation
 
 { TEnumerationDelegate<T> }
 
-constructor TEnumerationDelegate<T>.Create(Enumerator: TEnumerator<T>);
+constructor TEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>);
 begin
   FEnumerator := Enumerator;
 end;
 
-destructor TEnumerationDelegate<T>.Destroy;
-begin
-  FEnumerator.Free;
-  inherited;
-end;
 
 function TEnumerationDelegate<T>.GetCurrent: T;
 begin
@@ -90,7 +84,7 @@ end;
 
 { TTakeEnumerationDelegate<T> }
 
-constructor TTakeEnumerationDelegate<T>.Create(Enumerator: TEnumerator<T>;
+constructor TTakeEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
   TakeCount: Integer);
 begin
   inherited Create(Enumerator);
@@ -111,7 +105,7 @@ end;
 
 { TSkipEnumerationDelegate<T> }
 
-constructor TSkipEnumerationDelegate<T>.Create(Enumerator: TEnumerator<T>;
+constructor TSkipEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
   SkipCount: Integer);
 begin
   inherited Create(Enumerator);
@@ -140,7 +134,7 @@ end;
 
 { TSkipWhileEnumerationDelegate<T> }
 
-constructor TSkipWhileEnumerationDelegate<T>.Create(Enumerator: TEnumerator<T>;
+constructor TSkipWhileEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
   Predicate: TPredicate<T>);
 begin
   inherited Create(Enumerator);
@@ -175,7 +169,7 @@ end;
 
 { TTakeWhileEnumerationDelegate<T> }
 
-constructor TTakeWhileEnumerationDelegate<T>.Create(Enumerator: TEnumerator<T>;
+constructor TTakeWhileEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
   Predicate: TPredicate<T>);
 begin
   inherited Create(Enumerator);
@@ -217,7 +211,7 @@ end;
 
 { TWhereEnumerationDelegate<T> }
 
-constructor TWhereEnumerationDelegate<T>.Create(Enumerator: TEnumerator<T>;
+constructor TWhereEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
   Predicate: TPredicate<T>);
 begin
   inherited Create(Enumerator);
