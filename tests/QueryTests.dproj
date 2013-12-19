@@ -91,6 +91,7 @@
         </DelphiCompile>
         <DCCReference Include="Generics.Collections.Query.Tests.pas"/>
         <DCCReference Include="..\Generics.Collections.Query.pas"/>
+        <DCCReference Include="..\Generics.Collections.EnumerationDelegates.pas"/>
         <DCCReference Include="..\Generics.Collections.Enumerators.pas"/>
         <None Include="ModelSupport_QueryTests\default.txaPackage"/>
         <BuildConfiguration Include="Release">

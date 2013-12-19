@@ -2,16 +2,17 @@ unit Generics.Collections.Query;
 
 interface
 uses
-  System.Generics.Collections, System.SysUtils, System.Classes;
+  System.Generics.Collections, System.SysUtils, System.Classes,
+  Generics.Collections.EnumerationDelegates;
 
 type
   TQueryEnumerator<T> = class(TEnumerator<T>)
   protected
-    FUpstreamEnumerator : TEnumerator<T>;
+    FEnumerationDelegate : TEnumerationDelegate<T>;
     function DoGetCurrent: T; override;
     function DoMoveNext: Boolean; override;
   public
-    constructor Create(Enumerator : TEnumerator<T>); virtual;
+    constructor Create(EnumerationDelegate : TEnumerationDelegate<T>); virtual;
     destructor Destroy; override;
     function GetEnumerator: TQueryEnumerator<T>;
     function First : TQueryEnumerator<T>;
@@ -120,45 +121,44 @@ implementation
 uses
   Generics.Collections.Enumerators;
 
-
 { Query<T> }
 
 class function Query<T>.From(Container: TEnumerable<T>): TQueryEnumerator<T>;
 begin
-  Result := TQueryEnumerator<T>.Create(Container.GetEnumerator);
+  Result := TQueryEnumerator<T>.Create(TEnumerationDelegate<T>.Create(Container.GetEnumerator));
 end;
 
 class function Query<T>.From(Strings: TStrings): TQueryEnumerator<String>;
 begin
-  Result := TQueryEnumerator<String>.Create(TStringsEnumeratorWrapper.Create(Strings));
+  Result := TQueryEnumerator<String>.Create(TEnumerationDelegate<String>.Create(TStringsEnumeratorWrapper.Create(Strings)));
 end;
 
 { TQueryEnumerator<T> }
 
-constructor TQueryEnumerator<T>.Create(Enumerator: TEnumerator<T>);
+constructor TQueryEnumerator<T>.Create(EnumerationDelegate : TEnumerationDelegate<T>);
 begin
-  FUpstreamEnumerator := Enumerator;
+  FEnumerationDelegate := EnumerationDelegate;
 end;
 
 destructor TQueryEnumerator<T>.Destroy;
 begin
-  FUpstreamEnumerator.Free;
+  FEnumerationDelegate.Free;
   inherited;
 end;
 
 function TQueryEnumerator<T>.DoGetCurrent: T;
 begin
-  Result := FUpstreamEnumerator.Current;
+  Result := FEnumerationDelegate.GetCurrent;
 end;
 
 function TQueryEnumerator<T>.DoMoveNext: Boolean;
 begin
-  Result := FUpstreamEnumerator.MoveNext;
+  Result := FEnumerationDelegate.MoveNext;
 end;
 
 function TQueryEnumerator<T>.First: TQueryEnumerator<T>;
 begin
-  Result := TTakeEnumerator<T>.Create(self, 1);
+  Result := TQueryEnumerator<T>.Create(TTakeEnumerationDelegate<T>.Create(self, 1));
 end;
 
 function TQueryEnumerator<T>.GetEnumerator: TQueryEnumerator<T>;
@@ -168,30 +168,30 @@ end;
 
 function TQueryEnumerator<T>.Skip(Count: Integer): TQueryEnumerator<T>;
 begin
-  Result := TSkipEnumerator<T>.Create(self, Count);
+  Result := TQueryEnumerator<T>.Create(TSkipEnumerationDelegate<T>.Create(self, Count));
 end;
 
 function TQueryEnumerator<T>.SkipWhile(
   Predicate: TPredicate<T>): TQueryEnumerator<T>;
 begin
-  Result := TSkipWhileEnumerator<T>.Create(self, Predicate);
+  Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationDelegate<T>.Create(self, Predicate));
 end;
 
 function TQueryEnumerator<T>.Take(Count: Integer): TQueryEnumerator<T>;
 begin
-  Result := TTakeEnumerator<T>.Create(self, Count);
+  Result := TQueryEnumerator<T>.Create(TTakeEnumerationDelegate<T>.Create(self, Count));
 end;
 
 function TQueryEnumerator<T>.TakeWhile(
   Predicate: TPredicate<T>): TQueryEnumerator<T>;
 begin
-  Result := TTakeWhileEnumerator<T>.Create(self, Predicate);
+  Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationDelegate<T>.Create(self, Predicate));
 end;
 
 function TQueryEnumerator<T>.Where(
   Predicate: TPredicate<T>): TQueryEnumerator<T>;
 begin
-  Result := TWhereEnumerator<T>.Create(self, Predicate);
+  Result := TQueryEnumerator<T>.Create(TWhereEnumerationDelegate<T>.Create(self, Predicate));
 end;
 
 

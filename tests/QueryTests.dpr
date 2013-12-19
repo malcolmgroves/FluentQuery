@@ -18,6 +18,7 @@ uses
   DUnitTestRunner,
   Generics.Collections.Query.Tests in 'Generics.Collections.Query.Tests.pas',
   Generics.Collections.Query in '..\Generics.Collections.Query.pas',
+  Generics.Collections.EnumerationDelegates in '..\Generics.Collections.EnumerationDelegates.pas',
   Generics.Collections.Enumerators in '..\Generics.Collections.Enumerators.pas';
 
 {$R *.RES}
