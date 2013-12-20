@@ -69,6 +69,9 @@ type
   published
     procedure TestPassThrough;
     procedure TestSkipTake;
+    procedure TestMatchesCaseSensitive;
+    procedure TestNoMatchesCaseSensitive;
+    procedure TestMatchesCaseInsensitive;
   end;
 
 
@@ -569,6 +572,72 @@ procedure TestTQueryTStrings.TearDown;
 begin
   FStrings.Free;
   inherited;
+end;
+
+procedure TestTQueryTStrings.TestMatchesCaseInsensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+  LNameStrings : TStrings;
+begin
+  LNameStrings := TStringList.Create;
+  try
+    LNameStrings.Add('Malcolm');
+    LNameStrings.Add('Julie');
+    LNameStrings.Add('Jesse');
+    LNameStrings.Add('Lauren');
+
+    LPassCount := 0;
+    for LString in Query<String>.From(LNameStrings).Matches('jesse') do
+      Inc(LPassCount);
+    Check(LPassCount = 1, 'Case Insensitive Matches Query should enumerate one string');
+  finally
+    LNameStrings.Free;
+  end;
+end;
+
+procedure TestTQueryTStrings.TestMatchesCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+  LNameStrings : TStrings;
+begin
+  LNameStrings := TStringList.Create;
+  try
+    LNameStrings.Add('Malcolm');
+    LNameStrings.Add('Julie');
+    LNameStrings.Add('Jesse');
+    LNameStrings.Add('Lauren');
+
+    LPassCount := 0;
+    for LString in Query<String>.From(LNameStrings).Matches('Jesse', False) do
+      Inc(LPassCount);
+    Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one string');
+  finally
+    LNameStrings.Free;
+  end;
+end;
+
+procedure TestTQueryTStrings.TestNoMatchesCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+  LNameStrings : TStrings;
+begin
+  LNameStrings := TStringList.Create;
+  try
+    LNameStrings.Add('Malcolm');
+    LNameStrings.Add('Julie');
+    LNameStrings.Add('Jesse');
+    LNameStrings.Add('Lauren');
+
+    LPassCount := 0;
+    for LString in Query<String>.From(LNameStrings).Matches('jesse', False) do
+      Inc(LPassCount);
+    Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
+  finally
+    LNameStrings.Free;
+  end;
 end;
 
 procedure TestTQueryTStrings.TestPassThrough;

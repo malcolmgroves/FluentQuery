@@ -36,8 +36,15 @@ end;
 
 function TStringQueryEnumerator.Matches(const Value: String;
   IgnoreCase: Boolean): IStringQueryEnumerator;
+var
+  LMatchesPredicate : TPredicate<String>;
 begin
-  //
+  LMatchesPredicate := function (CurrentValue : String) : Boolean
+                       begin
+                         Result := CurrentValue.Compare(CurrentValue, Value, IgnoreCase) = 0;
+                       end;
+
+  Result := TStringQueryEnumerator.Create(TWhereEnumerationDelegate<String>.Create(IMinimalEnumerator<String>(self), LMatchesPredicate));
 end;
 
 function TStringQueryEnumerator.Skip(Count: Integer): IStringQueryEnumerator;
