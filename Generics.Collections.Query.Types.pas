@@ -23,13 +23,13 @@ type
 
   IStringQueryEnumerator = interface(IMinimalEnumerator<String>)
     function First : IStringQueryEnumerator;
-    function Foo : IStringQueryEnumerator;
     function Skip(Count : Integer): IStringQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<String>) : IStringQueryEnumerator;
     function Take(Count : Integer): IStringQueryEnumerator;
     function TakeWhile(Predicate : TPredicate<String>): IStringQueryEnumerator;
     function Where(Predicate : TPredicate<String>) : IStringQueryEnumerator;
     function GetEnumerator: IStringQueryEnumerator;
+    function Matches(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
   end;
 
 

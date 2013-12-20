@@ -2,7 +2,7 @@ unit Generics.Collections.EnumerationDelegates;
 
 interface
 uses
-  Generics.Collections, System.SysUtils, Generics.Collections.Query.Interfaces;
+  Generics.Collections, System.SysUtils, Generics.Collections.Query.Types;
 
 type
   TEnumerationDelegate<T> = class

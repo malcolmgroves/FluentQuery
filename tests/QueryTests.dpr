@@ -20,7 +20,9 @@ uses
   Generics.Collections.Query in '..\Generics.Collections.Query.pas',
   Generics.Collections.EnumerationDelegates in '..\Generics.Collections.EnumerationDelegates.pas',
   Generics.Collections.Enumerators in '..\Generics.Collections.Enumerators.pas',
-  Generics.Collections.Query.Interfaces in '..\Generics.Collections.Query.Interfaces.pas';
+  Generics.Collections.Query.Types in '..\Generics.Collections.Query.Types.pas',
+  Generics.Collections.Enumerators.Strings in '..\Generics.Collections.Enumerators.Strings.pas',
+  Generics.Collections.Enumerators.Generic in '..\Generics.Collections.Enumerators.Generic.pas';
 
 {$R *.RES}
 

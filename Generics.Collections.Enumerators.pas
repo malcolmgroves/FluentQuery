@@ -3,9 +3,20 @@ unit Generics.Collections.Enumerators;
 interface
 uses
   System.Generics.Collections, System.Classes,
-  Generics.Collections.Query.Interfaces;
+  Generics.Collections.Query.Types, Generics.Collections.EnumerationDelegates;
 
 type
+  TMinimalEnumerator<T> = class(TinterfacedObject, IMinimalEnumerator<T>)
+  protected
+    FEnumerationDelegate : TEnumerationDelegate<T>;
+    function GetCurrent: T; overload;
+    function MoveNext: Boolean;
+  public
+    constructor Create(EnumerationDelegate : TEnumerationDelegate<T>); virtual;
+    destructor Destroy; override;
+    property Current: T read GetCurrent;
+  end;
+
   TStringsEnumeratorWrapper = class(TInterfacedObject, IMinimalEnumerator<String>)
   protected
     FStringsEnumerator : TStringsEnumerator;
@@ -29,6 +40,31 @@ type
   end;
 
 implementation
+
+{ TMinimalEnumerator<T> }
+
+constructor TMinimalEnumerator<T>.Create(
+  EnumerationDelegate: TEnumerationDelegate<T>);
+begin
+  FEnumerationDelegate := EnumerationDelegate;
+end;
+
+destructor TMinimalEnumerator<T>.Destroy;
+begin
+  FEnumerationDelegate.Free;
+  inherited;
+end;
+
+function TMinimalEnumerator<T>.GetCurrent: T;
+begin
+  Result := FEnumerationDelegate.GetCurrent;
+end;
+
+function TMinimalEnumerator<T>.MoveNext: Boolean;
+begin
+  Result := FEnumerationDelegate.MoveNext;
+end;
+
 
 { TStringsEnumeratorWrapper }
 
