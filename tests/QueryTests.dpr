@@ -16,13 +16,13 @@ program QueryTests;
 
 uses
   DUnitTestRunner,
-  Generics.Collections.Query.Tests in 'Generics.Collections.Query.Tests.pas',
-  Generics.Collections.Query in '..\Generics.Collections.Query.pas',
-  Generics.Collections.EnumerationDelegates in '..\Generics.Collections.EnumerationDelegates.pas',
-  Generics.Collections.Enumerators in '..\Generics.Collections.Enumerators.pas',
-  Generics.Collections.Query.Types in '..\Generics.Collections.Query.Types.pas',
-  Generics.Collections.Enumerators.Strings in '..\Generics.Collections.Enumerators.Strings.pas',
-  Generics.Collections.Enumerators.Generic in '..\Generics.Collections.Enumerators.Generic.pas';
+  FluidQuery.Tests in 'FluidQuery.Tests.pas',
+  FluidQuery in '..\FluidQuery.pas',
+  FluidQuery.EnumerationDelegates in '..\FluidQuery.EnumerationDelegates.pas',
+  FluidQuery.Enumerators in '..\FluidQuery.Enumerators.pas',
+  FluidQuery.Types in '..\FluidQuery.Types.pas',
+  FluidQuery.Enumerators.Strings in '..\FluidQuery.Enumerators.Strings.pas',
+  FluidQuery.Enumerators.Generic in '..\FluidQuery.Enumerators.Generic.pas';
 
 {$R *.RES}
 

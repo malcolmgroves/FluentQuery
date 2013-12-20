@@ -89,13 +89,13 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Generics.Collections.Query.Tests.pas"/>
-        <DCCReference Include="..\Generics.Collections.Query.pas"/>
-        <DCCReference Include="..\Generics.Collections.EnumerationDelegates.pas"/>
-        <DCCReference Include="..\Generics.Collections.Enumerators.pas"/>
-        <DCCReference Include="..\Generics.Collections.Query.Types.pas"/>
-        <DCCReference Include="..\Generics.Collections.Enumerators.Strings.pas"/>
-        <DCCReference Include="..\Generics.Collections.Enumerators.Generic.pas"/>
+        <DCCReference Include="FluidQuery.Tests.pas"/>
+        <DCCReference Include="..\FluidQuery.pas"/>
+        <DCCReference Include="..\FluidQuery.EnumerationDelegates.pas"/>
+        <DCCReference Include="..\FluidQuery.Enumerators.pas"/>
+        <DCCReference Include="..\FluidQuery.Types.pas"/>
+        <DCCReference Include="..\FluidQuery.Enumerators.Strings.pas"/>
+        <DCCReference Include="..\FluidQuery.Enumerators.Generic.pas"/>
         <None Include="ModelSupport_QueryTests\default.txaPackage"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
