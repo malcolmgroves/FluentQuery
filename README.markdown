@@ -1,6 +1,6 @@
-What is CollectionQuery?
+What is FluidQuery?
 ========================
-CollectionQuery is a group of Enumerators that allow you to operate on a Generic Collection of items in a more declarative fashion. 
+FluidQuery allows you to query containers of items in Delphi in a fluid, declarative fashion. 
 
 
 Huh?
@@ -23,7 +23,9 @@ The standard solution in Delphi would be something like this:
         if LPerson.Age > 18 then
         begin
           Inc(LOver18Count);
-          // do something with your adult LPerson
+     
+          // do something here with your adult LPerson
+     
           if LOver18Count = 2 then
             break;
         end;
@@ -32,7 +34,7 @@ The standard solution in Delphi would be something like this:
 
 There's nothing incorrect about that code, but I find it messy because the code that selects the objects you want to act on, and the code that acts on them, are all mixed in together.
 
-CollectionQuery lets you represent the same thing like this:
+FluidQuery lets you represent the same thing like this:
 
     var
       LPerson : TPerson;
@@ -45,7 +47,7 @@ CollectionQuery lets you represent the same thing like this:
 
       for LPerson in Query<TPerson>.From(FPersonCollection).Where(LOver18).Take(2) do
       begin
-          // do something with your adult LPerson
+          // do something here with your adult LPerson
       end;
     end;
  
@@ -53,23 +55,36 @@ It's about the same length of code, but it is, in my mind, much clearer. The sta
 
 Further, over time you tend to build up a set of reusable Predicates appropriate to your objects and so for example, the LOver18 definition does not need to be declared locally. 
 
-You can of course inlcude the same operation multiple times in your query, eg Where(Over18).Where(VisitedRecently).Where(HasPurchased)
+You can of course include the same operation multiple times in your query, eg Where(Over18).Where(VisitedRecently).Where(HasPurchased)
+
+Containers Supported
+---------------------
+FluidQuery currently supports querying over the following types of containers:
+
+- Anything with a TEnumerator&lt;T>, such as TList&lt;T>, TObjectList&lt;T>, etc 
+- TStrings
 
 Query Operations Supported
 --------------------------
-Currently supports the following operations:
+FluidQuery currently supports the following operations across all collection types:
 
 Operation | Description 
 :-------- | :---------- 
-From      | Specifies the TEnumerable from which you wish to Query. 
-Where     | Filter the items enumerated to only those that evaluate true when passed into the supplied Predicate 
-Take      | Take will enumerate up to the specified number of items and then stop.
-TakeWhile | TakeWhile will continue enumerating items while the supplied Predicate evaluates True, after which it will ignore the remaining items.
+First     | Enumerate the first item, ignoring the remainder. 
 Skip      | Skip will bypass the specified number of items from the start of the enumeration, after which it will enumerate the remaining items as normal.
-SkipWhile | SkipWhile will bypass items at the start of the enumeration while the supplied Predicate evaluates True. Once the Predicate evaluates false, all remaining items will be enumerated as normal. 
+SkipWhile | SkipWhile will bypass items at the start of the enumeration while the supplied Predicate evaluates True. Once the Predicate evaluates false, all remaining items will be enumerated as normal.
+Take      | Take will enumerate up to the specified number of items, then ignore the remainder.
+TakeWhile | TakeWhile will continue enumerating items while the supplied Predicate evaluates True, after which it will ignore the remaining items.
+Where     | Filter the items enumerated to only those that evaluate true when passed into the supplied Predicate 
  
+FluidQuery also supports type-specific query operations, in addition to the common items above:  
 
-I'm adding more as I need them, but the code is fairly simple if you want to add more.
+Operation | Types Supported | Description 
+:-------- | :-------------- | :----------  
+Matches   | String          | Enumerates items that match the supplied string. Can be either a case-sensitive or case-insensitive comparison. 
+
+
+I'm adding more operations as I need them, but the code is fairly simple if you want to add more.
 
 
 Back Story
