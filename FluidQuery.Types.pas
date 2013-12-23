@@ -30,6 +30,9 @@ type
     function Where(Predicate : TPredicate<String>) : IStringQueryEnumerator;
     function GetEnumerator: IStringQueryEnumerator;
     function Matches(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
+    function Contains(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
+    function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
+    function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
   end;
 
 

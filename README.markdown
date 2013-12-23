@@ -81,7 +81,10 @@ FluidQuery also supports type-specific query operations, in addition to the comm
 
 Operation | Types Supported | Description 
 :-------- | :-------------- | :----------  
-Matches   | String          | Enumerates items that match the supplied string. Can be either a case-sensitive or case-insensitive comparison. 
+Matches   | String          | Enumerates items that match the supplied string. Can be either a case-sensitive or case-insensitive comparison, but case insensitive by default. 
+Contains  | String          | Enumerates items that contain the supplied string. Can be either a case-sensitive or case-insensitive comparison, but case insensitive by default. 
+StartsWith| String          | Enumerates items that start with the supplied string. Can be either a case-sensitive or case-insensitive comparison, but case insensitive by default. 
+EndsWith  | String          | Enumerates items that end with the supplied string. Can be either a case-sensitive or case-insensitive comparison, but case insensitive by default. 
 
 
 I'm adding more operations as I need them, but the code is fairly simple if you want to add more.

@@ -84,6 +84,15 @@ type
     procedure TestMatchesCaseSensitive;
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
+    procedure TestContainsCaseSensitive;
+    procedure TestNotContainsCaseSensitive;
+    procedure TestContainsCaseInsensitive;
+    procedure TestStartsWithCaseSensitive;
+    procedure TestNotStartsWithCaseSensitive;
+    procedure TestStartsWithCaseInsensitive;
+    procedure TestEndsWithCaseSensitive;
+    procedure TestNotEndsWithCaseSensitive;
+    procedure TestEndsWithCaseInsensitive;
   end;
 
 
@@ -705,6 +714,54 @@ begin
   FStringCollection.Free;
 end;
 
+procedure TestTQueryString.TestContainsCaseInsensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStringCollection).Contains('e') do
+    Inc(LPassCount);
+  Check(LPassCount = 7, 'Case Insensitive Contains ''e'' Query should enumerate seven strings');
+end;
+
+procedure TestTQueryString.TestContainsCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStringCollection).Contains('e', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 6, 'Case Sensitive Contains ''e'' Query should enumerate six strings');
+end;
+
+procedure TestTQueryString.TestEndsWithCaseInsensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  FStringCollection.Add('seventeeN');
+
+  for LString in Query<String>.From(FStringCollection).EndsWith('n') do
+    Inc(LPassCount);
+  Check(LPassCount = 3, 'Case Insensitive EndsWith ''n'' Query should enumerate three strings');
+end;
+
+procedure TestTQueryString.TestEndsWithCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  FStringCollection.Add('seventeeN');
+
+  for LString in Query<String>.From(FStringCollection).EndsWith('n', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 2, 'Case Sensitive EndsWith ''n'' Query should enumerate two strings');
+end;
+
 procedure TestTQueryString.TestMatchesCaseInsensitive;
 var
   LPassCount : Integer;
@@ -736,6 +793,65 @@ begin
   for LString in Query<String>.From(FStringCollection).Matches('six', False) do
     Inc(LPassCount);
   Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
+end;
+
+procedure TestTQueryString.TestNotContainsCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStringCollection).Contains('s', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 0, 'Case Sensitive Contains ''s'' Query with no matches should enumerate zero strings');
+end;
+
+procedure TestTQueryString.TestNotEndsWithCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStringCollection).EndsWith('N', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 0, 'Case Sensitive EndsWith ''N'' Query with no matches should enumerate zero strings');
+end;
+
+procedure TestTQueryString.TestNotStartsWithCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStringCollection).StartsWith('s', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 0, 'Case Sensitive StartsWith ''s'' Query with no matches should enumerate zero strings');
+end;
+
+procedure TestTQueryString.TestStartsWithCaseInsensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  FStringCollection.Add('seventeen');
+
+  for LString in Query<String>.From(FStringCollection).StartsWith('S') do
+    Inc(LPassCount);
+  Check(LPassCount = 3, 'Case Insensitive StartsWith ''S'' Query should enumerate three strings');
+end;
+
+procedure TestTQueryString.TestStartsWithCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  FStringCollection.Add('seventeen');
+
+  for LString in Query<String>.From(FStringCollection).StartsWith('S', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 2, 'Case Sensitive StartsWith ''S'' Query should enumerate two strings');
 end;
 
 initialization

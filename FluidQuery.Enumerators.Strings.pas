@@ -17,12 +17,51 @@ type
     function TakeWhile(Predicate : TPredicate<String>): IStringQueryEnumerator;
     function Where(Predicate : TPredicate<String>) : IStringQueryEnumerator;
     function Matches(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
+    function Contains(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
+    function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
+    function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
   end;
 
 
 implementation
 
 { TStringQueryEnumerator }
+
+function TStringQueryEnumerator.Contains(const Value: String;
+  IgnoreCase: Boolean): IStringQueryEnumerator;
+var
+  LContainsPredicate : TPredicate<String>;
+begin
+  LContainsPredicate := function (CurrentValue : String) : Boolean
+                        begin
+                          if IgnoreCase then
+                          begin
+                            Result := UpperCase(CurrentValue).Contains(UpperCase(Value));
+                          end
+                          else
+                            Result := CurrentValue.Contains(Value);
+                        end;
+
+  Result := TStringQueryEnumerator.Create(TWhereEnumerationDelegate<String>.Create(IMinimalEnumerator<String>(self), LContainsPredicate));
+end;
+
+function TStringQueryEnumerator.EndsWith(const Value: String;
+  IgnoreCase: Boolean): IStringQueryEnumerator;
+var
+  LEndsWithPredicate : TPredicate<String>;
+begin
+  LEndsWithPredicate := function (CurrentValue : String) : Boolean
+                        begin
+                          if IgnoreCase then
+                          begin
+                            Result := UpperCase(CurrentValue).EndsWith(UpperCase(Value));
+                          end
+                          else
+                            Result := CurrentValue.EndsWith(Value);
+                        end;
+
+  Result := TStringQueryEnumerator.Create(TWhereEnumerationDelegate<String>.Create(IMinimalEnumerator<String>(self), LEndsWithPredicate));
+end;
 
 function TStringQueryEnumerator.First: IStringQueryEnumerator;
 begin
@@ -56,6 +95,24 @@ function TStringQueryEnumerator.SkipWhile(
   Predicate: TPredicate<String>): IStringQueryEnumerator;
 begin
   Result := TStringQueryEnumerator.Create(TSkipWhileEnumerationDelegate<String>.Create(IMinimalEnumerator<String>(self), Predicate));
+end;
+
+function TStringQueryEnumerator.StartsWith(const Value: String;
+  IgnoreCase: Boolean): IStringQueryEnumerator;
+var
+  LStartsWithPredicate : TPredicate<String>;
+begin
+  LStartsWithPredicate := function (CurrentValue : String) : Boolean
+                          begin
+                            if IgnoreCase then
+                            begin
+                              Result := UpperCase(CurrentValue).StartsWith(UpperCase(Value));
+                            end
+                            else
+                              Result := CurrentValue.StartsWith(Value);
+                          end;
+
+  Result := TStringQueryEnumerator.Create(TWhereEnumerationDelegate<String>.Create(IMinimalEnumerator<String>(self), LStartsWithPredicate));
 end;
 
 function TStringQueryEnumerator.Take(Count: Integer): IStringQueryEnumerator;
