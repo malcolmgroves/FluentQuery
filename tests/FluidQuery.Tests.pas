@@ -74,6 +74,18 @@ type
     procedure TestMatchesCaseInsensitive;
   end;
 
+  TestTQueryString = class(TTestCase)
+  strict private
+    FStringCollection: TList<String>;
+  public
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestMatchesCaseSensitive;
+    procedure TestNoMatchesCaseSensitive;
+    procedure TestMatchesCaseInsensitive;
+  end;
+
 
 implementation
 uses
@@ -669,10 +681,68 @@ begin
 end;
 
 
+{ TestTQueryString }
+
+procedure TestTQueryString.SetUp;
+begin
+  inherited;
+  FStringCollection := TList<String>.Create;
+  FStringCollection.Add('One');
+  FStringCollection.Add('Two');
+  FStringCollection.Add('Three');
+  FStringCollection.Add('Four');
+  FStringCollection.Add('Five');
+  FStringCollection.Add('Six');
+  FStringCollection.Add('Seven');
+  FStringCollection.Add('Eight');
+  FStringCollection.Add('Nine');
+  FStringCollection.Add('Ten');
+end;
+
+procedure TestTQueryString.TearDown;
+begin
+  inherited;
+  FStringCollection.Free;
+end;
+
+procedure TestTQueryString.TestMatchesCaseInsensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStringCollection).Matches('six') do
+    Inc(LPassCount);
+  Check(LPassCount = 1, 'Case Insensitive Matches Query should enumerate one string');
+end;
+
+procedure TestTQueryString.TestMatchesCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStringCollection).Matches('Six', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one string');
+end;
+
+procedure TestTQueryString.TestNoMatchesCaseSensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query<String>.From(FStringCollection).Matches('six', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
+end;
+
 initialization
   // Register any test cases with the test runner
-  RegisterTest('TQuery', TestTQueryInteger.Suite);
-  RegisterTest('TQuery', TestTQueryPerson.Suite);
+  RegisterTest('TList<Integer>', TestTQueryInteger.Suite);
+  RegisterTest('TObjectList<TPerson>', TestTQueryPerson.Suite);
   RegisterTest('TStrings', TestTQueryTStrings.Suite);
+  RegisterTest('TList<String>', TestTQueryString.Suite);
 end.
 

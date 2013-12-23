@@ -22,6 +22,7 @@ type
     ///	  you wish to query.
     ///	</summary>
     class function From(Container : TEnumerable<T>) : IQueryEnumerator<T>; overload;
+    class function From(Container : TEnumerable<String>) : IStringQueryEnumerator; overload;
     class function From(Strings : TStrings) : IStringQueryEnumerator; overload;
   end;
 
@@ -55,6 +56,15 @@ begin
   Result := TStringQueryEnumerator.Create(TEnumerationDelegate<String>.Create(TStringsEnumeratorWrapper.Create(Strings)));
 end;
 
+
+class function Query<T>.From(
+  Container: TEnumerable<String>): IStringQueryEnumerator;
+var
+  EnumeratorWrapper : IMinimalEnumerator<String>;
+begin
+  EnumeratorWrapper := TGenericEnumeratorWrapper<String>.Create(Container.GetEnumerator) as IMinimalEnumerator<String>;
+  Result := TStringQueryEnumerator.Create(TEnumerationDelegate<String>.Create(EnumeratorWrapper));
+end;
 
 { List<T> }
 
