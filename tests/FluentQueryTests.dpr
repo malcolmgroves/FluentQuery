@@ -1,4 +1,4 @@
-program QueryTests;
+program FluentQueryTests;
 {
 
   Delphi DUnit Test Project
@@ -16,13 +16,13 @@ program QueryTests;
 
 uses
   DUnitTestRunner,
-  FluidQuery.Tests in 'FluidQuery.Tests.pas',
-  FluidQuery in '..\FluidQuery.pas',
-  FluidQuery.EnumerationDelegates in '..\FluidQuery.EnumerationDelegates.pas',
-  FluidQuery.Enumerators in '..\FluidQuery.Enumerators.pas',
-  FluidQuery.Types in '..\FluidQuery.Types.pas',
-  FluidQuery.Enumerators.Strings in '..\FluidQuery.Enumerators.Strings.pas',
-  FluidQuery.Enumerators.Generic in '..\FluidQuery.Enumerators.Generic.pas';
+  FluentQuery.Tests in 'FluentQuery.Tests.pas',
+  FluentQuery in '..\FluentQuery.pas',
+  FluentQuery.EnumerationDelegates in '..\FluentQuery.EnumerationDelegates.pas',
+  FluentQuery.Enumerators in '..\FluentQuery.Enumerators.pas',
+  FluentQuery.Types in '..\FluentQuery.Types.pas',
+  FluentQuery.Enumerators.Strings in '..\FluentQuery.Enumerators.Strings.pas',
+  FluentQuery.Enumerators.Generic in '..\FluentQuery.Enumerators.Generic.pas';
 
 {$R *.RES}
 

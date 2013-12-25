@@ -1,4 +1,4 @@
-unit FluidQuery.Types;
+unit FluentQuery.Types;
 
 interface
 uses

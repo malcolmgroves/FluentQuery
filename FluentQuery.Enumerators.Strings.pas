@@ -1,9 +1,12 @@
-unit FluidQuery.Enumerators.Strings;
+unit FluentQuery.Enumerators.Strings;
 
 interface
 uses
-  FluidQuery.Types, FluidQuery, System.SysUtils,
-  FluidQuery.EnumerationDelegates, FluidQuery.Enumerators;
+  FluentQuery.Types,
+  FluentQuery,
+  System.SysUtils,
+  FluentQuery.EnumerationDelegates,
+  FluentQuery.Enumerators;
 
 type
 

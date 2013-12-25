@@ -1,8 +1,10 @@
-unit FluidQuery.EnumerationDelegates;
+unit FluentQuery.EnumerationDelegates;
 
 interface
 uses
-  Generics.Collections, System.SysUtils, FluidQuery.Types;
+  Generics.Collections,
+  System.SysUtils,
+  FluentQuery.Types;
 
 type
   TEnumerationDelegate<T> = class

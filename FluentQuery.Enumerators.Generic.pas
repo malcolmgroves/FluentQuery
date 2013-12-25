@@ -1,9 +1,12 @@
-unit FluidQuery.Enumerators.Generic;
+unit FluentQuery.Enumerators.Generic;
 
 interface
 uses
-  FluidQuery, FluidQuery.Types, System.SysUtils,
-  FluidQuery.EnumerationDelegates, FluidQuery.Enumerators;
+  FluentQuery,
+  FluentQuery.Types,
+  System.SysUtils,
+  FluentQuery.EnumerationDelegates,
+  FluentQuery.Enumerators;
 
 type
   TQueryEnumerator<T> = class(TMinimalEnumerator<T>, IQueryEnumerator<T>, IMinimalEnumerator<T>)

@@ -1,6 +1,6 @@
-What is FluidQuery?
-========================
-FluidQuery allows you to query containers of items in Delphi in a fluid, declarative fashion. 
+What is FluentQuery?
+====================
+FluentQuery allows you to query containers of items in Delphi in a fluent, declarative fashion. 
 
 
 Huh?
@@ -59,14 +59,14 @@ You can of course include the same operation multiple times in your query, eg Wh
 
 Containers Supported
 ---------------------
-FluidQuery currently supports querying over the following types of containers:
+FluentQuery currently supports querying over the following types of containers:
 
 - Anything with a TEnumerator&lt;T>, such as TList&lt;T>, TObjectList&lt;T>, etc 
 - TStrings
 
 Query Operations Supported
 --------------------------
-FluidQuery currently supports the following operations across all collection types:
+FluentQuery currently supports the following operations across all collection types:
 
 Operation | Description 
 :-------- | :---------- 
@@ -77,7 +77,7 @@ Take      | Take will enumerate up to the specified number of items, then ignore
 TakeWhile | TakeWhile will continue enumerating items while the supplied Predicate evaluates True, after which it will ignore the remaining items.
 Where     | Filter the items enumerated to only those that evaluate true when passed into the supplied Predicate 
  
-FluidQuery also supports type-specific query operations, in addition to the common items above:  
+FluentQuery also supports type-specific query operations, in addition to the common items above:  
 
 Operation | Types Supported | Description 
 :-------- | :-------------- | :----------  

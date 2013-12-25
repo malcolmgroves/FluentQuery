@@ -1,11 +1,11 @@
-unit FluidQuery;
+unit FluentQuery;
 
 interface
 uses
   System.Generics.Collections,
   System.Classes,
-  FluidQuery.EnumerationDelegates,
-  FluidQuery.Types;
+  FluentQuery.EnumerationDelegates,
+  FluentQuery.Types;
 
 type
   ///	<summary>
@@ -37,9 +37,9 @@ type
 
 implementation
 uses
-  FluidQuery.Enumerators,
-  FluidQuery.Enumerators.Strings,
-  FluidQuery.Enumerators.Generic;
+  FluentQuery.Enumerators,
+  FluentQuery.Enumerators.Strings,
+  FluentQuery.Enumerators.Generic;
 
 { Query<T> }
 

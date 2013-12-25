@@ -1,9 +1,11 @@
-unit FluidQuery.Enumerators;
+unit FluentQuery.Enumerators;
 
 interface
 uses
-  System.Generics.Collections, System.Classes,
-  FluidQuery.Types, FluidQuery.EnumerationDelegates;
+  System.Generics.Collections,
+  System.Classes,
+  FluentQuery.Types,
+  FluentQuery.EnumerationDelegates;
 
 type
   TMinimalEnumerator<T> = class(TinterfacedObject, IMinimalEnumerator<T>)

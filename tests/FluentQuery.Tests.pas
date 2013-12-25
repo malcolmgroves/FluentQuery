@@ -1,9 +1,11 @@
-unit FluidQuery.Tests;
+unit FluentQuery.Tests;
 
 interface
 
 uses
-  TestFramework, System.Generics.Collections, FluidQuery,
+  TestFramework,
+  System.Generics.Collections,
+  FluentQuery,
   System.Classes;
 
 type
