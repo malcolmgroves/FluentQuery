@@ -97,6 +97,18 @@ type
     procedure TestEndsWithCaseInsensitive;
   end;
 
+  TestTQueryChar = class(TTestCase)
+  strict private
+    FStringVal: String;
+  public
+    procedure SetUp; override;
+  published
+    procedure TestPassthrough;
+    procedure TestMatchesCaseSensitive;
+    procedure TestNoMatchesCaseSensitive;
+    procedure TestMatchesCaseInsensitive;
+  end;
+
 
 implementation
 uses
@@ -856,11 +868,66 @@ begin
   Check(LPassCount = 2, 'Case Sensitive StartsWith ''S'' Query should enumerate two strings');
 end;
 
+{ TestTQueryChar }
+
+procedure TestTQueryChar.SetUp;
+begin
+  inherited;
+  //NB: no lowercase z
+  FStringVal := 'abcdefghijklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ';
+end;
+
+
+procedure TestTQueryChar.TestMatchesCaseInsensitive;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).Matches('Y') do
+    Inc(LPassCount);
+  Check(LPassCount = 2, 'Case Insensitive Matches Query should enumerate two chars');
+end;
+
+procedure TestTQueryChar.TestMatchesCaseSensitive;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).Matches('y', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one char');
+end;
+
+procedure TestTQueryChar.TestNoMatchesCaseSensitive;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).Matches('z', False) do
+    Inc(LPassCount);
+  Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero chars');
+end;
+
+procedure TestTQueryChar.TestPassthrough;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal) do
+    Inc(LPassCount);
+  Check(LPassCount = FStringVal.Length, 'Passthrough Query should enumerate all items');
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest('TList<Integer>', TestTQueryInteger.Suite);
   RegisterTest('TObjectList<TPerson>', TestTQueryPerson.Suite);
   RegisterTest('TStrings', TestTQueryTStrings.Suite);
   RegisterTest('TList<String>', TestTQueryString.Suite);
+  RegisterTest('String', TestTQueryChar.Suite);
 end.
 

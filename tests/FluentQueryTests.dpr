@@ -22,7 +22,8 @@ uses
   FluentQuery.Enumerators in '..\FluentQuery.Enumerators.pas',
   FluentQuery.Types in '..\FluentQuery.Types.pas',
   FluentQuery.Enumerators.Strings in '..\FluentQuery.Enumerators.Strings.pas',
-  FluentQuery.Enumerators.Generic in '..\FluentQuery.Enumerators.Generic.pas';
+  FluentQuery.Enumerators.Generic in '..\FluentQuery.Enumerators.Generic.pas',
+  FluentQuery.Enumerators.Char in '..\FluentQuery.Enumerators.Char.pas';
 
 {$R *.RES}
 

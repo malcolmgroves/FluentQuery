@@ -96,6 +96,7 @@
         <DCCReference Include="..\FluentQuery.Types.pas"/>
         <DCCReference Include="..\FluentQuery.Enumerators.Strings.pas"/>
         <DCCReference Include="..\FluentQuery.Enumerators.Generic.pas"/>
+        <DCCReference Include="..\FluentQuery.Enumerators.Char.pas"/>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
         <None Include="ModelSupport_FluentQueryTests\default.txvpck"/>
         <None Include="ModelSupport_FluentQueryTests\FluentQueryTests\default.txvpck"/>

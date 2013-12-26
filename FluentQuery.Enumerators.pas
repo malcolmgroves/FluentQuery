@@ -41,6 +41,17 @@ type
     property Current: T read GetCurrent;
   end;
 
+  TStringEnumerator = class(TInterfacedObject, IMinimalEnumerator<Char>)
+  protected
+    FStringValue : String;
+    FIndex : Integer;
+    function GetCurrent: Char;
+    function MoveNext: Boolean;
+  public
+    constructor Create(StringValue : String); virtual;
+    property Current: Char read GetCurrent;
+  end;
+
 implementation
 
 { TMinimalEnumerator<T> }
@@ -113,6 +124,26 @@ end;
 function TGenericEnumeratorWrapper<T>.MoveNext: Boolean;
 begin
   Result := FEnumerator.MoveNext;
+end;
+
+{ TStringEnumeratorWrapper }
+
+constructor TStringEnumerator.Create(StringValue: String);
+begin
+  FStringValue := StringValue;
+  FIndex := Low(StringValue) - 1;
+end;
+
+function TStringEnumerator.GetCurrent: Char;
+begin
+  Result := FStringValue[FIndex];
+end;
+
+function TStringEnumerator.MoveNext: Boolean;
+begin
+  Inc(FIndex);
+
+  Result := FIndex <= High(FStringValue);
 end;
 
 end.

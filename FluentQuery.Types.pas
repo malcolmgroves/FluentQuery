@@ -35,6 +35,16 @@ type
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
   end;
 
+  ICharQueryEnumerator = interface(IMinimalEnumerator<Char>)
+    function First : ICharQueryEnumerator;
+    function Skip(Count : Integer): ICharQueryEnumerator;
+    function SkipWhile(Predicate : TPredicate<Char>) : ICharQueryEnumerator;
+    function Take(Count : Integer): ICharQueryEnumerator;
+    function TakeWhile(Predicate : TPredicate<Char>): ICharQueryEnumerator;
+    function Where(Predicate : TPredicate<Char>) : ICharQueryEnumerator;
+    function GetEnumerator: ICharQueryEnumerator;
+    function Matches(const Value : Char; IgnoreCase : Boolean = True) : ICharQueryEnumerator;
+  end;
 
 implementation
 

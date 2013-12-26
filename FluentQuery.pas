@@ -24,6 +24,7 @@ type
     class function From(Container : TEnumerable<T>) : IQueryEnumerator<T>; overload;
     class function From(Container : TEnumerable<String>) : IStringQueryEnumerator; overload;
     class function From(Strings : TStrings) : IStringQueryEnumerator; overload;
+    class function From(StringValue : String) : ICharQueryEnumerator; overload;
   end;
 
   List<T> = class
@@ -39,7 +40,8 @@ implementation
 uses
   FluentQuery.Enumerators,
   FluentQuery.Enumerators.Strings,
-  FluentQuery.Enumerators.Generic;
+  FluentQuery.Enumerators.Generic,
+  FluentQuery.Enumerators.Char;
 
 { Query<T> }
 
@@ -64,6 +66,11 @@ var
 begin
   EnumeratorWrapper := TGenericEnumeratorWrapper<String>.Create(Container.GetEnumerator) as IMinimalEnumerator<String>;
   Result := TStringQueryEnumerator.Create(TEnumerationDelegate<String>.Create(EnumeratorWrapper));
+end;
+
+class function Query<T>.From(StringValue: String): ICharQueryEnumerator;
+begin
+  Result := TCharQueryEnumerator.Create(TEnumerationDelegate<Char>.Create(TStringEnumerator.Create(StringValue)));
 end;
 
 { List<T> }
