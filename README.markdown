@@ -62,7 +62,8 @@ Containers Supported
 FluentQuery currently supports querying over the following types of containers:
 
 - Anything with a TEnumerator&lt;T>, such as TList&lt;T>, TObjectList&lt;T>, etc 
-- TStrings
+- Strings in a TStrings, such as TStringList, etc
+- Chars in a String
 
 Query Operations Supported
 --------------------------
@@ -77,14 +78,40 @@ Take      | Take will enumerate up to the specified number of items, then ignore
 TakeWhile | TakeWhile will continue enumerating items while the supplied Predicate evaluates True, after which it will ignore the remaining items.
 Where     | Filter the items enumerated to only those that evaluate true when passed into the supplied Predicate 
  
-FluentQuery also supports type-specific query operations, in addition to the common items above:  
+FluentQuery also supports type-specific query operations, in addition to the common items above: 
 
-Operation | Types Supported | Description 
-:-------- | :-------------- | :----------  
-Matches   | String          | Enumerates items that match the supplied string. Can be either a case-sensitive or case-insensitive comparison, but case insensitive by default. 
-Contains  | String          | Enumerates items that contain the supplied string. Can be either a case-sensitive or case-insensitive comparison, but case insensitive by default. 
-StartsWith| String          | Enumerates items that start with the supplied string. Can be either a case-sensitive or case-insensitive comparison, but case insensitive by default. 
-EndsWith  | String          | Enumerates items that end with the supplied string. Can be either a case-sensitive or case-insensitive comparison, but case insensitive by default. 
+###String Query Operations 
+
+Operation | Description 
+:-------- | :----------  
+Matches   | Enumerates items that match the supplied string. 
+Contains  | Enumerates items that contain the supplied string. 
+StartsWith| Enumerates items that start with the supplied string. 
+EndsWith  | Enumerates items that end with the supplied string. 
+
+Note, all String Query Operations can be either case-sensitive or case-insenstive, but are case-insensitive by default.
+
+###Char Query Operations 
+
+Operation       | Description 
+:-------------- | :----------  
+Matches         | Enumerates items that match the supplied Char. Can be either case-sensitive or insensive, but is insensitive by default.
+IsControl       | Enumerates items that are Unicode control characters
+IsDigit         | Enumerates items that are Unicode digits  
+IsHighSurrogate | Enumerates items that are Unicode high surrogates
+IsInArray       | Enumerates only items that are also found in a supplied Array of Char 
+IsLetter        | Enumerates items that are Unicode letters 
+IsLetterOrDigit | Enumerates items that are Unicode digits or letters 
+IsLower         | Enumerates items that are lower case 
+IsLowSurrogate  | Enumerates items that are Unicode low surrogates 
+IsNumber        | Enumerates items that are Unicode numbers 
+IsPunctuation   | Enumerates items that are Unicode punctuation characters 
+IsSeparator     | Enumerates items that are Unicode separator characters 
+IsSurrogate     | Enumerates items that are Unicode surrogates 
+IsSymbol        | Enumerates items that are Unicode symbols 
+IsUpper         | Enumerates items that are upper case 
+IsWhitespace    | Enumerates items that are Unicode whitespace characters 
+
 
 
 I'm adding more operations as I need them, but the code is fairly simple if you want to add more.

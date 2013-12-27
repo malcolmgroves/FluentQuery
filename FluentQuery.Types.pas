@@ -44,6 +44,21 @@ type
     function Where(Predicate : TPredicate<Char>) : ICharQueryEnumerator;
     function GetEnumerator: ICharQueryEnumerator;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : ICharQueryEnumerator;
+    function IsControl: ICharQueryEnumerator;
+    function IsDigit: ICharQueryEnumerator;
+    function IsHighSurrogate: ICharQueryEnumerator;
+    function IsInArray(const SomeChars: array of Char): ICharQueryEnumerator;
+    function IsLetter: ICharQueryEnumerator;
+    function IsLetterOrDigit: ICharQueryEnumerator;
+    function IsLower: ICharQueryEnumerator;
+    function IsLowSurrogate: ICharQueryEnumerator;
+    function IsNumber: ICharQueryEnumerator;
+    function IsPunctuation: ICharQueryEnumerator;
+    function IsSeparator: ICharQueryEnumerator;
+    function IsSurrogate: ICharQueryEnumerator;
+    function IsSymbol: ICharQueryEnumerator;
+    function IsUpper: ICharQueryEnumerator;
+    function IsWhiteSpace: ICharQueryEnumerator;
   end;
 
 implementation

@@ -107,6 +107,16 @@ type
     procedure TestMatchesCaseSensitive;
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
+    procedure TestIsDigit;
+    procedure TestIsInArray;
+    procedure TestIsLetter;
+    procedure TestIsLetterOrDigit;
+    procedure TestIsLower;
+    procedure TestIsNumber;
+    procedure TestIsPunctuation;
+    procedure TestIsSymbol;
+    procedure TestIsUpper;
+    procedure TestIsWhiteSpace;
   end;
 
 
@@ -874,9 +884,119 @@ procedure TestTQueryChar.SetUp;
 begin
   inherited;
   //NB: no lowercase z
-  FStringVal := 'abcdefghijklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  FStringVal := 'abcdefghijklmnopqrstuvwxy 1234567890 !@#$%^&*() ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 end;
 
+
+procedure TestTQueryChar.TestIsDigit;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsDigit do
+    Inc(LPassCount);
+  Check(LPassCount = 10, 'IsDigit Query should enumerate 10 chars');
+end;
+
+procedure TestTQueryChar.TestIsInArray;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsInArray(['1', '2', ')', '+', 'a']) do
+    Inc(LPassCount);
+  Check(LPassCount = 4, 'IsInArray Query should enumerate 4 chars');
+end;
+
+procedure TestTQueryChar.TestIsLetter;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsLetter do
+    Inc(LPassCount);
+  Check(LPassCount = 51, 'IsLetter Query should enumerate 51 chars');
+end;
+
+procedure TestTQueryChar.TestIsLetterOrDigit;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsLetterOrDigit do
+    Inc(LPassCount);
+  Check(LPassCount = 61, 'IsLetterOrDigit Query should enumerate 61 chars');
+end;
+
+procedure TestTQueryChar.TestIsLower;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsLower do
+    Inc(LPassCount);
+  Check(LPassCount = 25, 'IsLower Query should enumerate 25 chars');
+end;
+
+procedure TestTQueryChar.TestIsNumber;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsNumber do
+    Inc(LPassCount);
+  Check(LPassCount = 10, 'IsNumber Query should enumerate 10 chars');
+end;
+
+procedure TestTQueryChar.TestIsPunctuation;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsPunctuation do
+    Inc(LPassCount);
+  Check(LPassCount = 8, 'IsPunctuation Query should enumerate 8 chars');
+end;
+
+procedure TestTQueryChar.TestIsSymbol;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsSymbol do
+    Inc(LPassCount);
+  Check(LPassCount = 2, 'IsSymbol Query should enumerate 2 chars');
+end;
+
+procedure TestTQueryChar.TestIsUpper;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsUpper do
+    Inc(LPassCount);
+  Check(LPassCount = 26, 'IsUpper Query should enumerate 26 chars');
+end;
+
+procedure TestTQueryChar.TestIsWhiteSpace;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query<Char>.From(FStringVal).IsWhiteSpace do
+    Inc(LPassCount);
+  Check(LPassCount = 3, 'IsWhitespace Query should enumerate 3 chars');
+end;
 
 procedure TestTQueryChar.TestMatchesCaseInsensitive;
 var
