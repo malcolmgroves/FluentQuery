@@ -5,21 +5,21 @@ uses
   System.Generics.Collections,
   System.Classes,
   FluentQuery.Types,
-  FluentQuery.EnumerationDelegates;
+  FluentQuery.EnumerationStrategies;
 
 type
   TMinimalEnumerator<T> = class(TinterfacedObject, IMinimalEnumerator<T>)
   protected
-    FEnumerationDelegate : TEnumerationDelegate<T>;
+    FEnumerationStrategy : TEnumerationStrategy<T>;
     function GetCurrent: T; overload;
     function MoveNext: Boolean;
   public
-    constructor Create(EnumerationDelegate : TEnumerationDelegate<T>); virtual;
+    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>); virtual;
     destructor Destroy; override;
     property Current: T read GetCurrent;
   end;
 
-  TStringsEnumeratorWrapper = class(TInterfacedObject, IMinimalEnumerator<String>)
+  TStringsEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<String>)
   protected
     FStringsEnumerator : TStringsEnumerator;
     function GetCurrent: String;
@@ -30,7 +30,7 @@ type
     property Current: String read GetCurrent;
   end;
 
-  TGenericEnumeratorWrapper<T> = class(TInterfacedObject, IMinimalEnumerator<T>)
+  TGenericEnumeratorAdapter<T> = class(TInterfacedObject, IMinimalEnumerator<T>)
   protected
     FEnumerator : TEnumerator<T>;
     function GetCurrent: T;
@@ -41,7 +41,7 @@ type
     property Current: T read GetCurrent;
   end;
 
-  TStringEnumerator = class(TInterfacedObject, IMinimalEnumerator<Char>)
+  TStringEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<Char>)
   protected
     FStringValue : String;
     FIndex : Integer;
@@ -57,47 +57,47 @@ implementation
 { TMinimalEnumerator<T> }
 
 constructor TMinimalEnumerator<T>.Create(
-  EnumerationDelegate: TEnumerationDelegate<T>);
+  EnumerationStrategy: TEnumerationStrategy<T>);
 begin
-  FEnumerationDelegate := EnumerationDelegate;
+  FEnumerationStrategy := EnumerationStrategy;
 end;
 
 destructor TMinimalEnumerator<T>.Destroy;
 begin
-  FEnumerationDelegate.Free;
+  FEnumerationStrategy.Free;
   inherited;
 end;
 
 function TMinimalEnumerator<T>.GetCurrent: T;
 begin
-  Result := FEnumerationDelegate.GetCurrent;
+  Result := FEnumerationStrategy.GetCurrent;
 end;
 
 function TMinimalEnumerator<T>.MoveNext: Boolean;
 begin
-  Result := FEnumerationDelegate.MoveNext;
+  Result := FEnumerationStrategy.MoveNext;
 end;
 
 
 { TStringsEnumeratorWrapper }
 
-constructor TStringsEnumeratorWrapper.Create(Strings: TStrings);
+constructor TStringsEnumeratorAdapter.Create(Strings: TStrings);
 begin
   FStringsEnumerator := TStringsEnumerator.Create(Strings);
 end;
 
-destructor TStringsEnumeratorWrapper.Destroy;
+destructor TStringsEnumeratorAdapter.Destroy;
 begin
   FStringsEnumerator.Free;
   inherited;
 end;
 
-function TStringsEnumeratorWrapper.GetCurrent: String;
+function TStringsEnumeratorAdapter.GetCurrent: String;
 begin
   Result := FStringsEnumerator.Current;
 end;
 
-function TStringsEnumeratorWrapper.MoveNext: Boolean;
+function TStringsEnumeratorAdapter.MoveNext: Boolean;
 begin
   Result := FStringsEnumerator.MoveNext;;
 end;
@@ -105,41 +105,41 @@ end;
 
 { TGenericEnumeratorWrapper<T> }
 
-constructor TGenericEnumeratorWrapper<T>.Create(Enumerator: TEnumerator<T>);
+constructor TGenericEnumeratorAdapter<T>.Create(Enumerator: TEnumerator<T>);
 begin
   FEnumerator := Enumerator;
 end;
 
-destructor TGenericEnumeratorWrapper<T>.Destroy;
+destructor TGenericEnumeratorAdapter<T>.Destroy;
 begin
   FEnumerator.Free;
   inherited;
 end;
 
-function TGenericEnumeratorWrapper<T>.GetCurrent: T;
+function TGenericEnumeratorAdapter<T>.GetCurrent: T;
 begin
   Result := FEnumerator.Current;
 end;
 
-function TGenericEnumeratorWrapper<T>.MoveNext: Boolean;
+function TGenericEnumeratorAdapter<T>.MoveNext: Boolean;
 begin
   Result := FEnumerator.MoveNext;
 end;
 
 { TStringEnumeratorWrapper }
 
-constructor TStringEnumerator.Create(StringValue: String);
+constructor TStringEnumeratorAdapter.Create(StringValue: String);
 begin
   FStringValue := StringValue;
   FIndex := Low(StringValue) - 1;
 end;
 
-function TStringEnumerator.GetCurrent: Char;
+function TStringEnumeratorAdapter.GetCurrent: Char;
 begin
   Result := FStringValue[FIndex];
 end;
 
-function TStringEnumerator.MoveNext: Boolean;
+function TStringEnumeratorAdapter.MoveNext: Boolean;
 begin
   Inc(FIndex);
 

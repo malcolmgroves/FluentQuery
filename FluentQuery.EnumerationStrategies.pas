@@ -1,4 +1,4 @@
-unit FluentQuery.EnumerationDelegates;
+unit FluentQuery.EnumerationStrategies;
 
 interface
 uses
@@ -7,7 +7,7 @@ uses
   FluentQuery.Types;
 
 type
-  TEnumerationDelegate<T> = class
+  TEnumerationStrategy<T> = class
   private
     FEnumerator : IMinimalEnumerator<T>;
   public
@@ -16,7 +16,7 @@ type
     constructor Create(Enumerator : IMinimalEnumerator<T>); virtual;
   end;
 
-  TTakeEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
+  TTakeEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FTakeCount: Integer;
     FItemCount : Integer;
@@ -25,7 +25,7 @@ type
     constructor Create(Enumerator : IMinimalEnumerator<T>; TakeCount : Integer); reintroduce;
   end;
 
-  TSkipEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
+  TSkipEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FSkipCount: Integer;
     FItemCount : Integer;
@@ -34,7 +34,7 @@ type
     constructor Create(Enumerator : IMinimalEnumerator<T>; SkipCount : Integer); reintroduce;
   end;
 
-  TSkipWhileEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
+  TSkipWhileEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FSkipWhilePredicate : TPredicate<T>;
   protected
@@ -44,7 +44,7 @@ type
     constructor Create(Enumerator : IMinimalEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
   end;
 
-  TTakeWhileEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
+  TTakeWhileEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FTakeWhilePredicate : TPredicate<T>;
   protected
@@ -54,7 +54,7 @@ type
     constructor Create(Enumerator : IMinimalEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
   end;
 
-  TWhereEnumerationDelegate<T> = class(TEnumerationDelegate<T>)
+  TWhereEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FWherePredicate : TPredicate<T>;
   protected
@@ -66,27 +66,27 @@ type
 
 implementation
 
-{ TEnumerationDelegate<T> }
+{ TEnumerationStrategy<T> }
 
-constructor TEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>);
+constructor TEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>);
 begin
   FEnumerator := Enumerator;
 end;
 
 
-function TEnumerationDelegate<T>.GetCurrent: T;
+function TEnumerationStrategy<T>.GetCurrent: T;
 begin
   Result := FEnumerator.Current;
 end;
 
-function TEnumerationDelegate<T>.MoveNext: Boolean;
+function TEnumerationStrategy<T>.MoveNext: Boolean;
 begin
   Result := FEnumerator.MoveNext;
 end;
 
-{ TTakeEnumerationDelegate<T> }
+{ TTakeEnumerationStrategy<T> }
 
-constructor TTakeEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
+constructor TTakeEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
   TakeCount: Integer);
 begin
   inherited Create(Enumerator);
@@ -94,7 +94,7 @@ begin
   FTakeCount := TakeCount;
 end;
 
-function TTakeEnumerationDelegate<T>.MoveNext: Boolean;
+function TTakeEnumerationStrategy<T>.MoveNext: Boolean;
 begin
   Result := FItemCount < FTakeCount;
 
@@ -105,9 +105,9 @@ begin
   end;
 end;
 
-{ TSkipEnumerationDelegate<T> }
+{ TSkipEnumerationStrategy<T> }
 
-constructor TSkipEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
+constructor TSkipEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
   SkipCount: Integer);
 begin
   inherited Create(Enumerator);
@@ -115,7 +115,7 @@ begin
   FSkipCount := SkipCount;
 end;
 
-function TSkipEnumerationDelegate<T>.MoveNext: Boolean;
+function TSkipEnumerationStrategy<T>.MoveNext: Boolean;
 var
   LEndOfList : Boolean;
 begin
@@ -134,16 +134,16 @@ begin
     Result := inherited MoveNext;
 end;
 
-{ TSkipWhileEnumerationDelegate<T> }
+{ TSkipWhileEnumerationStrategy<T> }
 
-constructor TSkipWhileEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
+constructor TSkipWhileEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
   Predicate: TPredicate<T>);
 begin
   inherited Create(Enumerator);
   FSkipWhilePredicate := Predicate;
 end;
 
-function TSkipWhileEnumerationDelegate<T>.MoveNext: Boolean;
+function TSkipWhileEnumerationStrategy<T>.MoveNext: Boolean;
 var
   LEndOfList : Boolean;
 begin
@@ -156,7 +156,7 @@ begin
   Result := not LEndOfList;
 end;
 
-function TSkipWhileEnumerationDelegate<T>.ShouldSkipItem: Boolean;
+function TSkipWhileEnumerationStrategy<T>.ShouldSkipItem: Boolean;
 begin
   try
     if Assigned(FSkipWhilePredicate) then
@@ -169,16 +169,16 @@ begin
   end;
 end;
 
-{ TTakeWhileEnumerationDelegate<T> }
+{ TTakeWhileEnumerationStrategy<T> }
 
-constructor TTakeWhileEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
+constructor TTakeWhileEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
   Predicate: TPredicate<T>);
 begin
   inherited Create(Enumerator);
   FTakeWhilePredicate := Predicate;
 end;
 
-function TTakeWhileEnumerationDelegate<T>.MoveNext: Boolean;
+function TTakeWhileEnumerationStrategy<T>.MoveNext: Boolean;
 var
   LAtEnd : Boolean;
 begin
@@ -198,7 +198,7 @@ begin
   end;
 end;
 
-function TTakeWhileEnumerationDelegate<T>.ShouldTakeItem: Boolean;
+function TTakeWhileEnumerationStrategy<T>.ShouldTakeItem: Boolean;
 begin
   try
     if Assigned(FTakeWhilePredicate) then
@@ -211,16 +211,16 @@ begin
   end;
 end;
 
-{ TWhereEnumerationDelegate<T> }
+{ TWhereEnumerationStrategy<T> }
 
-constructor TWhereEnumerationDelegate<T>.Create(Enumerator: IMinimalEnumerator<T>;
+constructor TWhereEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
   Predicate: TPredicate<T>);
 begin
   inherited Create(Enumerator);
   FWherePredicate := Predicate;
 end;
 
-function TWhereEnumerationDelegate<T>.MoveNext: Boolean;
+function TWhereEnumerationStrategy<T>.MoveNext: Boolean;
 var
   IsDone : Boolean;
 begin
@@ -233,7 +233,7 @@ begin
   Result := IsDone;
 end;
 
-function TWhereEnumerationDelegate<T>.ShouldIncludeItem: Boolean;
+function TWhereEnumerationStrategy<T>.ShouldIncludeItem: Boolean;
 begin
   try
     if Assigned(FWherePredicate) then

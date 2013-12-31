@@ -91,7 +91,7 @@
         </DelphiCompile>
         <DCCReference Include="FluentQuery.Tests.pas"/>
         <DCCReference Include="..\FluentQuery.pas"/>
-        <DCCReference Include="..\FluentQuery.EnumerationDelegates.pas"/>
+        <DCCReference Include="..\FluentQuery.EnumerationStrategies.pas"/>
         <DCCReference Include="..\FluentQuery.Enumerators.pas"/>
         <DCCReference Include="..\FluentQuery.Types.pas"/>
         <DCCReference Include="..\FluentQuery.Enumerators.Strings.pas"/>

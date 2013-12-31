@@ -18,7 +18,7 @@ uses
   DUnitTestRunner,
   FluentQuery.Tests in 'FluentQuery.Tests.pas',
   FluentQuery in '..\FluentQuery.pas',
-  FluentQuery.EnumerationDelegates in '..\FluentQuery.EnumerationDelegates.pas',
+  FluentQuery.EnumerationStrategies in '..\FluentQuery.EnumerationStrategies.pas',
   FluentQuery.Enumerators in '..\FluentQuery.Enumerators.pas',
   FluentQuery.Types in '..\FluentQuery.Types.pas',
   FluentQuery.Enumerators.Strings in '..\FluentQuery.Enumerators.Strings.pas',

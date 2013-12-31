@@ -4,7 +4,7 @@ interface
 uses
   System.Generics.Collections,
   System.Classes,
-  FluentQuery.EnumerationDelegates,
+  FluentQuery.EnumerationStrategies,
   FluentQuery.Types;
 
 type
@@ -49,13 +49,13 @@ class function Query<T>.From(Container: TEnumerable<T>): IQueryEnumerator<T>;
 var
   EnumeratorWrapper : IMinimalEnumerator<T>;
 begin
-  EnumeratorWrapper := TGenericEnumeratorWrapper<T>.Create(Container.GetEnumerator) as IMinimalEnumerator<T>;
-  Result := TQueryEnumerator<T>.Create(TEnumerationDelegate<T>.Create(EnumeratorWrapper));
+  EnumeratorWrapper := TGenericEnumeratorAdapter<T>.Create(Container.GetEnumerator) as IMinimalEnumerator<T>;
+  Result := TQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create(EnumeratorWrapper));
 end;
 
 class function Query<T>.From(Strings: TStrings): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TEnumerationDelegate<String>.Create(TStringsEnumeratorWrapper.Create(Strings)));
+  Result := TStringQueryEnumerator.Create(TEnumerationStrategy<String>.Create(TStringsEnumeratorAdapter.Create(Strings)));
 end;
 
 
@@ -64,13 +64,13 @@ class function Query<T>.From(
 var
   EnumeratorWrapper : IMinimalEnumerator<String>;
 begin
-  EnumeratorWrapper := TGenericEnumeratorWrapper<String>.Create(Container.GetEnumerator) as IMinimalEnumerator<String>;
-  Result := TStringQueryEnumerator.Create(TEnumerationDelegate<String>.Create(EnumeratorWrapper));
+  EnumeratorWrapper := TGenericEnumeratorAdapter<String>.Create(Container.GetEnumerator) as IMinimalEnumerator<String>;
+  Result := TStringQueryEnumerator.Create(TEnumerationStrategy<String>.Create(EnumeratorWrapper));
 end;
 
 class function Query<T>.From(StringValue: String): ICharQueryEnumerator;
 begin
-  Result := TCharQueryEnumerator.Create(TEnumerationDelegate<Char>.Create(TStringEnumerator.Create(StringValue)));
+  Result := TCharQueryEnumerator.Create(TEnumerationStrategy<Char>.Create(TStringEnumeratorAdapter.Create(StringValue)));
 end;
 
 { List<T> }
