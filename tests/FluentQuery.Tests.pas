@@ -717,7 +717,6 @@ end;
 
 procedure TestTQueryTStrings.TestSkipTakeExtractStrings;
 var
-  LPassCount : Integer;
   LStrings : TStrings;
 begin
 
