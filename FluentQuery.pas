@@ -28,12 +28,12 @@ type
   end;
 
   List<T> = class
-    class function From(Enumerator : IQueryEnumerator<T>) : TList<T>;
-  end experimental;
+    class function From(Enumerator : IMinimalEnumerator<T>) : TList<T>;
+  end;
 
   ObjectList<T : class> = class
-    class function From(Enumerator : IQueryEnumerator<T>; AOwnsObjects: Boolean = True) : TObjectList<T>;
-  end experimental;
+    class function From(Enumerator : IMinimalEnumerator<T>; AOwnsObjects: Boolean = True) : TObjectList<T>;
+  end;
 
 
 implementation
@@ -75,7 +75,7 @@ end;
 
 { List<T> }
 
-class function List<T>.From(Enumerator: IQueryEnumerator<T>): TList<T>;
+class function List<T>.From(Enumerator: IMinimalEnumerator<T>): TList<T>;
 var
   LList : TList<T>;
   Item : T;
@@ -90,7 +90,7 @@ end;
 
 { ObjectList<T> }
 
-class function ObjectList<T>.From(Enumerator: IQueryEnumerator<T>; AOwnsObjects: Boolean = True): TObjectList<T>;
+class function ObjectList<T>.From(Enumerator: IMinimalEnumerator<T>; AOwnsObjects: Boolean = True): TObjectList<T>;
 var
   LObjectList : TObjectList<T>;
   Item : T;
