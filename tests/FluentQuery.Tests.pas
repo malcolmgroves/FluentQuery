@@ -40,7 +40,7 @@ type
     procedure TestTakeWhileFalse;
     procedure TestTakeWhileTrue;
     procedure TestTakeWhile;
-    procedure TestList;
+    procedure TestCreateList;
     procedure TestFirst;
   end;
 
@@ -59,7 +59,7 @@ type
     procedure TearDown; override;
   published
     procedure TestPassThrough;
-    procedure TestObjectList;
+    procedure TestCreateObjectList;
   end;
 
   TestTQueryTStrings = class(TTestCase)
@@ -74,7 +74,7 @@ type
     procedure TestMatchesCaseSensitive;
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
-    procedure TestSkipTakeExtractStrings;
+    procedure TestSkipTakeCreateStrings;
   end;
 
   TestTQueryString = class(TTestCase)
@@ -118,6 +118,8 @@ type
     procedure TestIsSymbol;
     procedure TestIsUpper;
     procedure TestIsWhiteSpace;
+    procedure TestIsUpperSkipTake;
+    procedure TestCreateStringFromIsUpperSkipTake;
   end;
 
 
@@ -280,7 +282,7 @@ begin
   Check(LPassCount = 1, 'First on a non-empty collection should enumerate one item');
 end;
 
-procedure TestTQueryInteger.TestList;
+procedure TestTQueryInteger.TestCreateList;
 var
   LIntegerList : TList<Integer>;
   LFourOrLess : TPredicate<Integer>;
@@ -291,7 +293,7 @@ begin
                  end;
 
 
-  LIntegerList := List<Integer>.From(Query<Integer>
+  LIntegerList := CreateTList<Integer>.From(Query<Integer>
                                        .From(FIntegerCollection)
                                        .TakeWhile(LFourOrLess));
   try
@@ -560,7 +562,7 @@ begin
   FPersonCollection.Free;
 end;
 
-procedure TestTQueryPerson.TestObjectList;
+procedure TestTQueryPerson.TestCreateObjectList;
 var
   LPersonList : TList<TPerson>;
   L18OrMore : TPredicate<TPerson>;
@@ -571,7 +573,7 @@ begin
                end;
 
 
-  LPersonList := ObjectList<TPerson>.From(Query<TPerson>
+  LPersonList := CreateTObjectList<TPerson>.From(Query<TPerson>
                                             .From(FPersonCollection)
                                             .Where(L18OrMore),
                                           False);
@@ -715,12 +717,12 @@ begin
 end;
 
 
-procedure TestTQueryTStrings.TestSkipTakeExtractStrings;
+procedure TestTQueryTStrings.TestSkipTakeCreateStrings;
 var
   LStrings : TStrings;
 begin
 
-  LStrings := Strings.From(Query<String>
+  LStrings := CreateTStrings.From(Query<String>
                              .From(FStrings)
                              .Skip(4)
                              .Take(3));
@@ -905,6 +907,20 @@ begin
 end;
 
 
+procedure TestTQueryChar.TestCreateStringFromIsUpperSkipTake;
+var
+  LResultString : String;
+begin
+  LResultString := CreateString.From(Query<Char>
+                                    .From(FStringVal)
+                                    .IsUpper
+                                    .Skip(5)
+                                    .Take(4));
+
+  Check(LResultString.Length = 4, 'Take(4) should enumerate 4 chars');
+  Check(LResultString = 'FGHI', 'IsUpper.Skip(5).Take(4) should enumerate F, G, H and then I');
+end;
+
 procedure TestTQueryChar.TestIsDigit;
 var
   LPassCount : Integer;
@@ -1002,6 +1018,23 @@ begin
   for LChar in Query<Char>.From(FStringVal).IsUpper do
     Inc(LPassCount);
   Check(LPassCount = 26, 'IsUpper Query should enumerate 26 chars');
+end;
+
+procedure TestTQueryChar.TestIsUpperSkipTake;
+var
+  LChar : Char;
+  LResultString : String;
+begin
+  for LChar in Query<Char>
+                 .From(FStringVal)
+                 .IsUpper
+                 .Skip(5)
+                 .Take(4) do
+  begin
+    LResultString := LResultString + LChar;
+  end;
+  Check(LResultString.Length = 4, 'Take(4) should enumerate 4 chars');
+  Check(LResultString = 'FGHI', 'IsUpper.Skip(5).Take(4) should enumerate F, G, H and then I');
 end;
 
 procedure TestTQueryChar.TestIsWhiteSpace;

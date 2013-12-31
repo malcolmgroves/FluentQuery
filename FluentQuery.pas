@@ -27,17 +27,21 @@ type
     class function From(StringValue : String) : ICharQueryEnumerator; overload;
   end;
 
-  List<T> = class
-    class function From(Enumerator : IMinimalEnumerator<T>) : TList<T>;
-  end experimental;
+  CreateTList<T> = class
+    class function From(Query : IMinimalEnumerator<T>) : TList<T>;
+  end;
 
-  ObjectList<T : class> = class
-    class function From(Enumerator : IMinimalEnumerator<T>; AOwnsObjects: Boolean = True) : TObjectList<T>;
-  end experimental;
+  CreateTObjectList<T : class> = class
+    class function From(Query : IMinimalEnumerator<T>; AOwnsObjects: Boolean = True) : TObjectList<T>;
+  end;
 
-  Strings = class
-    class function From(Enumerator : IMinimalEnumerator<String>) : TStrings;
-  end experimental;
+  CreateTStrings = class
+    class function From(Query : IMinimalEnumerator<String>) : TStrings;
+  end;
+
+  CreateString = class
+    class function From(Query : IMinimalEnumerator<Char>) : String;
+  end;
 
 
 
@@ -86,47 +90,61 @@ end;
 
 { List<T> }
 
-class function List<T>.From(Enumerator: IMinimalEnumerator<T>): TList<T>;
+class function CreateTList<T>.From(Query: IMinimalEnumerator<T>): TList<T>;
 var
   LList : TList<T>;
   Item : T;
 begin
   LList := TList<T>.Create;
 
-  while Enumerator.MoveNext do
-    LList.Add(Enumerator.Current);
+  while Query.MoveNext do
+    LList.Add(Query.Current);
 
   Result := LList;
 end;
 
 { ObjectList<T> }
 
-class function ObjectList<T>.From(Enumerator: IMinimalEnumerator<T>; AOwnsObjects: Boolean = True): TObjectList<T>;
+class function CreateTObjectList<T>.From(Query: IMinimalEnumerator<T>; AOwnsObjects: Boolean = True): TObjectList<T>;
 var
   LObjectList : TObjectList<T>;
   Item : T;
 begin
   LObjectList := TObjectList<T>.Create(AOwnsObjects);
 
-  while Enumerator.MoveNext do
-    LObjectList.Add(Enumerator.Current);
+  while Query.MoveNext do
+    LObjectList.Add(Query.Current);
 
   Result := LObjectList;
 end;
 
 { Strings }
 
-class function Strings.From(Enumerator: IMinimalEnumerator<String>): TStrings;
+class function CreateTStrings.From(Query: IMinimalEnumerator<String>): TStrings;
 var
   LStrings : TStrings;
 begin
   LStrings := TStringList.Create;
 
-  while Enumerator.MoveNext do
-    LStrings.Add(Enumerator.Current);
+  while Query.MoveNext do
+    LStrings.Add(Query.Current);
 
   Result := LStrings;
 end;
 
+
+{ GetString }
+
+class function CreateString.From(Query: IMinimalEnumerator<Char>): String;
+var
+  LString : String;
+begin
+  LString := '';
+
+  while Query.MoveNext do
+    LString := LString + Query.Current;
+
+  Result := LString;
+end;
 
 end.
