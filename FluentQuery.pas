@@ -29,11 +29,16 @@ type
 
   List<T> = class
     class function From(Enumerator : IMinimalEnumerator<T>) : TList<T>;
-  end;
+  end experimental;
 
   ObjectList<T : class> = class
     class function From(Enumerator : IMinimalEnumerator<T>; AOwnsObjects: Boolean = True) : TObjectList<T>;
-  end;
+  end experimental;
+
+  Strings = class
+    class function From(Enumerator : IMinimalEnumerator<String>) : TStrings;
+  end experimental;
+
 
 
 implementation
@@ -101,6 +106,20 @@ begin
     LObjectList.Add(Enumerator.Current);
 
   Result := LObjectList;
+end;
+
+{ Strings }
+
+class function Strings.From(Enumerator: IMinimalEnumerator<String>): TStrings;
+var
+  LStrings : TStrings;
+begin
+  LStrings := TStringList.Create;
+
+  while Enumerator.MoveNext do
+    LStrings.Add(Enumerator.Current);
+
+  Result := LStrings;
 end;
 
 end.

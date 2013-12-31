@@ -74,6 +74,7 @@ type
     procedure TestMatchesCaseSensitive;
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
+    procedure TestSkipTakeExtractStrings;
   end;
 
   TestTQueryString = class(TTestCase)
@@ -291,8 +292,8 @@ begin
 
 
   LIntegerList := List<Integer>.From(Query<Integer>
-                                      .From(FIntegerCollection)
-                                      .TakeWhile(LFourOrLess));
+                                       .From(FIntegerCollection)
+                                       .TakeWhile(LFourOrLess));
   try
     Check(LIntegerList.Count = 4, 'Should have 4 items in list');
     Check(LIntegerList.Items[0] = 1, 'First item should be 1');
@@ -713,6 +714,23 @@ begin
   Check(LPassCount = 3, 'Take(3) should enumerate 3 strings');
 end;
 
+
+procedure TestTQueryTStrings.TestSkipTakeExtractStrings;
+var
+  LPassCount : Integer;
+  LStrings : TStrings;
+begin
+
+  LStrings := Strings.From(Query<String>
+                             .From(FStrings)
+                             .Skip(4)
+                             .Take(3));
+  try                   
+    Check(LStrings.Count = 3, 'Should contain 3 strings');
+  finally
+    LStrings.Free;
+  end;
+end;
 
 { TestTQueryString }
 
