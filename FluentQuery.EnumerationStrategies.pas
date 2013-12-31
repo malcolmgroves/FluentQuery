@@ -8,12 +8,9 @@ uses
 
 type
   TEnumerationStrategy<T> = class
-  private
-    FEnumerator : IMinimalEnumerator<T>;
   public
-    function MoveNext: Boolean; virtual;
-    function GetCurrent: T; virtual;
-    constructor Create(Enumerator : IMinimalEnumerator<T>); virtual;
+    function MoveNext(Enumerator : IMinimalEnumerator<T>) : Boolean; virtual;
+    function GetCurrent(Enumerator : IMinimalEnumerator<T>): T; virtual;
   end;
 
   TTakeEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
@@ -21,8 +18,8 @@ type
     FTakeCount: Integer;
     FItemCount : Integer;
   public
-    function MoveNext: Boolean; override;
-    constructor Create(Enumerator : IMinimalEnumerator<T>; TakeCount : Integer); reintroduce;
+    function MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean; override;
+    constructor Create(TakeCount : Integer); virtual;
   end;
 
   TSkipEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
@@ -30,92 +27,84 @@ type
     FSkipCount: Integer;
     FItemCount : Integer;
   public
-    function MoveNext: Boolean; override;
-    constructor Create(Enumerator : IMinimalEnumerator<T>; SkipCount : Integer); reintroduce;
+    function MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean; override;
+    constructor Create(SkipCount : Integer); virtual;
   end;
 
   TSkipWhileEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FSkipWhilePredicate : TPredicate<T>;
   protected
-    function ShouldSkipItem : Boolean;
+    function ShouldSkipItem(Enumerator : IMinimalEnumerator<T>) : Boolean;
   public
-    function MoveNext: Boolean; override;
-    constructor Create(Enumerator : IMinimalEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
+    function MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean; override;
+    constructor Create(Predicate : TPredicate<T>); virtual;
   end;
 
   TTakeWhileEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FTakeWhilePredicate : TPredicate<T>;
   protected
-    function ShouldTakeItem : Boolean;
+    function ShouldTakeItem(Enumerator : IMinimalEnumerator<T>) : Boolean;
   public
-    function MoveNext: Boolean; override;
-    constructor Create(Enumerator : IMinimalEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
+    function MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean; override;
+    constructor Create(Predicate : TPredicate<T>); virtual;
   end;
 
   TWhereEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FWherePredicate : TPredicate<T>;
   protected
-    function ShouldIncludeItem : Boolean;
+    function ShouldIncludeItem(Enumerator : IMinimalEnumerator<T>) : Boolean;
   public
-    function MoveNext: Boolean; override;
-    constructor Create(Enumerator : IMinimalEnumerator<T>; Predicate : TPredicate<T>); reintroduce;
+    function MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean; override;
+    constructor Create(Predicate : TPredicate<T>); virtual;
   end;
 
 implementation
 
 { TEnumerationStrategy<T> }
 
-constructor TEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>);
+
+
+function TEnumerationStrategy<T>.GetCurrent(Enumerator : IMinimalEnumerator<T>): T;
 begin
-  FEnumerator := Enumerator;
+  Result := Enumerator.Current;
 end;
 
-
-function TEnumerationStrategy<T>.GetCurrent: T;
+function TEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 begin
-  Result := FEnumerator.Current;
-end;
-
-function TEnumerationStrategy<T>.MoveNext: Boolean;
-begin
-  Result := FEnumerator.MoveNext;
+  Result := Enumerator.MoveNext;
 end;
 
 { TTakeEnumerationStrategy<T> }
 
-constructor TTakeEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
-  TakeCount: Integer);
+constructor TTakeEnumerationStrategy<T>.Create(TakeCount: Integer);
 begin
-  inherited Create(Enumerator);
   FItemCount := 0;
   FTakeCount := TakeCount;
 end;
 
-function TTakeEnumerationStrategy<T>.MoveNext: Boolean;
+function TTakeEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 begin
   Result := FItemCount < FTakeCount;
 
   if Result then
   begin
-    Result := inherited MoveNext;
+    Result := Enumerator.MoveNext;
     Inc(FItemCount);
   end;
 end;
 
 { TSkipEnumerationStrategy<T> }
 
-constructor TSkipEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
-  SkipCount: Integer);
+constructor TSkipEnumerationStrategy<T>.Create(SkipCount: Integer);
 begin
-  inherited Create(Enumerator);
   FItemCount := 0;
   FSkipCount := SkipCount;
 end;
 
-function TSkipEnumerationStrategy<T>.MoveNext: Boolean;
+function TSkipEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 var
   LEndOfList : Boolean;
 begin
@@ -123,7 +112,7 @@ begin
   while (FItemCount < FSkipCount) do
   begin
     Inc(FItemCount);
-    LEndOfList := not inherited MoveNext;
+    LEndOfList := not Enumerator.MoveNext;
     if LEndOfList then
       break;
   end;
@@ -131,36 +120,34 @@ begin
   if LEndOfList then
     Result := not LEndOfList
   else
-    Result := inherited MoveNext;
+    Result := Enumerator.MoveNext;
 end;
 
 { TSkipWhileEnumerationStrategy<T> }
 
-constructor TSkipWhileEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
-  Predicate: TPredicate<T>);
+constructor TSkipWhileEnumerationStrategy<T>.Create(Predicate: TPredicate<T>);
 begin
-  inherited Create(Enumerator);
   FSkipWhilePredicate := Predicate;
 end;
 
-function TSkipWhileEnumerationStrategy<T>.MoveNext: Boolean;
+function TSkipWhileEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 var
   LEndOfList : Boolean;
 begin
   repeat
-    LEndOfList := not inherited MoveNext;
+    LEndOfList := not Enumerator.MoveNext;
     if LEndOfList then
       break;
-  until not ShouldSkipItem;
+  until not ShouldSkipItem(Enumerator);
 
   Result := not LEndOfList;
 end;
 
-function TSkipWhileEnumerationStrategy<T>.ShouldSkipItem: Boolean;
+function TSkipWhileEnumerationStrategy<T>.ShouldSkipItem(Enumerator : IMinimalEnumerator<T>): Boolean;
 begin
   try
     if Assigned(FSkipWhilePredicate) then
-      Result := FSkipWhilePredicate(GetCurrent)
+      Result := FSkipWhilePredicate(Enumerator.Current)
     else
       Result := False;
   except
@@ -171,38 +158,36 @@ end;
 
 { TTakeWhileEnumerationStrategy<T> }
 
-constructor TTakeWhileEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
-  Predicate: TPredicate<T>);
+constructor TTakeWhileEnumerationStrategy<T>.Create(Predicate: TPredicate<T>);
 begin
-  inherited Create(Enumerator);
   FTakeWhilePredicate := Predicate;
 end;
 
-function TTakeWhileEnumerationStrategy<T>.MoveNext: Boolean;
+function TTakeWhileEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 var
   LAtEnd : Boolean;
 begin
-  LAtEnd := not inherited MoveNext;
+  LAtEnd := not Enumerator.MoveNext;
 
   if LAtEnd then
     Exit(False);
 
-  if ShouldTakeItem then
+  if ShouldTakeItem(Enumerator) then
     Result := True
   else
   begin
     repeat
-      LAtEnd := not inherited MoveNext;
+      LAtEnd := not Enumerator.MoveNext;
     until LAtEnd;
     Result := False
   end;
 end;
 
-function TTakeWhileEnumerationStrategy<T>.ShouldTakeItem: Boolean;
+function TTakeWhileEnumerationStrategy<T>.ShouldTakeItem(Enumerator : IMinimalEnumerator<T>): Boolean;
 begin
   try
     if Assigned(FTakeWhilePredicate) then
-      Result := FTakeWhilePredicate(GetCurrent)
+      Result := FTakeWhilePredicate(Enumerator.Current)
     else
       Result := False;
   except
@@ -213,31 +198,29 @@ end;
 
 { TWhereEnumerationStrategy<T> }
 
-constructor TWhereEnumerationStrategy<T>.Create(Enumerator: IMinimalEnumerator<T>;
-  Predicate: TPredicate<T>);
+constructor TWhereEnumerationStrategy<T>.Create(Predicate: TPredicate<T>);
 begin
-  inherited Create(Enumerator);
   FWherePredicate := Predicate;
 end;
 
-function TWhereEnumerationStrategy<T>.MoveNext: Boolean;
+function TWhereEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 var
   IsDone : Boolean;
 begin
-  inherited MoveNext;
+  Enumerator.MoveNext;
 
   repeat
-    IsDone := ShouldIncludeItem;
-  until IsDone or (not inherited MoveNext);
+    IsDone := ShouldIncludeItem(Enumerator);
+  until IsDone or (not Enumerator.MoveNext);
 
   Result := IsDone;
 end;
 
-function TWhereEnumerationStrategy<T>.ShouldIncludeItem: Boolean;
+function TWhereEnumerationStrategy<T>.ShouldIncludeItem(Enumerator : IMinimalEnumerator<T>): Boolean;
 begin
   try
     if Assigned(FWherePredicate) then
-      Result := FWherePredicate(GetCurrent)
+      Result := FWherePredicate(Enumerator.Current)
     else
       Result := False;
   except

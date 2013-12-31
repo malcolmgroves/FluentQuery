@@ -11,10 +11,11 @@ type
   TMinimalEnumerator<T> = class(TinterfacedObject, IMinimalEnumerator<T>)
   protected
     FEnumerationStrategy : TEnumerationStrategy<T>;
+    FSourceData : IMinimalEnumerator<T>;
     function GetCurrent: T; overload;
     function MoveNext: Boolean;
   public
-    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>); virtual;
+    constructor Create(SourceData : IMinimalEnumerator<T>; EnumerationStrategy : TEnumerationStrategy<T>); virtual;
     destructor Destroy; override;
     property Current: T read GetCurrent;
   end;
@@ -56,9 +57,10 @@ implementation
 
 { TMinimalEnumerator<T> }
 
-constructor TMinimalEnumerator<T>.Create(
-  EnumerationStrategy: TEnumerationStrategy<T>);
+constructor TMinimalEnumerator<T>.Create(SourceData : IMinimalEnumerator<T>;
+                                         EnumerationStrategy: TEnumerationStrategy<T>);
 begin
+  FSourceData := SourceData;
   FEnumerationStrategy := EnumerationStrategy;
 end;
 
@@ -70,12 +72,12 @@ end;
 
 function TMinimalEnumerator<T>.GetCurrent: T;
 begin
-  Result := FEnumerationStrategy.GetCurrent;
+  Result := FEnumerationStrategy.GetCurrent(FSourceData);;
 end;
 
 function TMinimalEnumerator<T>.MoveNext: Boolean;
 begin
-  Result := FEnumerationStrategy.MoveNext;
+  Result := FEnumerationStrategy.MoveNext(FSourceData);
 end;
 
 

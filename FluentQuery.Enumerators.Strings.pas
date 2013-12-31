@@ -45,7 +45,8 @@ begin
                             Result := CurrentValue.Contains(Value);
                         end;
 
-  Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), LContainsPredicate));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TWhereEnumerationStrategy<String>.Create(LContainsPredicate));
 end;
 
 function TStringQueryEnumerator.EndsWith(const Value: String;
@@ -63,12 +64,14 @@ begin
                             Result := CurrentValue.EndsWith(Value);
                         end;
 
-  Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), LEndsWithPredicate));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TWhereEnumerationStrategy<String>.Create(LEndsWithPredicate));
 end;
 
 function TStringQueryEnumerator.First: IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TTakeEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), 1));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TTakeEnumerationStrategy<String>.Create(1));
 end;
 
 function TStringQueryEnumerator.GetEnumerator: IStringQueryEnumerator;
@@ -86,18 +89,21 @@ begin
                          Result := CurrentValue.Compare(CurrentValue, Value, IgnoreCase) = 0;
                        end;
 
-  Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), LMatchesPredicate));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TWhereEnumerationStrategy<String>.Create(LMatchesPredicate));
 end;
 
 function TStringQueryEnumerator.Skip(Count: Integer): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TSkipEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), Count));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TSkipEnumerationStrategy<String>.Create(Count));
 end;
 
 function TStringQueryEnumerator.SkipWhile(
   Predicate: TPredicate<String>): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TSkipWhileEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), Predicate));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TSkipWhileEnumerationStrategy<String>.Create(Predicate));
 end;
 
 function TStringQueryEnumerator.StartsWith(const Value: String;
@@ -115,24 +121,28 @@ begin
                               Result := CurrentValue.StartsWith(Value);
                           end;
 
-  Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), LStartsWithPredicate));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TWhereEnumerationStrategy<String>.Create(LStartsWithPredicate));
 end;
 
 function TStringQueryEnumerator.Take(Count: Integer): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TTakeEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), Count));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TTakeEnumerationStrategy<String>.Create(Count));
 end;
 
 function TStringQueryEnumerator.TakeWhile(
   Predicate: TPredicate<String>): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TTakeWhileEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), Predicate));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TTakeWhileEnumerationStrategy<String>.Create(Predicate));
 end;
 
 function TStringQueryEnumerator.Where(
   Predicate: TPredicate<String>): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(IMinimalEnumerator<String>(self), Predicate));
+  Result := TStringQueryEnumerator.Create(IMinimalEnumerator<String>(self),
+                                          TWhereEnumerationStrategy<String>.Create(Predicate));
 end;
 
 
