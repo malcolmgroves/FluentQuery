@@ -41,6 +41,7 @@ type
 
 
 
+
 implementation
 uses
   FluentQuery.Enumerators,
@@ -55,13 +56,14 @@ var
   EnumeratorWrapper : IMinimalEnumerator<T>;
 begin
   EnumeratorWrapper := TGenericEnumeratorAdapter<T>.Create(Container.GetEnumerator) as IMinimalEnumerator<T>;
-  Result := TQueryEnumerator<T>.Create(EnumeratorWrapper, TEnumerationStrategy<T>.Create);
+  Result := TQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create,
+                                       EnumeratorWrapper);
 end;
 
 class function Query<T>.From(Strings: TStrings): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TStringsEnumeratorAdapter.Create(Strings),
-                                          TEnumerationStrategy<String>.Create);
+  Result := TStringQueryEnumerator.Create(TEnumerationStrategy<String>.Create,
+                                          TStringsEnumeratorAdapter.Create(Strings));
 end;
 
 
@@ -71,15 +73,16 @@ var
   EnumeratorWrapper : IMinimalEnumerator<String>;
 begin
   EnumeratorWrapper := TGenericEnumeratorAdapter<String>.Create(Container.GetEnumerator) as IMinimalEnumerator<String>;
-  Result := TStringQueryEnumerator.Create(EnumeratorWrapper,
-                                          TEnumerationStrategy<String>.Create);
+  Result := TStringQueryEnumerator.Create(TEnumerationStrategy<String>.Create,
+                                          EnumeratorWrapper);
 end;
 
 class function Query<T>.From(StringValue: String): ICharQueryEnumerator;
 begin
-  Result := TCharQueryEnumerator.Create(TStringEnumeratorAdapter.Create(StringValue),
-                                        TEnumerationStrategy<Char>.Create);
+  Result := TCharQueryEnumerator.Create(TEnumerationStrategy<Char>.Create,
+                                        TStringEnumeratorAdapter.Create(StringValue));
 end;
+
 
 { List<T> }
 
@@ -124,5 +127,6 @@ begin
 
   Result := LStrings;
 end;
+
 
 end.

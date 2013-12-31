@@ -13,9 +13,10 @@ type
     FEnumerationStrategy : TEnumerationStrategy<T>;
     FSourceData : IMinimalEnumerator<T>;
     function GetCurrent: T; overload;
+    procedure SetSourceData(SourceData : IMinimalEnumerator<T>); virtual;
     function MoveNext: Boolean;
   public
-    constructor Create(SourceData : IMinimalEnumerator<T>; EnumerationStrategy : TEnumerationStrategy<T>); virtual;
+    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>; SourceData : IMinimalEnumerator<T>); virtual;
     destructor Destroy; override;
     property Current: T read GetCurrent;
   end;
@@ -53,14 +54,24 @@ type
     property Current: Char read GetCurrent;
   end;
 
+  TSingleValueAdapter<T> = class(TInterfacedObject, IMinimalEnumerator<T>)
+  private
+    FMoveCount: Integer;
+    FValue : T;
+  public
+    function GetCurrent: T;
+    function MoveNext: Boolean;
+    constructor Create(Value : T);
+  end;
+
+
 implementation
 
 { TMinimalEnumerator<T> }
 
-constructor TMinimalEnumerator<T>.Create(SourceData : IMinimalEnumerator<T>;
-                                         EnumerationStrategy: TEnumerationStrategy<T>);
+constructor TMinimalEnumerator<T>.Create(EnumerationStrategy: TEnumerationStrategy<T>; SourceData : IMinimalEnumerator<T>);
 begin
-  FSourceData := SourceData;
+  SetSourceData(SourceData);
   FEnumerationStrategy := EnumerationStrategy;
 end;
 
@@ -80,6 +91,13 @@ begin
   Result := FEnumerationStrategy.MoveNext(FSourceData);
 end;
 
+
+
+procedure TMinimalEnumerator<T>.SetSourceData(
+  SourceData: IMinimalEnumerator<T>);
+begin
+  FSourceData := SourceData;
+end;
 
 { TStringsEnumeratorWrapper }
 
@@ -146,6 +164,24 @@ begin
   Inc(FIndex);
 
   Result := FIndex <= High(FStringValue);
+end;
+
+{ TSingleValueAdapter<T> }
+
+constructor TSingleValueAdapter<T>.Create(Value: T);
+begin
+  FValue := Value;
+end;
+
+function TSingleValueAdapter<T>.GetCurrent: T;
+begin
+  Result := FValue;
+end;
+
+function TSingleValueAdapter<T>.MoveNext: Boolean;
+begin
+  Inc(FMoveCount);
+  Result := FMoveCount = 1;
 end;
 
 end.
