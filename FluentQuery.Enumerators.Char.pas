@@ -46,7 +46,7 @@ uses
 
 function TCharQueryEnumerator.First: ICharQueryEnumerator;
 begin
-  Result := TCharQueryEnumerator.Create(TTakeEnumerationStrategy<Char>.Create(1),
+  Result := TCharQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.LessThanOrEqualTo(1)),
                                         IMinimalEnumerator<Char>(self));
 end;
 
@@ -276,8 +276,8 @@ end;
 
 function TCharQueryEnumerator.Skip(Count: Integer): ICharQueryEnumerator;
 begin
-  Result := TCharQueryEnumerator.Create(TSkipEnumerationStrategy<Char>.Create(Count),
-                                        IMinimalEnumerator<Char>(self));
+  Result := TCharQueryEnumerator.Create(TSkipWhileEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.LessThanOrEqualTo(Count)),
+                                       IMinimalEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.SkipWhile(
@@ -289,7 +289,7 @@ end;
 
 function TCharQueryEnumerator.Take(Count: Integer): ICharQueryEnumerator;
 begin
-  Result := TCharQueryEnumerator.Create(TTakeEnumerationStrategy<Char>.Create(Count),
+  Result := TCharQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.LessThanOrEqualTo(Count)),
                                         IMinimalEnumerator<Char>(self));
 end;
 
