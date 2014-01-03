@@ -144,15 +144,15 @@ end;
 
 function TWhereEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 var
-  IsDone : Boolean;
+  IncludeItem, IsDone : Boolean;
 begin
-  Enumerator.MoveNext;
-
   repeat
-    IsDone := ShouldIncludeItem(Enumerator);
-  until IsDone or (not Enumerator.MoveNext);
+    IsDone := not Enumerator.MoveNext;
+    if not IsDone then
+      IncludeItem := ShouldIncludeItem(Enumerator);
+  until IsDone or IncludeItem;
 
-  Result := IsDone;
+  Result := not IsDone;
 end;
 
 function TWhereEnumerationStrategy<T>.ShouldIncludeItem(Enumerator : IMinimalEnumerator<T>): Boolean;

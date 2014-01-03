@@ -27,7 +27,7 @@ type
     function GetCurrent: String;
     function MoveNext: Boolean;
   public
-    constructor Create(Strings : TStrings); virtual;
+    constructor Create(StringsEnumerator : TStringsEnumerator); virtual;
     destructor Destroy; override;
     property Current: String read GetCurrent;
   end;
@@ -64,6 +64,15 @@ type
     constructor Create(Value : T);
   end;
 
+  TListEnumeratorAdapter = class(TinterfacedObject, IMinimalEnumerator<Pointer>)
+    FListEnumerator : TListEnumerator;
+    function GetCurrent: Pointer;
+    function MoveNext: Boolean;
+  public
+    constructor Create(ListEnumerator : TListEnumerator); virtual;
+    destructor Destroy; override;
+    property Current: Pointer read GetCurrent;
+  end;
 
 implementation
 
@@ -101,9 +110,9 @@ end;
 
 { TStringsEnumeratorWrapper }
 
-constructor TStringsEnumeratorAdapter.Create(Strings: TStrings);
+constructor TStringsEnumeratorAdapter.Create(StringsEnumerator : TStringsEnumerator);
 begin
-  FStringsEnumerator := TStringsEnumerator.Create(Strings);
+  FStringsEnumerator := StringsEnumerator;
 end;
 
 destructor TStringsEnumeratorAdapter.Destroy;
@@ -183,5 +192,29 @@ begin
   Inc(FMoveCount);
   Result := FMoveCount = 1;
 end;
+
+{ TListEnumeratorAdapter }
+
+constructor TListEnumeratorAdapter.Create(ListEnumerator: TListEnumerator);
+begin
+  FListEnumerator := ListEnumerator;
+end;
+
+destructor TListEnumeratorAdapter.Destroy;
+begin
+  FListEnumerator.Free;
+  inherited;
+end;
+
+function TListEnumeratorAdapter.GetCurrent: Pointer;
+begin
+  Result := FListEnumerator.Current;
+end;
+
+function TListEnumeratorAdapter.MoveNext: Boolean;
+begin
+  Result := FListEnumerator.MoveNext;
+end;
+
 
 end.

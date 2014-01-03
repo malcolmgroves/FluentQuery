@@ -64,6 +64,7 @@ FluentQuery currently supports querying over the following types of containers:
 - Anything with a TEnumerator&lt;T>, such as TList&lt;T>, TObjectList&lt;T>, etc 
 - Strings in a TStrings, such as TStringList, etc
 - Chars in a String
+- Pointers in a TList
 
 Query Operations Supported
 --------------------------
@@ -112,6 +113,11 @@ IsSymbol        | Enumerates items that are Unicode symbols
 IsUpper         | Enumerates items that are upper case 
 IsWhitespace    | Enumerates items that are Unicode whitespace characters 
 
+###Pointer Query Operations 
+
+Operation | Description 
+:-------- | :----------  
+IsAssigned| Enumerates non-nil items. 
 
 
 I'm adding more operations as I need them, but the code is fairly simple if you want to add more.
