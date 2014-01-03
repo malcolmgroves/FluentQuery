@@ -94,7 +94,7 @@ implementation
 
 function TQueryEnumerator<T>.First: IQueryEnumerator<T>;
 begin
-  Result := TQueryEnumerator<T>.Create(TTakeEnumerationStrategy<T>.Create(1),
+  Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(1)),
                                        IMinimalEnumerator<T>(self));
 end;
 
@@ -105,7 +105,7 @@ end;
 
 function TQueryEnumerator<T>.Skip(Count: Integer): IQueryEnumerator<T>;
 begin
-  Result := TQueryEnumerator<T>.Create(TSkipEnumerationStrategy<T>.Create(Count),
+  Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
                                        IMinimalEnumerator<T>(self));
 end;
 
@@ -118,7 +118,7 @@ end;
 
 function TQueryEnumerator<T>.Take(Count: Integer): IQueryEnumerator<T>;
 begin
-  Result := TQueryEnumerator<T>.Create(TTakeEnumerationStrategy<T>.Create(Count),
+  Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
                                        IMinimalEnumerator<T>(self));
 end;
 

@@ -69,7 +69,7 @@ end;
 
 function TStringQueryEnumerator.First: IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TTakeEnumerationStrategy<String>.Create(1),
+  Result := TStringQueryEnumerator.Create(TTakeWhileEnumerationStrategy<String>.Create(TPredicateFactory<String>.LessThanOrEqualTo(1)),
                                           IMinimalEnumerator<String>(self));
 end;
 
@@ -94,7 +94,7 @@ end;
 
 function TStringQueryEnumerator.Skip(Count: Integer): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TSkipEnumerationStrategy<String>.Create(Count),
+  Result := TStringQueryEnumerator.Create(TSkipWhileEnumerationStrategy<String>.Create(TPredicateFactory<String>.LessThanOrEqualTo(Count)),
                                           IMinimalEnumerator<String>(self));
 end;
 
@@ -126,7 +126,7 @@ end;
 
 function TStringQueryEnumerator.Take(Count: Integer): IStringQueryEnumerator;
 begin
-  Result := TStringQueryEnumerator.Create(TTakeEnumerationStrategy<String>.Create(Count),
+  Result := TStringQueryEnumerator.Create(TTakeWhileEnumerationStrategy<String>.Create(TPredicateFactory<String>.LessThanOrEqualTo(Count)),
                                           IMinimalEnumerator<String>(self));
 end;
 

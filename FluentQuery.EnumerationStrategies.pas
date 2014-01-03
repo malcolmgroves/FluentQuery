@@ -13,24 +13,6 @@ type
     function GetCurrent(Enumerator : IMinimalEnumerator<T>): T; virtual;
   end;
 
-  TTakeEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
-  private
-    FTakeCount: Integer;
-    FItemCount : Integer;
-  public
-    function MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean; override;
-    constructor Create(TakeCount : Integer); virtual;
-  end;
-
-  TSkipEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
-  private
-    FSkipCount: Integer;
-    FItemCount : Integer;
-  public
-    function MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean; override;
-    constructor Create(SkipCount : Integer); virtual;
-  end;
-
   TSkipWhileEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FSkipWhilePredicate : TPredicate<T>;
@@ -61,11 +43,14 @@ type
     constructor Create(Predicate : TPredicate<T>); virtual;
   end;
 
+  TPredicateFactory<T> = class
+  public
+    class function LessThanOrEqualTo(Count : Integer) : TPredicate<T>;
+  end;
+
 implementation
 
 { TEnumerationStrategy<T> }
-
-
 
 function TEnumerationStrategy<T>.GetCurrent(Enumerator : IMinimalEnumerator<T>): T;
 begin
@@ -75,52 +60,6 @@ end;
 function TEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 begin
   Result := Enumerator.MoveNext;
-end;
-
-{ TTakeEnumerationStrategy<T> }
-
-constructor TTakeEnumerationStrategy<T>.Create(TakeCount: Integer);
-begin
-  FItemCount := 0;
-  FTakeCount := TakeCount;
-end;
-
-function TTakeEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
-begin
-  Result := FItemCount < FTakeCount;
-
-  if Result then
-  begin
-    Result := Enumerator.MoveNext;
-    Inc(FItemCount);
-  end;
-end;
-
-{ TSkipEnumerationStrategy<T> }
-
-constructor TSkipEnumerationStrategy<T>.Create(SkipCount: Integer);
-begin
-  FItemCount := 0;
-  FSkipCount := SkipCount;
-end;
-
-function TSkipEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
-var
-  LEndOfList : Boolean;
-begin
-  LEndOFList := False;
-  while (FItemCount < FSkipCount) do
-  begin
-    Inc(FItemCount);
-    LEndOfList := not Enumerator.MoveNext;
-    if LEndOfList then
-      break;
-  end;
-
-  if LEndOfList then
-    Result := not LEndOfList
-  else
-    Result := Enumerator.MoveNext;
 end;
 
 { TSkipWhileEnumerationStrategy<T> }
@@ -227,6 +166,21 @@ begin
     on E : EArgumentOutOfRangeException do
       Result := False;
   end;
+end;
+
+{ TEnumerationPredicates<T> }
+
+class function TPredicateFactory<T>.LessThanOrEqualTo(
+  Count: Integer): TPredicate<T>;
+var
+  LCount : Integer;
+begin
+  LCOunt := 0;
+  Result := function (Value : T) : boolean
+            begin
+              Inc(LCount);
+              Result := LCount <= Count;
+            end;
 end;
 
 end.
