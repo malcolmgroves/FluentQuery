@@ -64,6 +64,12 @@ type
     function IsWhiteSpace: ICharQueryEnumerator;
   end;
 
+  IPointerQueryEnumerator = interface(IMinimalEnumerator<Pointer>)
+    function GetEnumerator: IPointerQueryEnumerator;
+    procedure SetSourceData(SourceData : IMinimalEnumerator<Pointer>);
+    function IsAssigned : IPointerQueryEnumerator;
+  end;
+
 implementation
 
 end.

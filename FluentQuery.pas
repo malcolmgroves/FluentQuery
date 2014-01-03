@@ -23,6 +23,8 @@ type
     ///	</summary>
     class function From(Container : TEnumerable<T>) : IQueryEnumerator<T>; overload;
     class function From(Container : TEnumerable<String>) : IStringQueryEnumerator; overload;
+    class function From(Container : TEnumerable<Pointer>) : IPointerQueryEnumerator; overload;
+    class function From(List : TList) : IPointerQueryEnumerator; overload;
     class function From(Strings : TStrings) : IStringQueryEnumerator; overload;
     class function From(StringValue : String) : ICharQueryEnumerator; overload;
   end;
@@ -51,7 +53,8 @@ uses
   FluentQuery.Enumerators,
   FluentQuery.Enumerators.Strings,
   FluentQuery.Enumerators.Generic,
-  FluentQuery.Enumerators.Char;
+  FluentQuery.Enumerators.Char,
+  FluentQuery.Enumerators.Pointer;
 
 { Query<T> }
 
@@ -67,7 +70,7 @@ end;
 class function Query<T>.From(Strings: TStrings): IStringQueryEnumerator;
 begin
   Result := TStringQueryEnumerator.Create(TEnumerationStrategy<String>.Create,
-                                          TStringsEnumeratorAdapter.Create(Strings));
+                                          TStringsEnumeratorAdapter.Create(Strings.GetEnumerator));
 end;
 
 
@@ -87,6 +90,18 @@ begin
                                         TStringEnumeratorAdapter.Create(StringValue));
 end;
 
+class function Query<T>.From(
+  Container: TEnumerable<Pointer>): IPointerQueryEnumerator;
+begin
+  Result := TPointerQueryEnumerator.Create(TEnumerationStrategy<Pointer>.Create,
+                                           TGenericEnumeratorAdapter<Pointer>.Create(Container.GetEnumerator));
+end;
+
+class function Query<T>.From(List: TList): IPointerQueryEnumerator;
+begin
+  Result := TPointerQueryEnumerator.Create(TEnumerationStrategy<Pointer>.Create,
+                                           TListEnumeratorAdapter.Create(List.GetEnumerator));
+end;
 
 { List<T> }
 
@@ -146,5 +161,6 @@ begin
 
   Result := LString;
 end;
+
 
 end.
