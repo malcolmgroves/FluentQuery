@@ -3,7 +3,6 @@ unit FluentQuery.FluentPredicate.Tests;
 interface
 uses
   TestFramework,
-  FluentQuery,
   System.SysUtils;
 
 type
@@ -11,13 +10,12 @@ type
   private
     function AcceptableCount(CharPredicate : TPredicate<Char>) : Integer;
   published
-    procedure TestListboxFilterPredicate;
     procedure TestCharPredicate;
   end;
 
 implementation
 uses
-  FMX.Listbox, Generics.Collections;
+  Generics.Collections, FluentQuery;
 
 { TestFluentPredicate }
 
@@ -59,38 +57,6 @@ begin
 //  Check(LCount = 2, 'Predicate from IsUpper should match 2 items');
 end;
 
-procedure TestFluentPredicate.TestListboxFilterPredicate;
-var
-  Listbox : FMX.Listbox.TListBox;
-begin
-  Listbox := FMX.Listbox.TListBox.Create(nil);
-  try
-    Listbox.Items.Add('One');
-    Listbox.Items.Add('Two');
-    Listbox.Items.Add('three');
-    Listbox.Items.Add('Four');
-    Listbox.Items.Add('fivE');
-    Listbox.Items.Add('Six');
-    Listbox.Items.Add('seven');
-
-    Listbox.FilterPredicate := StringQuery
-                                 .EndsWith('e')
-                                 .Predicate;
-
-    Check(Listbox.Count = 3, 'Filter on items ending in ''e'' should result in 3 items');
-
-    Listbox.FilterPredicate := StringQuery
-                                 .EndsWith('e', False)
-                                 .Predicate;
-
-    Check(Listbox.Count = 2, 'Filter on items ending in ''e'' or ''E'' should result in 3 items');
-
-    Listbox.FilterPredicate := nil;
-    Check(Listbox.Count = 7, 'No Filter should result in 7 items');
-  finally
-    Listbox.Free;
-  end;
-end;
 
 initialization
   RegisterTest('FluentPredicate', TestFluentPredicate.Suite);

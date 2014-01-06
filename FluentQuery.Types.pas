@@ -28,38 +28,6 @@ type
     function Where(Predicate : TPredicate<T>) : IQueryEnumerator<T>;
   end;
 
-  IStringQueryEnumerator = interface(IBaseQueryEnumerator<String>)
-    function GetEnumerator: IStringQueryEnumerator;
-//    procedure SetSourceData(SourceData : IMinimalEnumerator<String>);
-    function First : IStringQueryEnumerator;
-    function Skip(Count : Integer): IStringQueryEnumerator;
-    function SkipWhile(Predicate : TPredicate<String>) : IStringQueryEnumerator;
-    function Take(Count : Integer): IStringQueryEnumerator;
-    function TakeWhile(Predicate : TPredicate<String>): IStringQueryEnumerator;
-    function Where(Predicate : TPredicate<String>) : IStringQueryEnumerator;
-    function Matches(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
-    function Contains(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
-    function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
-    function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
-  end;
-
-  IUnboundStringQueryEnumerator = interface(IBaseQueryEnumerator<String>)
-    function GetEnumerator: IUnboundStringQueryEnumerator;
-//    procedure SetSourceData(SourceData : IMinimalEnumerator<String>);
-    function From(Container : TEnumerable<String>) : IStringQueryEnumerator; overload;
-    function From(Strings : TStrings) : IStringQueryEnumerator; overload;
-    function First : IUnboundStringQueryEnumerator;
-    function Skip(Count : Integer): IUnboundStringQueryEnumerator;
-    function SkipWhile(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
-    function Take(Count : Integer): IUnboundStringQueryEnumerator;
-    function TakeWhile(Predicate : TPredicate<String>): IUnboundStringQueryEnumerator;
-    function Where(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
-    function Matches(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
-    function Contains(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
-    function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
-    function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
-    function Predicate : TPredicate<string>;
-  end;
 
   ICharQueryEnumerator = interface(IBaseQueryEnumerator<Char>)
     function GetEnumerator: ICharQueryEnumerator;
