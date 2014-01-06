@@ -5,138 +5,196 @@ uses
   FluentQuery,
   FluentQuery.Types,
   System.SysUtils,
+  System.Generics.Collections,
   FluentQuery.EnumerationStrategies,
   FluentQuery.Enumerators;
 
 type
+  IBoundQueryEnumerator<T> = interface(IBaseQueryEnumerator<T>)
+    function GetEnumerator: IBoundQueryEnumerator<T>;
+    function First : IBoundQueryEnumerator<T>;
+    function Skip(Count : Integer): IBoundQueryEnumerator<T>;
+    function SkipWhile(Predicate : TPredicate<T>) : IBoundQueryEnumerator<T>;
+    function Take(Count : Integer): IBoundQueryEnumerator<T>;
+    function TakeWhile(Predicate : TPredicate<T>): IBoundQueryEnumerator<T>;
+    function Where(Predicate : TPredicate<T>) : IBoundQueryEnumerator<T>;
+    function ToTList : TList<T>;
+//    function ToTObjectList : TObjectList<T>;
+  end;
+
+  IUnboundQueryEnumerator<T> = interface(IBaseQueryEnumerator<T>)
+    function GetEnumerator: IUnboundQueryEnumerator<T>;
+    function First : IUnboundQueryEnumerator<T>;
+    function From(Container : TEnumerable<T>) : IBoundQueryEnumerator<T>;
+    function Skip(Count : Integer): IUnboundQueryEnumerator<T>;
+    function SkipWhile(Predicate : TPredicate<T>) : IUnboundQueryEnumerator<T>;
+    function Take(Count : Integer): IUnboundQueryEnumerator<T>;
+    function TakeWhile(Predicate : TPredicate<T>): IUnboundQueryEnumerator<T>;
+    function Where(Predicate : TPredicate<T>) : IUnboundQueryEnumerator<T>;
+  end;
+
   TQueryEnumerator<T> = class(TBaseQueryEnumerator<T>,
-                              IQueryEnumerator<T>,
+                              IBoundQueryEnumerator<T>,
+                              IUnboundQueryEnumerator<T>,
                               IBaseQueryEnumerator<T>,
                               IMinimalEnumerator<T>)
+  protected
+    type
+      TQueryEnumeratorImpl<TReturnType : IBaseQueryEnumerator<T>> = class
+      private
+        FQuery : TQueryEnumerator<T>;
+      public
+        constructor Create(Query : TQueryEnumerator<T>); virtual;
+        function GetEnumerator: TReturnType;
+        function First : TReturnType;
+        function From(Container : TEnumerable<T>) : IBoundQueryEnumerator<T>;
+        function Skip(Count : Integer): TReturnType;
+        function SkipWhile(Predicate : TPredicate<T>) : TReturnType;
+        function Take(Count : Integer): TReturnType;
+        function TakeWhile(Predicate : TPredicate<T>): TReturnType;
+        function Where(Predicate : TPredicate<T>) : TReturnType;
+        function ToTList : TList<T>;
+//        function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
+      end;
+  protected
+    FBoundQueryEnumerator : TQueryEnumeratorImpl<IBoundQueryEnumerator<T>>;
+    FUnboundQueryEnumerator : TQueryEnumeratorImpl<IUnboundQueryEnumerator<T>>;
   public
-    function GetEnumerator: IQueryEnumerator<T>;
-    function First : IQueryEnumerator<T>;
-    ///	<summary>
-    ///	  Skip will bypass the specified number of items from the start of the
-    ///	  enumeration, after which it will enumerate the remaining items as
-    ///	  normal.
-    ///	</summary>
-    ///	<param name="Count">
-    ///	  The number of items to skip over.
-    ///	</param>
-    ///	<returns>
-    ///	  Returns another IQueryEnumerator, so you can call other operators,
-    ///	  such as Where and Take, to further filter the items enumerated.
-    ///	</returns>
-    function Skip(Count : Integer): IQueryEnumerator<T>;
-    ///	<summary>
-    ///	  SkipWhile will bypass items at the start of the enumeration while the
-    ///	  supplied Predicate evaluates True. Once the Predicate evaluates
-    ///	  false, all remaining items will be enumerated as normal.
-    ///	</summary>
-    ///	<param name="Predicate">
-    ///	  The Predicate that will be evaluated against each item, until it
-    ///	  returns False.
-    ///	</param>
-    ///	<returns>
-    ///	  Returns another IQueryEnumerator, so you can call other operators,
-    ///	  such as Where and Take, to further filter the items enumerated.
-    ///	</returns>
-    function SkipWhile(Predicate : TPredicate<T>) : IQueryEnumerator<T>;
-    ///	<summary>
-    ///	  Take will enumerate up to the specified number of items and then stop.
-    ///	</summary>
-    ///	<param name="Count">
-    ///	  The maximum number of items to enumerate.
-    ///	</param>
-    ///	<returns>
-    ///	  Returns another IQueryEnumerator, so you can call other operators,
-    ///	  such as Where and Skip, to further filter the items enumerated.
-    ///	</returns>
-    ///	<remarks>
-    ///	  Note, it is possible to return less than Count items, if there are
-    ///	  fewer items in the collection, or fewer items left after earlier
-    ///	  operators (such as Where)
-    ///	</remarks>
-    function Take(Count : Integer): IQueryEnumerator<T>;
-    ///	<summary>
-    ///	  TakeWhile will continue enumerating items while the supplied
-    ///	  Predicate evaluates True, after which it will ignore the remaining
-    ///	  items.
-    ///	</summary>
-    ///	<param name="Predicate">
-    ///	  The Predicate that will be evaluated against each item, until it
-    ///	  returns False.
-    ///	</param>
-    ///	<returns>
-    ///	  Returns another IQueryEnumerator, so you can call other operators,
-    ///	  such as Where and Take, to further filter the items enumerated.
-    ///	</returns>
-    function TakeWhile(Predicate : TPredicate<T>): IQueryEnumerator<T>;
-    ///	<summary>
-    ///	  Filter the items enumerated to only those that evaluate true when
-    ///	  passed into the supplied Predicate
-    ///	</summary>
-    ///	<param name="Predicate">
-    ///	  An anonymous method that will be executed in turn against each item.
-    ///	  It should return True to include the item in the result, False to
-    ///	  exclude it.  
-    ///	</param>
-    ///	<returns>
-    ///	  Returns another IQueryEnumerator, so you can call other operators,
-    ///	  such as Take or even another Where operator to further filter the
-    ///	  items. 
-    ///	</returns>
-    function Where(Predicate : TPredicate<T>) : IQueryEnumerator<T>;
+    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>;
+                       UpstreamQuery : IBaseQueryEnumerator<T> = nil;
+                       SourceData : IMinimalEnumerator<T> = nil); override;
+    destructor Destroy; override;
+    property BoundQueryEnumerator : TQueryEnumeratorImpl<IBoundQueryEnumerator<T>>
+                                       read FBoundQueryEnumerator implements IBoundQueryEnumerator<T>;
+    property UnboundQueryEnumerator : TQueryEnumeratorImpl<IUnboundQueryEnumerator<T>>
+                                       read FUnboundQueryEnumerator implements IUnboundQueryEnumerator<T>;
   end;
 
 
+  Query = class
+  public
+    class function Select<T> : IUnboundQueryEnumerator<T>;
+  end;
+
 implementation
+
+
+
+{ Query }
+
+class function Query.Select<T>: IUnboundQueryEnumerator<T>;
+begin
+  Result := TQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create);
+end;
+
+
 
 { TQueryEnumerator<T> }
 
-function TQueryEnumerator<T>.First: IQueryEnumerator<T>;
+constructor TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Create(
+  Query: TQueryEnumerator<T>);
+begin
+  FQuery := Query;
+end;
+
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.First: TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(1)),
-                                       IBaseQueryEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(FQuery));
 end;
 
-function TQueryEnumerator<T>.GetEnumerator: IQueryEnumerator<T>;
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.From(
+  Container: TEnumerable<T>): IBoundQueryEnumerator<T>;
+var
+  EnumeratorWrapper : IMinimalEnumerator<T>;
 begin
-  Result := self;
+  EnumeratorWrapper := TGenericEnumeratorAdapter<T>.Create(Container.GetEnumerator) as IMinimalEnumerator<T>;
+  Result := TQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create,
+                                       IBaseQueryEnumerator<T>(FQuery),
+                                       EnumeratorWrapper);
 end;
 
-function TQueryEnumerator<T>.Skip(Count: Integer): IQueryEnumerator<T>;
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.GetEnumerator: TReturnType;
+begin
+  Result := FQuery;
+end;
+
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Skip(Count: Integer): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
-                                       IBaseQueryEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(FQuery));
 end;
 
-function TQueryEnumerator<T>.SkipWhile(
-  Predicate: TPredicate<T>): IQueryEnumerator<T>;
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.SkipWhile(
+  Predicate: TPredicate<T>): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(Predicate),
-                                       IBaseQueryEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(FQuery));
 end;
 
-function TQueryEnumerator<T>.Take(Count: Integer): IQueryEnumerator<T>;
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Take(Count: Integer): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
-                                       IBaseQueryEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(FQuery));
 end;
 
-function TQueryEnumerator<T>.TakeWhile(
-  Predicate: TPredicate<T>): IQueryEnumerator<T>;
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.TakeWhile(
+  Predicate: TPredicate<T>): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(Predicate),
-                                       IBaseQueryEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(FQuery));
 end;
 
-function TQueryEnumerator<T>.Where(
-  Predicate: TPredicate<T>): IQueryEnumerator<T>;
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.ToTList: TList<T>;
+var
+  LList : TList<T>;
+  Item : T;
+begin
+  LList := TList<T>.Create;
+
+  while FQuery.MoveNext do
+    LList.Add(FQuery.GetCurrent);
+
+  Result := LList;
+end;
+
+//function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.ToTObjectList(AOwnsObjects: Boolean = True): TObjectList<T>;
+//var
+//  LObjectList : TObjectList<T>;
+//  Item : T;
+//begin
+//  LObjectList := TObjectList<T>.Create(AOwnsObjects);
+//
+//  while FQuery.MoveNext do
+//    LObjectList.Add(FQuery.GetCurrent);
+//
+//  Result := LObjectList;
+//end;
+
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Where(
+  Predicate: TPredicate<T>): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TWhereEnumerationStrategy<T>.Create(Predicate),
-                                       IBaseQueryEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(FQuery));
+end;
+
+
+{ TQueryEnumerator<T> }
+
+constructor TQueryEnumerator<T>.Create(
+  EnumerationStrategy: TEnumerationStrategy<T>;
+  UpstreamQuery: IBaseQueryEnumerator<T>; SourceData: IMinimalEnumerator<T>);
+begin
+  inherited Create(EnumerationStrategy, UpstreamQuery, SourceData);
+  FBoundQueryEnumerator := TQueryEnumeratorImpl<IBoundQueryEnumerator<T>>.Create(self);
+  FUnboundQueryEnumerator := TQueryEnumeratorImpl<IUnboundQueryEnumerator<T>>.Create(self);
+end;
+
+destructor TQueryEnumerator<T>.Destroy;
+begin
+  FBoundQueryEnumerator.Free;
+  FUnboundQueryEnumerator.Free;
+  inherited;
 end;
 
 

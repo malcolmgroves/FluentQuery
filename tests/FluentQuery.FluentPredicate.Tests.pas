@@ -38,8 +38,8 @@ begin
     CharList.Add('2');
 
     PassCount := 0;
-    for Value in Query<Char>.From(CharList).Where(CharPredicate) do
-      Inc(PassCount);
+//    for Value in Query<Char>.From(CharList).Where(CharPredicate) do
+//      Inc(PassCount);
 
     Result := PassCount;
   finally

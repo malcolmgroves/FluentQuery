@@ -27,6 +27,7 @@ uses
   FluentQuery.Enumerators.Pointer in '..\FluentQuery.Enumerators.Pointer.pas',
   FluentQuery.FluentPredicate.Tests in 'FluentQuery.FluentPredicate.Tests.pas',
   FluentQuery.Pointers.Tests in 'FluentQuery.Pointers.Tests.pas',
+  FluentQuery.Generics.Tests in 'FluentQuery.Generics.Tests.pas',
   FluentQuery.Tests in 'FluentQuery.Tests.pas';
 
 {$R *.RES}

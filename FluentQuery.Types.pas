@@ -2,9 +2,7 @@ unit FluentQuery.Types;
 
 interface
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.Classes;
+  System.SysUtils;
 
 type
   IMinimalEnumerator<T> = interface
@@ -17,17 +15,6 @@ type
     procedure SetUpstreamQuery(UpstreamQuery : IBaseQueryEnumerator<T>);
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>);
   end;
-
-  IQueryEnumerator<T> = interface(IBaseQueryEnumerator<T>)
-    function GetEnumerator: IQueryEnumerator<T>;
-    function First : IQueryEnumerator<T>;
-    function Skip(Count : Integer): IQueryEnumerator<T>;
-    function SkipWhile(Predicate : TPredicate<T>) : IQueryEnumerator<T>;
-    function Take(Count : Integer): IQueryEnumerator<T>;
-    function TakeWhile(Predicate : TPredicate<T>): IQueryEnumerator<T>;
-    function Where(Predicate : TPredicate<T>) : IQueryEnumerator<T>;
-  end;
-
 
   ICharQueryEnumerator = interface(IBaseQueryEnumerator<Char>)
     function GetEnumerator: ICharQueryEnumerator;
@@ -56,11 +43,6 @@ type
     function IsWhiteSpace: ICharQueryEnumerator;
   end;
 
-  IPointerQueryEnumerator = interface(IBaseQueryEnumerator<Pointer>)
-    function GetEnumerator: IPointerQueryEnumerator;
-//    procedure SetSourceData(SourceData : IMinimalEnumerator<Pointer>);
-    function IsAssigned : IPointerQueryEnumerator;
-  end;
 
 implementation
 

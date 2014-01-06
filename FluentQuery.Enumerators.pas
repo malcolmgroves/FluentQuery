@@ -8,17 +8,6 @@ uses
   FluentQuery.EnumerationStrategies;
 
 type
-//  TMinimalEnumerator<T> = class(TinterfacedObject, IMinimalEnumerator<T>)
-//  protected
-//    function GetCurrent: T; virtual;
-//    function MoveNext: Boolean; virtual;
-//    procedure SetSourceData(SourceData : IMinimalEnumerator<T>); virtual;
-//  public
-//    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>; UpstreamQuery : IMinimalEnumerator<T> = nil); virtual;
-//    destructor Destroy; override;
-//    property Current: T read GetCurrent;
-//  end;
-
   TBaseQueryEnumerator<T> = class(TInterfacedObject, IMinimalEnumerator<T>, IBaseQueryEnumerator<T>)
   protected
     FUpstreamQuery : IBaseQueryEnumerator<T>;
@@ -90,38 +79,6 @@ type
   end;
 
 implementation
-
-//{ TMinimalEnumerator<T> }
-//
-//constructor TMinimalEnumerator<T>.Create(EnumerationStrategy: TEnumerationStrategy<T>; SourceData : IMinimalEnumerator<T>);
-//begin
-//  SetSourceData(SourceData);
-//  FEnumerationStrategy := EnumerationStrategy;
-//end;
-//
-//destructor TMinimalEnumerator<T>.Destroy;
-//begin
-//  FEnumerationStrategy.Free;
-//  inherited;
-//end;
-//
-//function TMinimalEnumerator<T>.GetCurrent: T;
-//begin
-//  Result := FEnumerationStrategy.GetCurrent(FSourceData);;
-//end;
-//
-//function TMinimalEnumerator<T>.MoveNext: Boolean;
-//begin
-//  Result := FEnumerationStrategy.MoveNext(FSourceData);
-//end;
-//
-//
-//
-//procedure TMinimalEnumerator<T>.SetSourceData(
-//  SourceData: IMinimalEnumerator<T>);
-//begin
-//  FSourceData := SourceData;
-//end;
 
 { TStringsEnumeratorWrapper }
 
