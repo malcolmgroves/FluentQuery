@@ -2,7 +2,6 @@ unit FluentQuery.Enumerators.Pointer;
 
 interface
 uses
-  FluentQuery,
   FluentQuery.Types,
   System.SysUtils,
   FluentQuery.EnumerationStrategies,

@@ -399,8 +399,8 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest('Strings/TStrings', TestTQueryTStrings.Suite);
-  RegisterTest('Strings/TList<String>', TestTQueryString.Suite);
-  RegisterTest('Strings/StringPredicate', TestFluentStringPredicate.Suite);
+  RegisterTest('Strings', TestTQueryTStrings.Suite);
+  RegisterTest('Strings', TestTQueryString.Suite);
+  RegisterTest('Strings', TestFluentStringPredicate.Suite);
 end.
 

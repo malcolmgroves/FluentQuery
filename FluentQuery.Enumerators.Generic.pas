@@ -2,7 +2,6 @@ unit FluentQuery.Enumerators.Generic;
 
 interface
 uses
-  FluentQuery,
   FluentQuery.Types,
   System.SysUtils,
   System.Generics.Collections,

@@ -17,7 +17,6 @@ program FluentQueryTests;
 uses
   DUnitTestRunner,
   FluentQuery.Strings.Tests in 'FluentQuery.Strings.Tests.pas',
-  FluentQuery in '..\FluentQuery.pas',
   FluentQuery.EnumerationStrategies in '..\FluentQuery.EnumerationStrategies.pas',
   FluentQuery.Enumerators in '..\FluentQuery.Enumerators.pas',
   FluentQuery.Types in '..\FluentQuery.Types.pas',
@@ -25,7 +24,6 @@ uses
   FluentQuery.Enumerators.Generic in '..\FluentQuery.Enumerators.Generic.pas',
   FluentQuery.Enumerators.Char in '..\FluentQuery.Enumerators.Char.pas',
   FluentQuery.Enumerators.Pointer in '..\FluentQuery.Enumerators.Pointer.pas',
-  FluentQuery.FluentPredicate.Tests in 'FluentQuery.FluentPredicate.Tests.pas',
   FluentQuery.Pointers.Tests in 'FluentQuery.Pointers.Tests.pas',
   FluentQuery.Generics.Tests in 'FluentQuery.Generics.Tests.pas',
   FluentQuery.Tests in 'FluentQuery.Tests.pas';

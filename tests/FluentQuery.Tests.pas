@@ -5,8 +5,9 @@ interface
 uses
   TestFramework,
   System.Generics.Collections,
-  FluentQuery,
-  System.Classes;
+  FluentQuery.Enumerators.Char,
+  System.Classes,
+  System.SysUtils;
 
 type
   TestTQueryChar = class(TTestCase)
@@ -33,11 +34,14 @@ type
     procedure TestCreateStringFromIsUpperSkipTake;
   end;
 
+  TestFluentCharPredicate = class(TTestCase)
+  private
+    function AcceptableCount(CharPredicate : TPredicate<Char>) : Integer;
+  published
+    procedure TestCharPredicate;
+  end;
 
 implementation
-uses
-  System.SysUtils;
-
 
 { TestTQueryChar }
 
@@ -53,11 +57,12 @@ procedure TestTQueryChar.TestCreateStringFromIsUpperSkipTake;
 var
   LResultString : String;
 begin
-  LResultString := CreateString.From(Query<Char>
-                                    .From(FStringVal)
-                                    .IsUpper
-                                    .Skip(5)
-                                    .Take(4));
+  LResultString := Query
+                     .From(FStringVal)
+                     .IsUpper
+                     .Skip(5)
+                     .Take(4)
+                     .ToAString;
 
   Check(LResultString.Length = 4, 'Take(4) should enumerate 4 chars');
   Check(LResultString = 'FGHI', 'IsUpper.Skip(5).Take(4) should enumerate F, G, H and then I');
@@ -69,7 +74,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsDigit do
+  for LChar in Query.From(FStringVal).IsDigit do
     Inc(LPassCount);
   Check(LPassCount = 10, 'IsDigit Query should enumerate 10 chars');
 end;
@@ -80,7 +85,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsInArray(['1', '2', ')', '+', 'a']) do
+  for LChar in Query.From(FStringVal).IsInArray(['1', '2', ')', '+', 'a']) do
     Inc(LPassCount);
   Check(LPassCount = 4, 'IsInArray Query should enumerate 4 chars');
 end;
@@ -91,7 +96,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsLetter do
+  for LChar in Query.From(FStringVal).IsLetter do
     Inc(LPassCount);
   Check(LPassCount = 51, 'IsLetter Query should enumerate 51 chars');
 end;
@@ -102,7 +107,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsLetterOrDigit do
+  for LChar in Query.From(FStringVal).IsLetterOrDigit do
     Inc(LPassCount);
   Check(LPassCount = 61, 'IsLetterOrDigit Query should enumerate 61 chars');
 end;
@@ -113,7 +118,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsLower do
+  for LChar in Query.From(FStringVal).IsLower do
     Inc(LPassCount);
   Check(LPassCount = 25, 'IsLower Query should enumerate 25 chars');
 end;
@@ -124,7 +129,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsNumber do
+  for LChar in Query.From(FStringVal).IsNumber do
     Inc(LPassCount);
   Check(LPassCount = 10, 'IsNumber Query should enumerate 10 chars');
 end;
@@ -135,7 +140,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsPunctuation do
+  for LChar in Query.From(FStringVal).IsPunctuation do
     Inc(LPassCount);
   Check(LPassCount = 8, 'IsPunctuation Query should enumerate 8 chars');
 end;
@@ -146,7 +151,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsSymbol do
+  for LChar in Query.From(FStringVal).IsSymbol do
     Inc(LPassCount);
   Check(LPassCount = 2, 'IsSymbol Query should enumerate 2 chars');
 end;
@@ -157,7 +162,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsUpper do
+  for LChar in Query.From(FStringVal).IsUpper do
     Inc(LPassCount);
   Check(LPassCount = 26, 'IsUpper Query should enumerate 26 chars');
 end;
@@ -167,7 +172,7 @@ var
   LChar : Char;
   LResultString : String;
 begin
-  for LChar in Query<Char>
+  for LChar in Query
                  .From(FStringVal)
                  .IsUpper
                  .Skip(5)
@@ -185,7 +190,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).IsWhiteSpace do
+  for LChar in Query.From(FStringVal).IsWhiteSpace do
     Inc(LPassCount);
   Check(LPassCount = 3, 'IsWhitespace Query should enumerate 3 chars');
 end;
@@ -196,7 +201,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).Matches('Y') do
+  for LChar in Query.From(FStringVal).Matches('Y') do
     Inc(LPassCount);
   Check(LPassCount = 2, 'Case Insensitive Matches Query should enumerate two chars');
 end;
@@ -207,7 +212,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).Matches('y', False) do
+  for LChar in Query.From(FStringVal).Matches('y', False) do
     Inc(LPassCount);
   Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one char');
 end;
@@ -218,7 +223,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal).Matches('z', False) do
+  for LChar in Query.From(FStringVal).Matches('z', False) do
     Inc(LPassCount);
   Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero chars');
 end;
@@ -229,14 +234,55 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query<Char>.From(FStringVal) do
+  for LChar in Query.From(FStringVal) do
     Inc(LPassCount);
   Check(LPassCount = FStringVal.Length, 'Passthrough Query should enumerate all items');
+end;
+
+
+function TestFluentCharPredicate.AcceptableCount(
+  CharPredicate: TPredicate<Char>): Integer;
+var
+  CharList : TList<Char>;
+  Value : Char;
+  PassCount : Integer;
+begin
+  CharList := TList<Char>.Create;
+  try
+    CharList.Add('a');
+    CharList.Add('B');
+    CharList.Add('/');
+    CharList.Add('c');
+    CharList.Add('C');
+    CharList.Add('*');
+    CharList.Add('1');
+    CharList.Add('2');
+
+    PassCount := 0;
+
+    for Value in Query.From(CharList).Where(CharPredicate) do
+      Inc(PassCount);
+
+    Result := PassCount;
+  finally
+    CharList.Free;
+  end;
+end;
+
+procedure TestFluentCharPredicate.TestCharPredicate;
+var
+  LCount : Integer;
+begin
+  LCount := AcceptableCount(Query
+                              .IsUpper
+                              .Predicate);
+  Check(LCount = 2, 'Predicate from IsUpper should match 2 items');
 end;
 
 
 initialization
   // Register any test cases with the test runner
   RegisterTest('Chars', TestTQueryChar.Suite);
+  RegisterTest('Chars', TestFluentCharPredicate.Suite);
 end.
 
