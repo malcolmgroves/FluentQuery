@@ -9,7 +9,10 @@ uses
   FluentQuery.Enumerators;
 
 type
-  TQueryEnumerator<T> = class(TMinimalEnumerator<T>, IQueryEnumerator<T>, IMinimalEnumerator<T>)
+  TQueryEnumerator<T> = class(TBaseQueryEnumerator<T>,
+                              IQueryEnumerator<T>,
+                              IBaseQueryEnumerator<T>,
+                              IMinimalEnumerator<T>)
   public
     function GetEnumerator: IQueryEnumerator<T>;
     function First : IQueryEnumerator<T>;
@@ -95,7 +98,7 @@ implementation
 function TQueryEnumerator<T>.First: IQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(1)),
-                                       IMinimalEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(self));
 end;
 
 function TQueryEnumerator<T>.GetEnumerator: IQueryEnumerator<T>;
@@ -106,34 +109,34 @@ end;
 function TQueryEnumerator<T>.Skip(Count: Integer): IQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
-                                       IMinimalEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(self));
 end;
 
 function TQueryEnumerator<T>.SkipWhile(
   Predicate: TPredicate<T>): IQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(Predicate),
-                                       IMinimalEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(self));
 end;
 
 function TQueryEnumerator<T>.Take(Count: Integer): IQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
-                                       IMinimalEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(self));
 end;
 
 function TQueryEnumerator<T>.TakeWhile(
   Predicate: TPredicate<T>): IQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(Predicate),
-                                       IMinimalEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(self));
 end;
 
 function TQueryEnumerator<T>.Where(
   Predicate: TPredicate<T>): IQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TWhereEnumerationStrategy<T>.Create(Predicate),
-                                       IMinimalEnumerator<T>(self));
+                                       IBaseQueryEnumerator<T>(self));
 end;
 
 

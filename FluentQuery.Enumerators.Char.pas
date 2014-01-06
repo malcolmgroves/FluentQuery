@@ -10,7 +10,10 @@ uses
 
 type
 
-  TCharQueryEnumerator = class(TMinimalEnumerator<Char>, ICharQueryEnumerator, IMinimalEnumerator<Char>)
+  TCharQueryEnumerator = class(TBaseQueryEnumerator<Char>,
+                               ICharQueryEnumerator,
+                               IBaseQueryEnumerator<Char>,
+                               IMinimalEnumerator<Char>)
   public
     function GetEnumerator: ICharQueryEnumerator;
     function First : ICharQueryEnumerator;
@@ -47,7 +50,7 @@ uses
 function TCharQueryEnumerator.First: ICharQueryEnumerator;
 begin
   Result := TCharQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.LessThanOrEqualTo(1)),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.GetEnumerator: ICharQueryEnumerator;
@@ -65,7 +68,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsDigit: ICharQueryEnumerator;
@@ -78,7 +81,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsHighSurrogate: ICharQueryEnumerator;
@@ -91,7 +94,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsInArray(const SomeChars: array of Char): ICharQueryEnumerator;
@@ -111,7 +114,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsLetter: ICharQueryEnumerator;
@@ -124,7 +127,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsLetterOrDigit: ICharQueryEnumerator;
@@ -137,7 +140,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsLower: ICharQueryEnumerator;
@@ -150,7 +153,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsLowSurrogate: ICharQueryEnumerator;
@@ -163,7 +166,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsNumber: ICharQueryEnumerator;
@@ -176,7 +179,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsPunctuation: ICharQueryEnumerator;
@@ -189,7 +192,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsSeparator: ICharQueryEnumerator;
@@ -202,7 +205,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsSurrogate: ICharQueryEnumerator;
@@ -215,7 +218,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsSymbol: ICharQueryEnumerator;
@@ -228,7 +231,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsUpper: ICharQueryEnumerator;
@@ -241,7 +244,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.IsWhiteSpace: ICharQueryEnumerator;
@@ -254,7 +257,7 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.Matches(const Value: Char;
@@ -271,40 +274,40 @@ begin
                        end;
 
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LMatchesPredicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.Skip(Count: Integer): ICharQueryEnumerator;
 begin
   Result := TCharQueryEnumerator.Create(TSkipWhileEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.LessThanOrEqualTo(Count)),
-                                       IMinimalEnumerator<Char>(self));
+                                       IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.SkipWhile(
   Predicate: TPredicate<Char>): ICharQueryEnumerator;
 begin
   Result := TCharQueryEnumerator.Create(TSkipWhileEnumerationStrategy<Char>.Create(Predicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.Take(Count: Integer): ICharQueryEnumerator;
 begin
   Result := TCharQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.LessThanOrEqualTo(Count)),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.TakeWhile(
   Predicate: TPredicate<Char>): ICharQueryEnumerator;
 begin
   Result := TCharQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Char>.Create(Predicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 function TCharQueryEnumerator.Where(
   Predicate: TPredicate<Char>): ICharQueryEnumerator;
 begin
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(Predicate),
-                                        IMinimalEnumerator<Char>(self));
+                                        IBaseQueryEnumerator<Char>(self));
 end;
 
 end.

@@ -9,7 +9,10 @@ uses
   FluentQuery.Enumerators;
 
 type
-  TPointerQueryEnumerator = class(TMinimalEnumerator<Pointer>, IPointerQueryEnumerator, IMinimalEnumerator<Pointer>)
+  TPointerQueryEnumerator = class(TBaseQueryEnumerator<Pointer>,
+                                  IPointerQueryEnumerator,
+                                  IBaseQueryEnumerator<Pointer>,
+                                  IMinimalEnumerator<Pointer>)
     function GetEnumerator: IPointerQueryEnumerator;
     function First : IPointerQueryEnumerator;
     function Skip(Count : Integer): IPointerQueryEnumerator;
@@ -29,7 +32,7 @@ uses
 function TPointerQueryEnumerator.First: IPointerQueryEnumerator;
 begin
   Result := TPointerQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Pointer>.Create(TPredicateFactory<Pointer>.LessThanOrEqualTo(1)),
-                                           IMinimalEnumerator<Pointer>(self));
+                                           IBaseQueryEnumerator<Pointer>(self));
 end;
 
 function TPointerQueryEnumerator.GetEnumerator: IPointerQueryEnumerator;
@@ -47,40 +50,40 @@ begin
                  end;
 
   Result := TPointerQueryEnumerator.Create(TWhereEnumerationStrategy<Pointer>.Create(LIsAssigned),
-                                          IMinimalEnumerator<Pointer>(self));
+                                          IBaseQueryEnumerator<Pointer>(self));
 end;
 
 function TPointerQueryEnumerator.Skip(Count: Integer): IPointerQueryEnumerator;
 begin
   Result := TPointerQueryEnumerator.Create(TSkipWhileEnumerationStrategy<Pointer>.Create(TPredicateFactory<Pointer>.LessThanOrEqualTo(Count)),
-                                           IMinimalEnumerator<Pointer>(self));
+                                           IBaseQueryEnumerator<Pointer>(self));
 end;
 
 function TPointerQueryEnumerator.SkipWhile(
   Predicate: TPredicate<Pointer>): IPointerQueryEnumerator;
 begin
   Result := TPointerQueryEnumerator.Create(TSkipWhileEnumerationStrategy<Pointer>.Create(Predicate),
-                                           IMinimalEnumerator<Pointer>(self));
+                                           IBaseQueryEnumerator<Pointer>(self));
 end;
 
 function TPointerQueryEnumerator.Take(Count: Integer): IPointerQueryEnumerator;
 begin
   Result := TPointerQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Pointer>.Create(TPredicateFactory<Pointer>.LessThanOrEqualTo(Count)),
-                                           IMinimalEnumerator<Pointer>(self));
+                                           IBaseQueryEnumerator<Pointer>(self));
 end;
 
 function TPointerQueryEnumerator.TakeWhile(
   Predicate: TPredicate<Pointer>): IPointerQueryEnumerator;
 begin
   Result := TPointerQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Pointer>.Create(Predicate),
-                                           IMinimalEnumerator<Pointer>(self));
+                                           IBaseQueryEnumerator<Pointer>(self));
 end;
 
 function TPointerQueryEnumerator.Where(
   Predicate: TPredicate<Pointer>): IPointerQueryEnumerator;
 begin
   Result := TPointerQueryEnumerator.Create(TWhereEnumerationStrategy<Pointer>.Create(Predicate),
-                                          IMinimalEnumerator<Pointer>(self));
+                                          IBaseQueryEnumerator<Pointer>(self));
 end;
 
 end.

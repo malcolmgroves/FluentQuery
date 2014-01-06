@@ -2,7 +2,9 @@ unit FluentQuery.Types;
 
 interface
 uses
-  System.SysUtils;
+  System.SysUtils,
+  System.Generics.Collections,
+  System.Classes;
 
 type
   IMinimalEnumerator<T> = interface
@@ -11,9 +13,13 @@ type
     property Current: T read GetCurrent;
   end;
 
-  IQueryEnumerator<T> = interface(IMinimalEnumerator<T>)
-    function GetEnumerator: IQueryEnumerator<T>;
+  IBaseQueryEnumerator<T> = interface(IMinimalEnumerator<T>)
+    procedure SetUpstreamQuery(UpstreamQuery : IBaseQueryEnumerator<T>);
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>);
+  end;
+
+  IQueryEnumerator<T> = interface(IBaseQueryEnumerator<T>)
+    function GetEnumerator: IQueryEnumerator<T>;
     function First : IQueryEnumerator<T>;
     function Skip(Count : Integer): IQueryEnumerator<T>;
     function SkipWhile(Predicate : TPredicate<T>) : IQueryEnumerator<T>;
@@ -22,9 +28,9 @@ type
     function Where(Predicate : TPredicate<T>) : IQueryEnumerator<T>;
   end;
 
-  IStringQueryEnumerator = interface(IMinimalEnumerator<String>)
+  IStringQueryEnumerator = interface(IBaseQueryEnumerator<String>)
     function GetEnumerator: IStringQueryEnumerator;
-    procedure SetSourceData(SourceData : IMinimalEnumerator<String>);
+//    procedure SetSourceData(SourceData : IMinimalEnumerator<String>);
     function First : IStringQueryEnumerator;
     function Skip(Count : Integer): IStringQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<String>) : IStringQueryEnumerator;
@@ -37,9 +43,27 @@ type
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IStringQueryEnumerator;
   end;
 
-  ICharQueryEnumerator = interface(IMinimalEnumerator<Char>)
+  IUnboundStringQueryEnumerator = interface(IBaseQueryEnumerator<String>)
+    function GetEnumerator: IUnboundStringQueryEnumerator;
+//    procedure SetSourceData(SourceData : IMinimalEnumerator<String>);
+    function From(Container : TEnumerable<String>) : IStringQueryEnumerator; overload;
+    function From(Strings : TStrings) : IStringQueryEnumerator; overload;
+    function First : IUnboundStringQueryEnumerator;
+    function Skip(Count : Integer): IUnboundStringQueryEnumerator;
+    function SkipWhile(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
+    function Take(Count : Integer): IUnboundStringQueryEnumerator;
+    function TakeWhile(Predicate : TPredicate<String>): IUnboundStringQueryEnumerator;
+    function Where(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
+    function Matches(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    function Contains(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    function Predicate : TPredicate<string>;
+  end;
+
+  ICharQueryEnumerator = interface(IBaseQueryEnumerator<Char>)
     function GetEnumerator: ICharQueryEnumerator;
-    procedure SetSourceData(SourceData : IMinimalEnumerator<Char>);
+//    procedure SetSourceData(SourceData : IMinimalEnumerator<Char>);
     function First : ICharQueryEnumerator;
     function Skip(Count : Integer): ICharQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<Char>) : ICharQueryEnumerator;
@@ -64,9 +88,9 @@ type
     function IsWhiteSpace: ICharQueryEnumerator;
   end;
 
-  IPointerQueryEnumerator = interface(IMinimalEnumerator<Pointer>)
+  IPointerQueryEnumerator = interface(IBaseQueryEnumerator<Pointer>)
     function GetEnumerator: IPointerQueryEnumerator;
-    procedure SetSourceData(SourceData : IMinimalEnumerator<Pointer>);
+//    procedure SetSourceData(SourceData : IMinimalEnumerator<Pointer>);
     function IsAssigned : IPointerQueryEnumerator;
   end;
 

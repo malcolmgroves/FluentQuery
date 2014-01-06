@@ -24,7 +24,8 @@ uses
   FluentQuery.Enumerators.Strings in '..\FluentQuery.Enumerators.Strings.pas',
   FluentQuery.Enumerators.Generic in '..\FluentQuery.Enumerators.Generic.pas',
   FluentQuery.Enumerators.Char in '..\FluentQuery.Enumerators.Char.pas',
-  FluentQuery.Enumerators.Pointer in '..\FluentQuery.Enumerators.Pointer.pas';
+  FluentQuery.Enumerators.Pointer in '..\FluentQuery.Enumerators.Pointer.pas',
+  FluentQuery.FluentPredicate.Tests in 'FluentQuery.FluentPredicate.Tests.pas';
 
 {$R *.RES}
 

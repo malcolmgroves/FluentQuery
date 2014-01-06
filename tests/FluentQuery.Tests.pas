@@ -660,7 +660,7 @@ begin
     LNameStrings.Add('Lauren');
 
     LPassCount := 0;
-    for LString in Query<String>.From(LNameStrings).Matches('jesse') do
+    for LString in StringQuery.From(LNameStrings).Matches('jesse') do
       Inc(LPassCount);
     Check(LPassCount = 1, 'Case Insensitive Matches Query should enumerate one string');
   finally
@@ -682,7 +682,7 @@ begin
     LNameStrings.Add('Lauren');
 
     LPassCount := 0;
-    for LString in Query<String>.From(LNameStrings).Matches('Jesse', False) do
+    for LString in StringQuery.From(LNameStrings).Matches('Jesse', False) do
       Inc(LPassCount);
     Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one string');
   finally
@@ -704,7 +704,7 @@ begin
     LNameStrings.Add('Lauren');
 
     LPassCount := 0;
-    for LString in Query<String>.From(LNameStrings).Matches('jesse', False) do
+    for LString in StringQuery.From(LNameStrings).Matches('jesse', False) do
       Inc(LPassCount);
     Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
   finally
@@ -718,7 +718,7 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStrings) do
+  for LString in StringQuery.From(FStrings) do
     Inc(LPassCount);
   Check(LPassCount = FStrings.Count, 'Passthrough Query should enumerate all strings');
 end;
@@ -729,10 +729,14 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>
+//  for LString in StringQuery
+//                   .From(FStrings)
+//                   .Skip(4)
+//                   .Take(3) do
+  for LString in StringQuery
                    .From(FStrings)
                    .Skip(4)
-                   .Take(3) do
+                   .Take(3)do
   begin
     Inc(LPassCount);
     Check((LString = '5') or (LString = '6') or (LString = '7'), 'Should Enumerate 5, 6 and 7');
@@ -746,7 +750,7 @@ var
   LStrings : TStrings;
 begin
 
-  LStrings := CreateTStrings.From(Query<String>
+  LStrings := CreateTStrings.From(StringQuery
                              .From(FStrings)
                              .Skip(4)
                              .Take(3));
@@ -787,7 +791,7 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStringCollection).Contains('e') do
+  for LString in StringQuery.From(FStringCollection).Contains('e') do
     Inc(LPassCount);
   Check(LPassCount = 7, 'Case Insensitive Contains ''e'' Query should enumerate seven strings');
 end;
@@ -798,7 +802,7 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStringCollection).Contains('e', False) do
+  for LString in StringQuery.From(FStringCollection).Contains('e', False) do
     Inc(LPassCount);
   Check(LPassCount = 6, 'Case Sensitive Contains ''e'' Query should enumerate six strings');
 end;
@@ -811,7 +815,7 @@ begin
   LPassCount := 0;
   FStringCollection.Add('seventeeN');
 
-  for LString in Query<String>.From(FStringCollection).EndsWith('n') do
+  for LString in StringQuery.From(FStringCollection).EndsWith('n') do
     Inc(LPassCount);
   Check(LPassCount = 3, 'Case Insensitive EndsWith ''n'' Query should enumerate three strings');
 end;
@@ -824,7 +828,7 @@ begin
   LPassCount := 0;
   FStringCollection.Add('seventeeN');
 
-  for LString in Query<String>.From(FStringCollection).EndsWith('n', False) do
+  for LString in StringQuery.From(FStringCollection).EndsWith('n', False) do
     Inc(LPassCount);
   Check(LPassCount = 2, 'Case Sensitive EndsWith ''n'' Query should enumerate two strings');
 end;
@@ -835,7 +839,7 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStringCollection).Matches('six') do
+  for LString in StringQuery.From(FStringCollection).Matches('six') do
     Inc(LPassCount);
   Check(LPassCount = 1, 'Case Insensitive Matches Query should enumerate one string');
 end;
@@ -846,7 +850,8 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStringCollection).Matches('Six', False) do
+//  for LString in StringQuery.From(FStringCollection).Matches('Six', False) do
+  for LString in StringQuery.From(FStringCollection).Matches('Six', False) do
     Inc(LPassCount);
   Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one string');
 end;
@@ -857,7 +862,7 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStringCollection).Matches('six', False) do
+  for LString in StringQuery.From(FStringCollection).Matches('six', False) do
     Inc(LPassCount);
   Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
 end;
@@ -868,7 +873,7 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStringCollection).Contains('s', False) do
+  for LString in StringQuery.From(FStringCollection).Contains('s', False) do
     Inc(LPassCount);
   Check(LPassCount = 0, 'Case Sensitive Contains ''s'' Query with no matches should enumerate zero strings');
 end;
@@ -879,7 +884,7 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStringCollection).EndsWith('N', False) do
+  for LString in StringQuery.From(FStringCollection).EndsWith('N', False) do
     Inc(LPassCount);
   Check(LPassCount = 0, 'Case Sensitive EndsWith ''N'' Query with no matches should enumerate zero strings');
 end;
@@ -890,7 +895,7 @@ var
   LString : String;
 begin
   LPassCount := 0;
-  for LString in Query<String>.From(FStringCollection).StartsWith('s', False) do
+  for LString in StringQuery.From(FStringCollection).StartsWith('s', False) do
     Inc(LPassCount);
   Check(LPassCount = 0, 'Case Sensitive StartsWith ''s'' Query with no matches should enumerate zero strings');
 end;
@@ -903,7 +908,7 @@ begin
   LPassCount := 0;
   FStringCollection.Add('seventeen');
 
-  for LString in Query<String>.From(FStringCollection).StartsWith('S') do
+  for LString in StringQuery.From(FStringCollection).StartsWith('S') do
     Inc(LPassCount);
   Check(LPassCount = 3, 'Case Insensitive StartsWith ''S'' Query should enumerate three strings');
 end;
@@ -916,7 +921,7 @@ begin
   LPassCount := 0;
   FStringCollection.Add('seventeen');
 
-  for LString in Query<String>.From(FStringCollection).StartsWith('S', False) do
+  for LString in StringQuery.From(FStringCollection).StartsWith('S', False) do
     Inc(LPassCount);
   Check(LPassCount = 2, 'Case Sensitive StartsWith ''S'' Query should enumerate two strings');
 end;
