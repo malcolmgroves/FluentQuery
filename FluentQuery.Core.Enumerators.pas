@@ -1,11 +1,11 @@
-unit FluentQuery.Enumerators;
+unit FluentQuery.Core.Enumerators;
 
 interface
 uses
   System.Generics.Collections,
   System.Classes,
-  FluentQuery.Types,
-  FluentQuery.EnumerationStrategies;
+  FluentQuery.Core.Types,
+  FluentQuery.Core.EnumerationStrategies;
 
 type
   TBaseQueryEnumerator<T> = class(TInterfacedObject, IMinimalEnumerator<T>, IBaseQueryEnumerator<T>)

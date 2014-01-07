@@ -1,11 +1,11 @@
-unit FluentQuery.Enumerators.Char;
+unit FluentQuery.Chars;
 
 interface
 uses
-  FluentQuery.Types,
+  FluentQuery.Core.Types,
   System.SysUtils,
-  FluentQuery.EnumerationStrategies,
-  FluentQuery.Enumerators,
+  FluentQuery.Core.EnumerationStrategies,
+  FluentQuery.Core.Enumerators,
   System.Generics.Collections;
 
 type

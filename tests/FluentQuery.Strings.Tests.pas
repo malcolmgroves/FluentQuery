@@ -5,7 +5,7 @@ interface
 uses
   TestFramework,
   System.Generics.Collections,
-  FluentQuery.Enumerators.Strings,
+  FluentQuery.Strings,
   System.Classes;
 
 type
@@ -53,7 +53,7 @@ type
 
 implementation
 uses
-  System.SysUtils, FMX.Listbox;
+  FMX.Listbox;
 
 
 { TestTQueryTStrings }

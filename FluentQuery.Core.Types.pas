@@ -1,8 +1,6 @@
-unit FluentQuery.Types;
+unit FluentQuery.Core.Types;
 
 interface
-uses
-  System.SysUtils;
 
 type
   IMinimalEnumerator<T> = interface

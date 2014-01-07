@@ -1,12 +1,11 @@
-unit FluentQuery.Tests;
+unit FluentQuery.Chars.Tests;
 
 interface
 
 uses
   TestFramework,
   System.Generics.Collections,
-  FluentQuery.Enumerators.Char,
-  System.Classes,
+  FluentQuery.Chars,
   System.SysUtils;
 
 type

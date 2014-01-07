@@ -1,10 +1,9 @@
-unit FluentQuery.EnumerationStrategies;
+unit FluentQuery.Core.EnumerationStrategies;
 
 interface
 uses
-  Generics.Collections,
   System.SysUtils,
-  FluentQuery.Types;
+  FluentQuery.Core.Types;
 
 type
   TEnumerationStrategy<T> = class

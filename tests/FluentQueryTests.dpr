@@ -17,16 +17,16 @@ program FluentQueryTests;
 uses
   DUnitTestRunner,
   FluentQuery.Strings.Tests in 'FluentQuery.Strings.Tests.pas',
-  FluentQuery.EnumerationStrategies in '..\FluentQuery.EnumerationStrategies.pas',
-  FluentQuery.Enumerators in '..\FluentQuery.Enumerators.pas',
-  FluentQuery.Types in '..\FluentQuery.Types.pas',
-  FluentQuery.Enumerators.Strings in '..\FluentQuery.Enumerators.Strings.pas',
-  FluentQuery.Enumerators.Generic in '..\FluentQuery.Enumerators.Generic.pas',
-  FluentQuery.Enumerators.Char in '..\FluentQuery.Enumerators.Char.pas',
-  FluentQuery.Enumerators.Pointer in '..\FluentQuery.Enumerators.Pointer.pas',
+  FluentQuery.Core.EnumerationStrategies in '..\FluentQuery.Core.EnumerationStrategies.pas',
+  FluentQuery.Core.Enumerators in '..\FluentQuery.Core.Enumerators.pas',
+  FluentQuery.Core.Types in '..\FluentQuery.Core.Types.pas',
+  FluentQuery.Strings in '..\FluentQuery.Strings.pas',
+  FluentQuery.Generics in '..\FluentQuery.Generics.pas',
+  FluentQuery.Chars in '..\FluentQuery.Chars.pas',
+  FluentQuery.Pointers in '..\FluentQuery.Pointers.pas',
   FluentQuery.Pointers.Tests in 'FluentQuery.Pointers.Tests.pas',
   FluentQuery.Generics.Tests in 'FluentQuery.Generics.Tests.pas',
-  FluentQuery.Tests in 'FluentQuery.Tests.pas';
+  FluentQuery.Chars.Tests in 'FluentQuery.Chars.Tests.pas';
 
 {$R *.RES}
 

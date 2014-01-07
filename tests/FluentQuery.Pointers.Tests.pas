@@ -5,7 +5,7 @@ interface
 uses
   TestFramework,
   System.Generics.Collections,
-  FluentQuery.Enumerators.Pointer,
+  FluentQuery.Pointers,
   System.Classes;
 
 type
@@ -36,8 +36,6 @@ type
 
 
 implementation
-uses
-  System.SysUtils;
 
 { TestTQueryPointer }
 

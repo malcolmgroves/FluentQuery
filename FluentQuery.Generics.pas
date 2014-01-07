@@ -1,12 +1,12 @@
-unit FluentQuery.Enumerators.Generic;
+unit FluentQuery.Generics;
 
 interface
 uses
-  FluentQuery.Types,
+  FluentQuery.Core.Types,
   System.SysUtils,
   System.Generics.Collections,
-  FluentQuery.EnumerationStrategies,
-  FluentQuery.Enumerators;
+  FluentQuery.Core.EnumerationStrategies,
+  FluentQuery.Core.Enumerators;
 
 type
   IBoundQueryEnumerator<T> = interface(IBaseQueryEnumerator<T>)
@@ -76,8 +76,6 @@ type
   end;
 
 implementation
-
-
 
 { Query }
 

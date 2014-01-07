@@ -5,8 +5,7 @@ interface
 uses
   TestFramework,
   System.Generics.Collections,
-  FluentQuery.Enumerators.Generic,
-  System.Classes;
+  FluentQuery.Generics;
 
 type
   // Test methods for class TQueryEnumerator

@@ -1,11 +1,11 @@
-unit FluentQuery.Enumerators.Pointer;
+unit FluentQuery.Pointers;
 
 interface
 uses
-  FluentQuery.Types,
+  FluentQuery.Core.Types,
   System.SysUtils,
-  FluentQuery.EnumerationStrategies,
-  FluentQuery.Enumerators,
+  FluentQuery.Core.EnumerationStrategies,
+  FluentQuery.Core.Enumerators,
   System.Classes,
   System.Generics.Collections;
 
