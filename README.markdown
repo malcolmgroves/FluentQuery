@@ -30,7 +30,7 @@ The standard solution in Delphi would be something like this:
     end;
 
 
-There's nothing incorrect about that code, but it's unclear both in terms of what items in the listbox we're acting on, and unclear what we're doing to those items. This is becuase the code that selects the strings we want to display, and the code that actually displays them, are all mixed in together.
+There's nothing incorrect about that code, but it's unclear both in terms of what items in the listbox we're acting on, and unclear what we're doing to those items. This is because the code that selects the strings we want to display, and the code that actually displays them, are all mixed in together.
 
 FluidQuery lets you represent the same thing like this:
 
@@ -60,7 +60,7 @@ FluentQuery is not just for strings in Listboxes though. Want all the char's in 
    
     for LChar in Query.From(FMyString).IsLetterOrDigit do
     
-If FluentQuery does not contain a query operation you need, no problem. You can use the Where operation which takes a TPredicate&LT;T> to do your custom querying. This example finds the first TPerson object in your TObjectList&lt;TPerson> that is over 18: 
+If FluentQuery does not contain a query operation you need, no problem. You can use the Where operation which takes a TPredicate&lt;T> to do your custom querying. This example finds the first TPerson object in your TObjectList&lt;TPerson> that is over 18: 
 
     var
       LPerson : TPerson;
@@ -71,7 +71,8 @@ If FluentQuery does not contain a query operation you need, no problem. You can 
                    Result := Person.Age > 18;
                  end;
 
-      for LPerson in Query<TPerson>
+      for LPerson in Query
+                       .Select<TPerson>
                        .From(FPersonCollection)
                        .Where(LOver18)
                        .First do
@@ -119,7 +120,7 @@ FluentQuery supports a common set of query operations across all collection type
  
 In addition to the common query operations mentioned above, FluentQuery supports operations specific to the type being queried. For example, if you are querying for strings, you have operations such as StartsWith, EndsWith, Contains, etc.
 
-FLuentQuery has type-specific query operatiosn for Strings, Chars, Pointers and others. The latest list of type-specific query operations is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Type-specific-Operations) 
+FluentQuery has type-specific query operations for Strings, Chars, Pointers and others. The latest list of type-specific query operations is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Type-specific-Operations) 
 
 
 Back Story
