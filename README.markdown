@@ -109,17 +109,17 @@ FluentQuery currently supports querying over the following types of containers:
 - Chars in a String
 - Pointers in a TList
 
-The latest list is on the [wiki](wiki/supported-containers).
+The latest list is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Supported-Containers).
 
 
 Query Operations
 ----------------
-FluentQuery supports a common set of query operations across all collection types. These include operations such as Where, First, Skip, Take, TakeWhile and more. The latest list of query operations supported across all containers is on the [wiki](wiki/common-query-operations)
+FluentQuery supports a common set of query operations across all collection types. These include operations such as Where, First, Skip, Take, TakeWhile and more. The latest list of query operations supported across all containers is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/common-query-operations)
 
  
 In addition to the common query operations mentioned above, FluentQuery supports operations specific to the type being queried. For example, if you are querying for strings, you have operations such as StartsWith, EndsWith, Contains, etc.
 
-FLuentQuery has type-specific query operatiosn for Strings, Chars, Pointers and others. The latest list of type-specific query operations is on the [wiki](wiki/type-specific-operations) 
+FLuentQuery has type-specific query operatiosn for Strings, Chars, Pointers and others. The latest list of type-specific query operations is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Type-specific-Operations) 
 
 
 Back Story
