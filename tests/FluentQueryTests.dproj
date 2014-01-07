@@ -89,15 +89,17 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="FluentQuery.Tests.pas"/>
-        <DCCReference Include="..\FluentQuery.pas"/>
-        <DCCReference Include="..\FluentQuery.EnumerationStrategies.pas"/>
-        <DCCReference Include="..\FluentQuery.Enumerators.pas"/>
-        <DCCReference Include="..\FluentQuery.Types.pas"/>
-        <DCCReference Include="..\FluentQuery.Enumerators.Strings.pas"/>
-        <DCCReference Include="..\FluentQuery.Enumerators.Generic.pas"/>
-        <DCCReference Include="..\FluentQuery.Enumerators.Char.pas"/>
-        <DCCReference Include="..\FluentQuery.Enumerators.Pointer.pas"/>
+        <DCCReference Include="FluentQuery.Strings.Tests.pas"/>
+        <DCCReference Include="..\FluentQuery.Core.EnumerationStrategies.pas"/>
+        <DCCReference Include="..\FluentQuery.Core.Enumerators.pas"/>
+        <DCCReference Include="..\FluentQuery.Core.Types.pas"/>
+        <DCCReference Include="..\FluentQuery.Strings.pas"/>
+        <DCCReference Include="..\FluentQuery.Generics.pas"/>
+        <DCCReference Include="..\FluentQuery.Chars.pas"/>
+        <DCCReference Include="..\FluentQuery.Pointers.pas"/>
+        <DCCReference Include="FluentQuery.Pointers.Tests.pas"/>
+        <DCCReference Include="FluentQuery.Generics.Tests.pas"/>
+        <DCCReference Include="FluentQuery.Chars.Tests.pas"/>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
         <None Include="ModelSupport_FluentQueryTests\default.txvpck"/>
         <None Include="ModelSupport_FluentQueryTests\FluentQueryTests\default.txvpck"/>

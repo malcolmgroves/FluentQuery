@@ -1,25 +1,29 @@
-unit FluentQuery.Enumerators;
+unit FluentQuery.Core.Enumerators;
 
 interface
 uses
   System.Generics.Collections,
   System.Classes,
-  FluentQuery.Types,
-  FluentQuery.EnumerationStrategies;
+  FluentQuery.Core.Types,
+  FluentQuery.Core.EnumerationStrategies;
 
 type
-  TMinimalEnumerator<T> = class(TinterfacedObject, IMinimalEnumerator<T>)
+  TBaseQueryEnumerator<T> = class(TInterfacedObject, IMinimalEnumerator<T>, IBaseQueryEnumerator<T>)
   protected
+    FUpstreamQuery : IBaseQueryEnumerator<T>;
     FEnumerationStrategy : TEnumerationStrategy<T>;
     FSourceData : IMinimalEnumerator<T>;
-    function GetCurrent: T; overload;
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>); virtual;
-    function MoveNext: Boolean;
+    function GetCurrent: T; virtual;
+    function MoveNext: Boolean; virtual;
   public
-    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>; SourceData : IMinimalEnumerator<T>); virtual;
+    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>;
+                       UpstreamQuery : IBaseQueryEnumerator<T> = nil;
+                       SourceData : IMinimalEnumerator<T> = nil); virtual;
     destructor Destroy; override;
-    property Current: T read GetCurrent;
+    procedure SetUpstreamQuery(UpstreamQuery : IBaseQueryEnumerator<T>);
   end;
+
 
   TStringsEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<String>)
   protected
@@ -75,38 +79,6 @@ type
   end;
 
 implementation
-
-{ TMinimalEnumerator<T> }
-
-constructor TMinimalEnumerator<T>.Create(EnumerationStrategy: TEnumerationStrategy<T>; SourceData : IMinimalEnumerator<T>);
-begin
-  SetSourceData(SourceData);
-  FEnumerationStrategy := EnumerationStrategy;
-end;
-
-destructor TMinimalEnumerator<T>.Destroy;
-begin
-  FEnumerationStrategy.Free;
-  inherited;
-end;
-
-function TMinimalEnumerator<T>.GetCurrent: T;
-begin
-  Result := FEnumerationStrategy.GetCurrent(FSourceData);;
-end;
-
-function TMinimalEnumerator<T>.MoveNext: Boolean;
-begin
-  Result := FEnumerationStrategy.MoveNext(FSourceData);
-end;
-
-
-
-procedure TMinimalEnumerator<T>.SetSourceData(
-  SourceData: IMinimalEnumerator<T>);
-begin
-  FSourceData := SourceData;
-end;
 
 { TStringsEnumeratorWrapper }
 
@@ -216,5 +188,57 @@ begin
   Result := FListEnumerator.MoveNext;
 end;
 
+
+{ TBaseQueryEnumerator<T> }
+
+
+constructor TBaseQueryEnumerator<T>.Create(
+  EnumerationStrategy: TEnumerationStrategy<T>;
+  UpstreamQuery: IBaseQueryEnumerator<T>; SourceData: IMinimalEnumerator<T>);
+begin
+  SetUpstreamQuery(UpstreamQuery);
+  SetSourceData(SourceData);
+  FEnumerationStrategy := EnumerationStrategy;
+end;
+
+destructor TBaseQueryEnumerator<T>.Destroy;
+begin
+  FEnumerationStrategy.Free;
+  inherited;
+end;
+
+function TBaseQueryEnumerator<T>.GetCurrent: T;
+begin
+  if Assigned(FUpstreamQuery) then
+    Result := FEnumerationStrategy.GetCurrent(FUpstreamQuery)
+  else
+    Result := FEnumerationStrategy.GetCurrent(FSourceData);;
+end;
+
+function TBaseQueryEnumerator<T>.MoveNext: Boolean;
+begin
+  if Assigned(FUpstreamQuery) then
+    Result := FEnumerationStrategy.MoveNext(FUpstreamQuery)
+  else
+    Result := FEnumerationStrategy.MoveNext(FSourceData);
+end;
+
+procedure TBaseQueryEnumerator<T>.SetSourceData(
+  SourceData: IMinimalEnumerator<T>);
+begin
+  if Assigned(SourceData) then
+  begin
+    if Assigned(FUpstreamQuery) then
+      FUpstreamQuery.SetSourceData(SourceData)
+    else
+      FSourceData := SourceData;
+  end;
+end;
+
+procedure TBaseQueryEnumerator<T>.SetUpstreamQuery(
+  UpstreamQuery: IBaseQueryEnumerator<T>);
+begin
+  FUpstreamQuery := UpstreamQuery;
+end;
 
 end.
