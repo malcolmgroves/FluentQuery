@@ -1,6 +1,8 @@
 unit FluentQuery.Core.Types;
 
 interface
+uses
+  System.SysUtils;
 
 type
   IMinimalEnumerator<T> = interface
@@ -14,6 +16,8 @@ type
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>);
   end;
 
+  EFluentQueryException = class(Exception);
+    ENilEnumeratorException = class(EFluentQueryException);
 implementation
 
 end.

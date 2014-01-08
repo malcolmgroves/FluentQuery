@@ -53,11 +53,17 @@ implementation
 
 function TEnumerationStrategy<T>.GetCurrent(Enumerator : IMinimalEnumerator<T>): T;
 begin
+  if not Assigned(Enumerator) then
+    raise ENilEnumeratorException.Create('Enumerator is nil. Are you attempting to enumerate an Unbound Query?');
+
   Result := Enumerator.Current;
 end;
 
 function TEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 begin
+  if not Assigned(Enumerator) then
+    raise ENilEnumeratorException.Create('Enumerator is nil. Are you attempting to enumerate an Unbound Query?');
+
   Result := Enumerator.MoveNext;
 end;
 

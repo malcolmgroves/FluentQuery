@@ -22,6 +22,7 @@ type
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
     procedure TestSkipTakeCreateStrings;
+    procedure TestEnumerateUnboundQuery;
   end;
 
   TestTQueryString = class(TTestCase)
@@ -53,7 +54,8 @@ type
 
 implementation
 uses
-  FMX.Listbox;
+  FMX.Listbox,
+  FluentQuery.Core.Types;
 
 
 { TestTQueryTStrings }
@@ -78,6 +80,21 @@ procedure TestTQueryTStrings.TearDown;
 begin
   FStrings.Free;
   inherited;
+end;
+
+procedure TestTQueryTStrings.TestEnumerateUnboundQuery;
+var
+  Value : String;
+  PassCount : Integer;
+begin
+  PassCount := 0;
+
+  ExpectedException := ENilEnumeratorException;
+  for Value in Query.Take(3) do
+    Inc(PassCount);
+  StopExpectingException('Enumerating an UnboundQuery should have raised an ENilEnumeratorException');
+
+  Check(PassCount = 0, 'Unbound Query should return no items');
 end;
 
 procedure TestTQueryTStrings.TestMatchesCaseInsensitive;
