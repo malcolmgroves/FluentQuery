@@ -115,12 +115,9 @@ The latest list is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wi
 
 Query Operations
 ----------------
-FluentQuery supports a common set of query operations across all collection types. These include operations such as Where, First, Skip, Take, TakeWhile and more. The latest list of query operations supported across all containers is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/common-query-operations)
+FluentQuery determines which query operations are available to you by looking at the type for which you are querying. For example, if you are querying for strings, you have operations such as StartsWith, EndsWith, Contains, etc.
 
- 
-In addition to the common query operations mentioned above, FluentQuery supports operations specific to the type being queried. For example, if you are querying for strings, you have operations such as StartsWith, EndsWith, Contains, etc.
-
-FluentQuery has type-specific query operations for Strings, Chars, Pointers and others. The latest list of type-specific query operations is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Type-specific-Operations) 
+For the latest details of the operations available for different types, check the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/query-operations)
 
 
 Back Story
