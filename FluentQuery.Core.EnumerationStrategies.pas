@@ -15,6 +15,7 @@ type
   TSkipWhileEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   private
     FSkipWhilePredicate : TPredicate<T>;
+    FSkippingComplete : Boolean;
   protected
     function ShouldSkipItem(Enumerator : IMinimalEnumerator<T>) : Boolean;
   public
@@ -49,7 +50,7 @@ type
   TPredicateFactory<T> = class
   public
     class function LessThanOrEqualTo(Count : Integer) : TPredicate<T>;
-    class function WhereSingleValue(UnboundQuery : IBaseQueryEnumerator<T>) : TPredicate<T>;
+    class function QuerySingleValue(UnboundQuery : IBaseQueryEnumerator<T>) : TPredicate<T>;
   end;
 
 
@@ -80,19 +81,26 @@ end;
 constructor TSkipWhileEnumerationStrategy<T>.Create(Predicate: TPredicate<T>);
 begin
   FSkipWhilePredicate := Predicate;
+  FSkippingComplete := False;
 end;
 
 function TSkipWhileEnumerationStrategy<T>.MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean;
 var
-  LEndOfList : Boolean;
+  LAtEnd : Boolean;
 begin
-  repeat
-    LEndOfList := not Enumerator.MoveNext;
-    if LEndOfList then
-      break;
-  until not ShouldSkipItem(Enumerator);
+  if FSkippingComplete then
+    Result := inherited MoveNext(Enumerator)
+  else
+  begin
+    repeat
+      LAtEnd := not Enumerator.MoveNext;
+      if LAtEnd then
+        exit(False);
+    until not ShouldSkipItem(Enumerator);
 
-  Result := not LEndOfList;
+    FSkippingComplete := True;
+    Result := FSKippingComplete;
+  end;
 end;
 
 function TSkipWhileEnumerationStrategy<T>.ShouldSkipItem(Enumerator : IMinimalEnumerator<T>): Boolean;
@@ -196,7 +204,7 @@ begin
             end;
 end;
 
-class function TPredicateFactory<T>.WhereSingleValue(
+class function TPredicateFactory<T>.QuerySingleValue(
   UnboundQuery: IBaseQueryEnumerator<T>): TPredicate<T>;
 begin
   Result := function (CurrentValue : T) : Boolean

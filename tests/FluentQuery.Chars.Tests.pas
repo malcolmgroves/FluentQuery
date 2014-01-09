@@ -32,6 +32,8 @@ type
     procedure TestIsWhiteSpace;
     procedure TestIsUpperSkipTake;
     procedure TestCreateStringFromIsUpperSkipTake;
+    procedure TestSkipWhileQueryIsLetter;
+    procedure TestTakeWhileQueryIsLetter;
   end;
 
 
@@ -53,6 +55,17 @@ begin
   FStringVal := 'abcdefghijklmnopqrstuvwxy 1234567890 !@#$%^&*() ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 end;
 
+
+procedure TestTQueryChar.TestTakeWhileQueryIsLetter;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query.From(FStringVal).TakeWhile(Query.IsLetter) do
+    Inc(LPassCount);
+  Check(LPassCount = 25, 'Takewhile(IsLetter) Query should enumerate the first 25 items');
+end;
 
 procedure TestTQueryChar.TestCreateStringFromIsUpperSkipTake;
 var
@@ -251,6 +264,17 @@ begin
   Check(LPassCount = FStringVal.Length, 'Passthrough Query should enumerate all items');
 end;
 
+
+procedure TestTQueryChar.TestSkipWhileQueryIsLetter;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query.From(FStringVal).SkipWhile(Query.IsLetter) do
+    Inc(LPassCount);
+  Check(LPassCount = FStringVal.Length - 25, 'Skipwhile(IsLetter) Query should enumerate all items except the first 25');
+end;
 
 function TestFluentCharPredicate.AcceptableCount(
   CharPredicate: TPredicate<Char>): Integer;

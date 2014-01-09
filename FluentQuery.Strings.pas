@@ -1,4 +1,4 @@
-﻿unit FluentQuery.Strings;
+unit FluentQuery.Strings;
 
 interface
 uses
@@ -17,9 +17,11 @@ type
     // common operations
     function First : IBoundStringQueryEnumerator;
     function Skip(Count : Integer): IBoundStringQueryEnumerator;
-    function SkipWhile(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator;
+    function SkipWhile(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator; overload;
+    function SkipWhile(UnboundQuery : IUnboundStringQueryEnumerator) : IBoundStringQueryEnumerator; overload;
     function Take(Count : Integer): IBoundStringQueryEnumerator;
-    function TakeWhile(Predicate : TPredicate<String>): IBoundStringQueryEnumerator;
+    function TakeWhile(Predicate : TPredicate<String>): IBoundStringQueryEnumerator; overload;
+    function TakeWhile(UnboundQuery : IUnboundStringQueryEnumerator): IBoundStringQueryEnumerator; overload;
     function Where(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator;
     function WhereNot(UnboundQuery : IUnboundStringQueryEnumerator) : IBoundStringQueryEnumerator; overload;
     function WhereNot(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator; overload;
@@ -39,9 +41,11 @@ type
     function From(Strings : TStrings) : IBoundStringQueryEnumerator; overload;
     function First : IUnboundStringQueryEnumerator;
     function Skip(Count : Integer): IUnboundStringQueryEnumerator;
-    function SkipWhile(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
+    function SkipWhile(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator; overload;
+    function SkipWhile(UnboundQuery : IUnboundStringQueryEnumerator) : IUnboundStringQueryEnumerator; overload;
     function Take(Count : Integer): IUnboundStringQueryEnumerator;
-    function TakeWhile(Predicate : TPredicate<String>): IUnboundStringQueryEnumerator;
+    function TakeWhile(Predicate : TPredicate<String>): IUnboundStringQueryEnumerator; overload;
+    function TakeWhile(UnboundQuery : IUnboundStringQueryEnumerator): IUnboundStringQueryEnumerator; overload;
     function Where(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
     function WhereNot(UnboundQuery : IUnboundStringQueryEnumerator) : IUnboundStringQueryEnumerator; overload;
     function WhereNot(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator; overload;
@@ -77,9 +81,11 @@ type
         function From(Strings : TStrings) : IBoundStringQueryEnumerator; overload;
         function Predicate : TPredicate<string>;
         function Skip(Count : Integer): T;
-        function SkipWhile(Predicate : TPredicate<String>) : T;
+        function SkipWhile(Predicate : TPredicate<String>) : T; overload;
+        function SkipWhile(UnboundQuery : IUnboundStringQueryEnumerator) : T; overload;
         function Take(Count : Integer): T;
-        function TakeWhile(Predicate : TPredicate<String>): T;
+        function TakeWhile(Predicate : TPredicate<String>): T; overload;
+        function TakeWhile(UnboundQuery : IUnboundStringQueryEnumerator): T; overload;
         function Where(Predicate : TPredicate<String>) : T;
         function WhereNot(UnboundQuery : IUnboundStringQueryEnumerator) : T; overload;
         function WhereNot(Predicate : TPredicate<String>) : T; overload;
@@ -217,13 +223,19 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Predicate: TPredicate<string>;
 begin
-  Result := TPredicateFactory<String>.Where(FQuery);
+  Result := TPredicateFactory<String>.QuerySingleValue(FQuery);
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
   Result := TStringQueryEnumerator.Create(TSkipWhileEnumerationStrategy<String>.Create(TPredicateFactory<String>.LessThanOrEqualTo(Count)),
                                           IBaseQueryEnumerator<String>(FQuery));
+end;
+
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SkipWhile(
+  UnboundQuery: IUnboundStringQueryEnumerator): T;
+begin
+  Result := SkipWhile(UnboundQuery.Predicate);
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SkipWhile(
@@ -258,6 +270,12 @@ begin
                                           IBaseQueryEnumerator<String>(FQuery));
 end;
 
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.TakeWhile(
+  UnboundQuery: IUnboundStringQueryEnumerator): T;
+begin
+  Result := TakeWhile(UnboundQuery.Predicate);
+end;
+
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.TakeWhile(Predicate: TPredicate<String>): T;
 begin
   Result := TStringQueryEnumerator.Create(TTakeWhileEnumerationStrategy<String>.Create(Predicate),
@@ -286,8 +304,7 @@ end;
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
   UnboundQuery: IUnboundStringQueryEnumerator): T;
 begin
-  Result := TStringQueryEnumerator.Create(TWhereNotEnumerationStrategy<String>.Create(TPredicateFactory<String>.Where(UnboundQuery)),
-                                          IBaseQueryEnumerator<String>(FQuery));
+  Result := WhereNot(UnboundQuery.Predicate);
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
@@ -295,7 +312,6 @@ function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
 begin
   Result := TStringQueryEnumerator.Create(TWhereNotEnumerationStrategy<String>.Create(Predicate),
                                           IBaseQueryEnumerator<String>(FQuery));
-
 end;
 
 end.

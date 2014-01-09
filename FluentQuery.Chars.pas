@@ -15,11 +15,14 @@ type
     // common operations
     function First : IBoundCharQueryEnumerator;
     function Skip(Count : Integer): IBoundCharQueryEnumerator;
-    function SkipWhile(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator;
+    function SkipWhile(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
+    function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
     function Take(Count : Integer): IBoundCharQueryEnumerator;
-    function TakeWhile(Predicate : TPredicate<Char>): IBoundCharQueryEnumerator;
+    function TakeWhile(Predicate : TPredicate<Char>): IBoundCharQueryEnumerator; overload;
+    function TakeWhile(UnboundQuery : IUnboundCharQueryEnumerator): IBoundCharQueryEnumerator; overload;
     function Where(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator;
-    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator;
+    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
+    function WhereNot(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
     // type-specific operations
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQueryEnumerator;
     function IsControl: IBoundCharQueryEnumerator;
@@ -48,11 +51,14 @@ type
     function From(StringValue : String) : IBoundCharQueryEnumerator; overload;
     function From(Container : TEnumerable<Char>) : IBoundCharQueryEnumerator; overload;
     function Skip(Count : Integer): IUnboundCharQueryEnumerator;
-    function SkipWhile(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator;
+    function SkipWhile(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator; overload;
+    function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator; overload;
     function Take(Count : Integer): IUnboundCharQueryEnumerator;
-    function TakeWhile(Predicate : TPredicate<Char>): IUnboundCharQueryEnumerator;
+    function TakeWhile(Predicate : TPredicate<Char>): IUnboundCharQueryEnumerator; overload;
+    function TakeWhile(UnboundQuery : IUnboundCharQueryEnumerator): IUnboundCharQueryEnumerator; overload;
     function Where(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator;
-    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator;
+    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator; overload;
+    function WhereNot(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator; overload;
     // type-specific operations
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQueryEnumerator;
     function IsControl: IUnboundCharQueryEnumerator;
@@ -101,11 +107,14 @@ type
         function From(StringValue : String) : IBoundCharQueryEnumerator; overload;
         function From(Collection : TEnumerable<Char>) : IBoundCharQueryEnumerator; overload;
         function Skip(Count : Integer): T;
-        function SkipWhile(Predicate : TPredicate<Char>) : T;
+        function SkipWhile(Predicate : TPredicate<Char>) : T; overload;
+        function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : T; overload;
         function Take(Count : Integer): T;
-        function TakeWhile(Predicate : TPredicate<Char>): T;
+        function TakeWhile(Predicate : TPredicate<Char>): T; overload;
+        function TakeWhile(UnboundQuery : IUnboundCharQueryEnumerator): T; overload;
         function Where(Predicate : TPredicate<Char>) : T;
-        function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : T;
+        function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : T; overload;
+        function WhereNot(Predicate : TPredicate<Char>) : T; overload;
         function Matches(const Value : Char; IgnoreCase : Boolean = True) : T;
         function IsControl: T;
         function IsDigit: T;
@@ -148,13 +157,6 @@ end;
 
 
 { TCharQueryEnumerator }
-
-function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.WhereNot(
-  UnboundQuery: IUnboundCharQueryEnumerator): T;
-begin
-  Result := TCharQueryEnumerator.Create(TWhereNotEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.WhereSingleValue(UnboundQuery)),
-                                        IBaseQueryEnumerator<Char>(FQuery));
-end;
 
 constructor TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Create(
   Query: TCharQueryEnumerator);
@@ -410,18 +412,19 @@ end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Predicate: TPredicate<Char>;
 begin
-  Result := TPredicateFactory<Char>.WhereSingleValue(FQuery);
-//  Result := function(Value : Char) : boolean
-//            begin
-//              FQuery.SetSourceData(TSingleValueAdapter<Char>.Create(Value));
-//              Result := FQuery.MoveNext;
-//            end;
+  Result := TPredicateFactory<Char>.QuerySingleValue(FQuery);
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
   Result := TCharQueryEnumerator.Create(TSkipWhileEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.LessThanOrEqualTo(Count)),
                                        IBaseQueryEnumerator<Char>(FQuery));
+end;
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.SkipWhile(
+  UnboundQuery: IUnboundCharQueryEnumerator): T;
+begin
+  Result := SkipWhile(UnboundQuery.Predicate);
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.SkipWhile(
@@ -435,6 +438,12 @@ function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Take(Count: Integer): 
 begin
   Result := TCharQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.LessThanOrEqualTo(Count)),
                                         IBaseQueryEnumerator<Char>(FQuery));
+end;
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.TakeWhile(
+  UnboundQuery: IUnboundCharQueryEnumerator): T;
+begin
+  Result := TakeWhile(UnboundQuery.Predicate);
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.TakeWhile(
@@ -462,6 +471,21 @@ begin
   Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(Predicate),
                                         IBaseQueryEnumerator<Char>(FQuery));
 end;
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.WhereNot(
+  Predicate: TPredicate<Char>): T;
+begin
+  Result := TCharQueryEnumerator.Create(TWhereNotEnumerationStrategy<Char>.Create(Predicate),
+                                        IBaseQueryEnumerator<Char>(FQuery));
+end;
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.WhereNot(
+  UnboundQuery: IUnboundCharQueryEnumerator): T;
+begin
+  Result := WhereNot(UnboundQuery.Predicate);
+end;
+
+
 
 { TCharQueryEnumerator }
 

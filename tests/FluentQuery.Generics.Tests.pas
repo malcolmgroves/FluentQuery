@@ -78,7 +78,7 @@ begin
   FIntegerCollection.Add(5);
   FIntegerCollection.Add(6);
   FIntegerCollection.Add(7);
-  FIntegerCollection.Add(8);
+  FIntegerCollection.Add(4);
   FIntegerCollection.Add(9);
   FIntegerCollection.Add(10);
 end;

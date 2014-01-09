@@ -16,9 +16,11 @@ type
     // common operations
     function First : IBoundQueryEnumerator<T>;
     function Skip(Count : Integer): IBoundQueryEnumerator<T>;
-    function SkipWhile(Predicate : TPredicate<T>) : IBoundQueryEnumerator<T>;
+    function SkipWhile(Predicate : TPredicate<T>) : IBoundQueryEnumerator<T>; overload;
+    function SkipWhile(UnboundQuery : IUnboundQueryEnumerator<T>) : IBoundQueryEnumerator<T>; overload;
     function Take(Count : Integer): IBoundQueryEnumerator<T>;
-    function TakeWhile(Predicate : TPredicate<T>): IBoundQueryEnumerator<T>;
+    function TakeWhile(Predicate : TPredicate<T>): IBoundQueryEnumerator<T>; overload;
+    function TakeWhile(UnboundQuery : IUnboundQueryEnumerator<T>): IBoundQueryEnumerator<T>; overload;
     function Where(Predicate : TPredicate<T>) : IBoundQueryEnumerator<T>;
     function WhereNot(UnboundQuery : IUnboundQueryEnumerator<T>) : IBoundQueryEnumerator<T>; overload;
     function WhereNot(Predicate : TPredicate<T>) : IBoundQueryEnumerator<T>; overload;
@@ -33,9 +35,11 @@ type
     function First : IUnboundQueryEnumerator<T>;
     function From(Container : TEnumerable<T>) : IBoundQueryEnumerator<T>;
     function Skip(Count : Integer): IUnboundQueryEnumerator<T>;
-    function SkipWhile(Predicate : TPredicate<T>) : IUnboundQueryEnumerator<T>;
+    function SkipWhile(Predicate : TPredicate<T>) : IUnboundQueryEnumerator<T>; overload;
+    function SkipWhile(UnboundQuery : IUnboundQueryEnumerator<T>) : IUnboundQueryEnumerator<T>; overload;
     function Take(Count : Integer): IUnboundQueryEnumerator<T>;
-    function TakeWhile(Predicate : TPredicate<T>): IUnboundQueryEnumerator<T>;
+    function TakeWhile(Predicate : TPredicate<T>): IUnboundQueryEnumerator<T>; overload;
+    function TakeWhile(UnboundQuery : IUnboundQueryEnumerator<T>): IUnboundQueryEnumerator<T>; overload;
     function Where(Predicate : TPredicate<T>) : IUnboundQueryEnumerator<T>;
     function WhereNot(UnboundQuery : IUnboundQueryEnumerator<T>) : IUnboundQueryEnumerator<T>; overload;
     function WhereNot(Predicate : TPredicate<T>) : IUnboundQueryEnumerator<T>; overload;
@@ -59,9 +63,11 @@ type
         function First : TReturnType;
         function From(Container : TEnumerable<T>) : IBoundQueryEnumerator<T>;
         function Skip(Count : Integer): TReturnType;
-        function SkipWhile(Predicate : TPredicate<T>) : TReturnType;
+        function SkipWhile(Predicate : TPredicate<T>) : TReturnType; overload;
+        function SkipWhile(UnboundQuery : IUnboundQueryEnumerator<T>) : TReturnType; overload;
         function Take(Count : Integer): TReturnType;
-        function TakeWhile(Predicate : TPredicate<T>): TReturnType;
+        function TakeWhile(Predicate : TPredicate<T>): TReturnType; overload;
+        function TakeWhile(UnboundQuery : IUnboundQueryEnumerator<T>): TReturnType; overload;
         function Where(Predicate : TPredicate<T>) : TReturnType;
         function WhereNot(UnboundQuery : IUnboundQueryEnumerator<T>) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
@@ -132,20 +138,25 @@ end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Predicate: TPredicate<T>;
 begin
-  Result := TPredicateFactory<T>.WhereSingleValue(FQuery);
+  Result := TPredicateFactory<T>.QuerySingleValue(FQuery);
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.WhereNot(
   UnboundQuery: IUnboundQueryEnumerator<T>): TReturnType;
 begin
-  Result := TQueryEnumerator<T>.Create(TWhereNotEnumerationStrategy<T>.Create(TPredicateFactory<T>.WhereSingleValue(UnboundQuery)),
-                                        IBaseQueryEnumerator<T>(FQuery));
+  Result := WhereNot(UnboundQuery.Predicate);
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Skip(Count: Integer): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
                                        IBaseQueryEnumerator<T>(FQuery));
+end;
+
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.SkipWhile(
+  UnboundQuery: IUnboundQueryEnumerator<T>): TReturnType;
+begin
+  Result := SkipWhile(UnboundQuery.Predicate);
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.SkipWhile(
@@ -159,6 +170,12 @@ function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Take(Count: Integ
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
                                        IBaseQueryEnumerator<T>(FQuery));
+end;
+
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.TakeWhile(
+  UnboundQuery: IUnboundQueryEnumerator<T>): TReturnType;
+begin
+  Result := TakeWhile(UnboundQuery.Predicate);
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.TakeWhile(
