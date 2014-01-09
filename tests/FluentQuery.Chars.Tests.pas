@@ -25,6 +25,7 @@ type
     procedure TestIsLetterOrDigit;
     procedure TestIsLower;
     procedure TestIsNumber;
+    procedure TestWhereNotIsNumber;
     procedure TestIsPunctuation;
     procedure TestIsSymbol;
     procedure TestIsUpper;
@@ -32,6 +33,7 @@ type
     procedure TestIsUpperSkipTake;
     procedure TestCreateStringFromIsUpperSkipTake;
   end;
+
 
   TestFluentCharPredicate = class(TTestCase)
   private
@@ -225,6 +227,17 @@ begin
   for LChar in Query.From(FStringVal).Matches('z', False) do
     Inc(LPassCount);
   Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero chars');
+end;
+
+procedure TestTQueryChar.TestWhereNotIsNumber;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query.From(FStringVal).WhereNot(Query.IsNumber) do
+    Inc(LPassCount);
+  Check(LPassCount = FStringVal.Length - 10, 'Not(IsNumber) Query should enumerate all but 10 chars');
 end;
 
 procedure TestTQueryChar.TestPassthrough;

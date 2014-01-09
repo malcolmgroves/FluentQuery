@@ -33,21 +33,29 @@ type
   end;
 
   TWhereEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
-  private
-    FWherePredicate : TPredicate<T>;
   protected
-    function ShouldIncludeItem(Enumerator : IMinimalEnumerator<T>) : Boolean;
+    FWherePredicate : TPredicate<T>;
+    function ShouldIncludeItem(Enumerator : IMinimalEnumerator<T>) : Boolean; virtual;
   public
     function MoveNext(Enumerator : IMinimalEnumerator<T>): Boolean; override;
     constructor Create(Predicate : TPredicate<T>); virtual;
   end;
 
+  TWhereNotEnumerationStrategy<T> = class(TWhereEnumerationStrategy<T>)
+  protected
+    function ShouldIncludeItem(Enumerator : IMinimalEnumerator<T>) : Boolean; override;
+  end;
+
   TPredicateFactory<T> = class
   public
     class function LessThanOrEqualTo(Count : Integer) : TPredicate<T>;
+    class function WhereSingleValue(UnboundQuery : IBaseQueryEnumerator<T>) : TPredicate<T>;
   end;
 
+
 implementation
+uses
+  FluentQuery.Core.Enumerators;
 
 { TEnumerationStrategy<T> }
 
@@ -186,6 +194,32 @@ begin
               Inc(LCount);
               Result := LCount <= Count;
             end;
+end;
+
+class function TPredicateFactory<T>.WhereSingleValue(
+  UnboundQuery: IBaseQueryEnumerator<T>): TPredicate<T>;
+begin
+  Result := function (CurrentValue : T) : Boolean
+            begin
+              UnboundQuery.SetSourceData(TSingleValueAdapter<T>.Create(CurrentValue));
+              Result := UnboundQuery.MoveNext;
+            end;
+end;
+
+{ TWhereNotEnumerationStrategy<T> }
+
+function TWhereNotEnumerationStrategy<T>.ShouldIncludeItem(
+  Enumerator: IMinimalEnumerator<T>): Boolean;
+begin
+  try
+    if Assigned(FWherePredicate) then
+      Result := not FWherePredicate(Enumerator.Current)
+    else
+      Result := False;
+  except
+    on E : EArgumentOutOfRangeException do
+      Result := False;
+  end;
 end;
 
 end.

@@ -22,7 +22,9 @@ type
     procedure TestTakeEqualCount;
     procedure TestTakeGreaterThanCount;
     procedure TestTakeZero;
-    procedure TestWhere;
+    procedure TestWhereEven;
+    procedure TestWhereNotWhereEven;
+    procedure TestWhereNotEven;
     procedure TestWhereNone;
     procedure TestWhereAll;
     procedure TestWhereTake;
@@ -225,6 +227,54 @@ begin
   Check(LPassCount = 1, 'First on a non-empty collection should enumerate one item');
 end;
 
+procedure TestTQueryInteger.TestWhereNotEven;
+var
+  LPassCount, I : Integer;
+  LEvenNumbers : TPredicate<Integer>;
+begin
+  LPassCount := 0;
+
+  LEvenNumbers := function (Value : Integer) : Boolean
+                  begin
+                    Result := Value mod 2 = 0;
+                  end;
+
+  for I in Query
+             .Select<Integer>
+             .From(FIntegerCollection)
+             .WhereNot(LEvenNumbers) do
+  begin
+    Inc(LPassCount);
+    Check(I mod 2 <> 0,
+          'Should enumerate odd numbered items, but enumerated ' + I.ToString);
+  end;
+  Check(LPassCount = 5, 'Should enumerate even numbered items');
+end;
+
+procedure TestTQueryInteger.TestWhereNotWhereEven;
+var
+  LPassCount, I : Integer;
+  LEvenNumbers : TPredicate<Integer>;
+begin
+  LPassCount := 0;
+
+  LEvenNumbers := function (Value : Integer) : Boolean
+                  begin
+                    Result := Value mod 2 = 0;
+                  end;
+
+  for I in Query
+             .Select<Integer>
+             .From(FIntegerCollection)
+             .WhereNot(Query.Select<Integer>.Where(LEvenNumbers)) do
+  begin
+    Inc(LPassCount);
+    Check(I mod 2 <> 0,
+          'Should enumerate odd numbered items, but enumerated ' + I.ToString);
+  end;
+  Check(LPassCount = 5, 'Should enumerate even numbered items');
+end;
+
 procedure TestTQueryInteger.TestCreateList;
 var
   LIntegerList : TList<Integer>;
@@ -386,7 +436,7 @@ begin
   Check(LEnumerationCount = FIntegerCollection.Count, 'Skip of zero should have enumerated all items');
 end;
 
-procedure TestTQueryInteger.TestWhere;
+procedure TestTQueryInteger.TestWhereEven;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;

@@ -1,4 +1,4 @@
-unit FluentQuery.Strings;
+﻿unit FluentQuery.Strings;
 
 interface
 uses
@@ -10,23 +10,31 @@ uses
   System.Classes;
 
 type
+  IUnboundStringQueryEnumerator = interface;
+
   IBoundStringQueryEnumerator = interface(IBaseQueryEnumerator<String>)
     function GetEnumerator: IBoundStringQueryEnumerator;
+    // common operations
     function First : IBoundStringQueryEnumerator;
     function Skip(Count : Integer): IBoundStringQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator;
     function Take(Count : Integer): IBoundStringQueryEnumerator;
     function TakeWhile(Predicate : TPredicate<String>): IBoundStringQueryEnumerator;
     function Where(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator;
+    function WhereNot(UnboundQuery : IUnboundStringQueryEnumerator) : IBoundStringQueryEnumerator; overload;
+    function WhereNot(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator; overload;
+    // type-specific operations
     function Matches(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function Contains(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
+    // terminating operations
     function ToTStrings : TStrings;
   end;
 
   IUnboundStringQueryEnumerator = interface(IBaseQueryEnumerator<String>)
     function GetEnumerator: IUnboundStringQueryEnumerator;
+    // common operations
     function From(Container : TEnumerable<String>) : IBoundStringQueryEnumerator; overload;
     function From(Strings : TStrings) : IBoundStringQueryEnumerator; overload;
     function First : IUnboundStringQueryEnumerator;
@@ -35,10 +43,14 @@ type
     function Take(Count : Integer): IUnboundStringQueryEnumerator;
     function TakeWhile(Predicate : TPredicate<String>): IUnboundStringQueryEnumerator;
     function Where(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
+    function WhereNot(UnboundQuery : IUnboundStringQueryEnumerator) : IUnboundStringQueryEnumerator; overload;
+    function WhereNot(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator; overload;
+    // type-specific operations
     function Matches(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function Contains(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    // terminating operations
     function Predicate : TPredicate<string>;
   end;
 
@@ -69,6 +81,8 @@ type
         function Take(Count : Integer): T;
         function TakeWhile(Predicate : TPredicate<String>): T;
         function Where(Predicate : TPredicate<String>) : T;
+        function WhereNot(UnboundQuery : IUnboundStringQueryEnumerator) : T; overload;
+        function WhereNot(Predicate : TPredicate<String>) : T; overload;
         function Matches(const Value : String; IgnoreCase : Boolean = True) : T;
         function Contains(const Value : String; IgnoreCase : Boolean = True) : T;
         function StartsWith(const Value : String; IgnoreCase : Boolean = True) : T;
@@ -81,7 +95,8 @@ type
   public
     constructor Create(EnumerationStrategy : TEnumerationStrategy<String>;
                        UpstreamQuery : IBaseQueryEnumerator<String> = nil;
-                       SourceData : IMinimalEnumerator<String> = nil); override;
+                       SourceData : IMinimalEnumerator<String> = nil
+                       ); override;
     destructor Destroy; override;
     property BoundStringQueryEnumerator : TStringQueryEnumeratorImpl<IBoundStringQueryEnumerator>
                                        read FBoundStringQueryEnumerator implements IBoundStringQueryEnumerator;
@@ -202,11 +217,7 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Predicate: TPredicate<string>;
 begin
-  Result := function(Value : String) : boolean
-            begin
-              FQuery.SetSourceData(TSingleValueAdapter<String>.Create(Value));
-              Result := FQuery.MoveNext;
-            end;
+  Result := TPredicateFactory<String>.Where(FQuery);
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
@@ -270,6 +281,21 @@ function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Where(
 begin
   Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(Predicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+end;
+
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
+  UnboundQuery: IUnboundStringQueryEnumerator): T;
+begin
+  Result := TStringQueryEnumerator.Create(TWhereNotEnumerationStrategy<String>.Create(TPredicateFactory<String>.Where(UnboundQuery)),
+                                          IBaseQueryEnumerator<String>(FQuery));
+end;
+
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
+  Predicate: TPredicate<String>): T;
+begin
+  Result := TStringQueryEnumerator.Create(TWhereNotEnumerationStrategy<String>.Create(Predicate),
+                                          IBaseQueryEnumerator<String>(FQuery));
+
 end;
 
 end.

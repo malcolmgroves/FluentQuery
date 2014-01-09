@@ -9,14 +9,18 @@ uses
   System.Generics.Collections;
 
 type
+  IUnboundCharQueryEnumerator = interface;
   IBoundCharQueryEnumerator = interface(IBaseQueryEnumerator<Char>)
     function GetEnumerator: IBoundCharQueryEnumerator;
+    // common operations
     function First : IBoundCharQueryEnumerator;
     function Skip(Count : Integer): IBoundCharQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator;
     function Take(Count : Integer): IBoundCharQueryEnumerator;
     function TakeWhile(Predicate : TPredicate<Char>): IBoundCharQueryEnumerator;
     function Where(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator;
+    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator;
+    // type-specific operations
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQueryEnumerator;
     function IsControl: IBoundCharQueryEnumerator;
     function IsDigit: IBoundCharQueryEnumerator;
@@ -33,11 +37,13 @@ type
     function IsSymbol: IBoundCharQueryEnumerator;
     function IsUpper: IBoundCharQueryEnumerator;
     function IsWhiteSpace: IBoundCharQueryEnumerator;
+    // terminating operations
     function ToAString : String;
   end;
 
   IUnboundCharQueryEnumerator = interface(IBaseQueryEnumerator<Char>)
     function GetEnumerator: IUnboundCharQueryEnumerator;
+    // common operations
     function First : IUnboundCharQueryEnumerator;
     function From(StringValue : String) : IBoundCharQueryEnumerator; overload;
     function From(Container : TEnumerable<Char>) : IBoundCharQueryEnumerator; overload;
@@ -46,6 +52,8 @@ type
     function Take(Count : Integer): IUnboundCharQueryEnumerator;
     function TakeWhile(Predicate : TPredicate<Char>): IUnboundCharQueryEnumerator;
     function Where(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator;
+    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator;
+    // type-specific operations
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQueryEnumerator;
     function IsControl: IUnboundCharQueryEnumerator;
     function IsDigit: IUnboundCharQueryEnumerator;
@@ -62,6 +70,7 @@ type
     function IsSymbol: IUnboundCharQueryEnumerator;
     function IsUpper: IUnboundCharQueryEnumerator;
     function IsWhiteSpace: IUnboundCharQueryEnumerator;
+    // terminating operations
     function Predicate : TPredicate<Char>;
   end;
 
@@ -96,6 +105,7 @@ type
         function Take(Count : Integer): T;
         function TakeWhile(Predicate : TPredicate<Char>): T;
         function Where(Predicate : TPredicate<Char>) : T;
+        function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : T;
         function Matches(const Value : Char; IgnoreCase : Boolean = True) : T;
         function IsControl: T;
         function IsDigit: T;
@@ -138,6 +148,13 @@ end;
 
 
 { TCharQueryEnumerator }
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.WhereNot(
+  UnboundQuery: IUnboundCharQueryEnumerator): T;
+begin
+  Result := TCharQueryEnumerator.Create(TWhereNotEnumerationStrategy<Char>.Create(TPredicateFactory<Char>.WhereSingleValue(UnboundQuery)),
+                                        IBaseQueryEnumerator<Char>(FQuery));
+end;
 
 constructor TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Create(
   Query: TCharQueryEnumerator);
@@ -393,11 +410,12 @@ end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Predicate: TPredicate<Char>;
 begin
-  Result := function(Value : Char) : boolean
-            begin
-              FQuery.SetSourceData(TSingleValueAdapter<Char>.Create(Value));
-              Result := FQuery.MoveNext;
-            end;
+  Result := TPredicateFactory<Char>.WhereSingleValue(FQuery);
+//  Result := function(Value : Char) : boolean
+//            begin
+//              FQuery.SetSourceData(TSingleValueAdapter<Char>.Create(Value));
+//              Result := FQuery.MoveNext;
+//            end;
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Skip(Count: Integer): T;

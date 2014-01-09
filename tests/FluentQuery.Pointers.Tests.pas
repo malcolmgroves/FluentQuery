@@ -31,11 +31,15 @@ type
   published
     procedure TestPassThrough;
     procedure TestIsAssigned;
+    procedure TestWhereNotIsAssigned;
+    procedure TestWhereNotIsAssignedPredicate;
   end;
 
 
 
 implementation
+uses
+  SysUtils;
 
 { TestTQueryPointer }
 
@@ -127,6 +131,35 @@ begin
   Check(LPassCount = 4, 'IsAssigned Query should enumerate four items');
 end;
 
+
+procedure TestTQueryTList.TestWhereNotIsAssigned;
+var
+  LPassCount : Integer;
+  LPointer : Pointer;
+begin
+  LPassCount := 0;
+  for LPointer in Query
+                    .From(FList)
+                    .WhereNot(Query.IsAssigned) do
+    Inc(LPassCount);
+  Check(LPassCount = FList.Count - 4, 'WhereNot(IsAssigned) Query should enumerate all but four items');
+end;
+
+procedure TestTQueryTList.TestWhereNotIsAssignedPredicate;
+var
+  LPassCount : Integer;
+  LPointer : Pointer;
+  LIsAssigned : TPredicate<Pointer>;
+begin
+  LPassCount := 0;
+  LIsAssigned := Query.IsAssigned.Predicate;
+
+  for LPointer in Query
+                    .From(FList)
+                    .WhereNot(LIsAssigned) do
+    Inc(LPassCount);
+  Check(LPassCount = FList.Count - 4, 'WhereNot(Predicate(IsAssigned)) Query should enumerate all but four items');
+end;
 
 procedure TestTQueryTList.TestPassThrough;
 var

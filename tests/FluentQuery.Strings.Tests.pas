@@ -33,16 +33,18 @@ type
     procedure TearDown; override;
   published
     procedure TestMatchesCaseSensitive;
-    procedure TestNoMatchesCaseSensitive;
+    procedure TestMatchesCaseSensitiveNone;
     procedure TestMatchesCaseInsensitive;
     procedure TestContainsCaseSensitive;
-    procedure TestNotContainsCaseSensitive;
+    procedure TestContainsCaseSensitiveNone;
     procedure TestContainsCaseInsensitive;
+    procedure TestWhereNotContainsCaseInsensitive;
+    procedure TestWhereNotPredicateContainsCaseInsensitive;
     procedure TestStartsWithCaseSensitive;
-    procedure TestNotStartsWithCaseSensitive;
+    procedure TestStartsWithCaseSensitiveNone;
     procedure TestStartsWithCaseInsensitive;
     procedure TestEndsWithCaseSensitive;
-    procedure TestNotEndsWithCaseSensitive;
+    procedure TestEndsWithCaseSensitiveNone;
     procedure TestEndsWithCaseInsensitive;
   end;
 
@@ -55,7 +57,8 @@ type
 implementation
 uses
   FMX.Listbox,
-  FluentQuery.Core.Types;
+  FluentQuery.Core.Types,
+  SysUtils;
 
 
 { TestTQueryTStrings }
@@ -302,13 +305,12 @@ var
   LString : String;
 begin
   LPassCount := 0;
-//  for LString in Query.From(FStringCollection).Matches('Six', False) do
   for LString in Query.From(FStringCollection).Matches('Six', False) do
     Inc(LPassCount);
   Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one string');
 end;
 
-procedure TestTQueryString.TestNoMatchesCaseSensitive;
+procedure TestTQueryString.TestMatchesCaseSensitiveNone;
 var
   LPassCount : Integer;
   LString : String;
@@ -319,7 +321,7 @@ begin
   Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
 end;
 
-procedure TestTQueryString.TestNotContainsCaseSensitive;
+procedure TestTQueryString.TestContainsCaseSensitiveNone;
 var
   LPassCount : Integer;
   LString : String;
@@ -330,7 +332,7 @@ begin
   Check(LPassCount = 0, 'Case Sensitive Contains ''s'' Query with no matches should enumerate zero strings');
 end;
 
-procedure TestTQueryString.TestNotEndsWithCaseSensitive;
+procedure TestTQueryString.TestEndsWithCaseSensitiveNone;
 var
   LPassCount : Integer;
   LString : String;
@@ -341,7 +343,32 @@ begin
   Check(LPassCount = 0, 'Case Sensitive EndsWith ''N'' Query with no matches should enumerate zero strings');
 end;
 
-procedure TestTQueryString.TestNotStartsWithCaseSensitive;
+procedure TestTQueryString.TestWhereNotContainsCaseInsensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  for LString in Query.From(FStringCollection).WhereNot(Query.Contains('e')) do
+    Inc(LPassCount);
+  Check(LPassCount = 3, 'WhereNot(Case Insensitive Contains ''e'') Query should enumerate seven strings');
+end;
+
+procedure TestTQueryString.TestWhereNotPredicateContainsCaseInsensitive;
+var
+  LPassCount : Integer;
+  LString : String;
+  LContainsE : TPredicate<string>;
+begin
+  LPassCount := 0;
+  LContainsE := Query.Contains('e').Predicate;
+
+  for LString in Query.From(FStringCollection).WhereNot(LContainsE) do
+    Inc(LPassCount);
+  Check(LPassCount = 3, 'WhereNot(Predicate(Case Insensitive Contains ''e'')) Query should enumerate seven strings');
+end;
+
+procedure TestTQueryString.TestStartsWithCaseSensitiveNone;
 var
   LPassCount : Integer;
   LString : String;
