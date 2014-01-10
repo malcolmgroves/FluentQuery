@@ -13,6 +13,9 @@ type
     FUpstreamQuery : IBaseQueryEnumerator<T>;
     FEnumerationStrategy : TEnumerationStrategy<T>;
     FSourceData : IMinimalEnumerator<T>;
+{$IFDEF DEBUG}
+    FOperationName : String;
+{$ENDIF}
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>); virtual;
     function GetCurrent: T; virtual;
     function MoveNext: Boolean; virtual;
@@ -22,8 +25,14 @@ type
                        SourceData : IMinimalEnumerator<T> = nil); virtual;
     destructor Destroy; override;
     procedure SetUpstreamQuery(UpstreamQuery : IBaseQueryEnumerator<T>);
+{$IFDEF DEBUG}
+    function GetOperationName : String; virtual;
+    procedure SetOperationName(const Name : String); virtual;
+    function GetOperationPath : String; virtual;
+    property OperationName : string read GetOperationName write SetOperationName;
+    property OperationPath : string read GetOperationPath;
+{$ENDIF}
   end;
-
 
   TStringsEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<String>)
   protected
@@ -194,7 +203,8 @@ end;
 
 constructor TBaseQueryEnumerator<T>.Create(
   EnumerationStrategy: TEnumerationStrategy<T>;
-  UpstreamQuery: IBaseQueryEnumerator<T>; SourceData: IMinimalEnumerator<T>);
+  UpstreamQuery: IBaseQueryEnumerator<T>;
+  SourceData: IMinimalEnumerator<T>);
 begin
   SetUpstreamQuery(UpstreamQuery);
   SetSourceData(SourceData);
@@ -214,6 +224,26 @@ begin
   else
     Result := FEnumerationStrategy.GetCurrent(FSourceData);;
 end;
+
+{$IFDEF DEBUG}
+function TBaseQueryEnumerator<T>.GetOperationName: String;
+begin
+  Result := FOperationName;
+end;
+
+procedure TBaseQueryEnumerator<T>.SetOperationName(const Name: String);
+begin
+  FOperationName := Name;
+end;
+
+function TBaseQueryEnumerator<T>.GetOperationPath: String;
+begin
+  if Assigned(FUpstreamQuery) then
+    Result := FUpstreamQuery.GetOperationPath + '.' + GetOperationName
+  else
+    Result := GetOperationName;
+end;
+{$ENDIF}
 
 function TBaseQueryEnumerator<T>.MoveNext: Boolean;
 begin

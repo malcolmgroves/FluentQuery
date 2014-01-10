@@ -12,6 +12,13 @@ type
   end;
 
   IBaseQueryEnumerator<T> = interface(IMinimalEnumerator<T>)
+{$IFDEF DEBUG}
+    function GetOperationName : String;
+    procedure SetOperationName(const OperationName : string);
+    function GetOperationPath : String;
+    property OperationName : string read GetOperationName write SetOperationName;
+    property OperationPath : string read GetOperationPath;
+{$ENDIF}
     procedure SetUpstreamQuery(UpstreamQuery : IBaseQueryEnumerator<T>);
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>);
   end;

@@ -76,6 +76,12 @@ type
       public
         constructor Create(Query : TStringQueryEnumerator); virtual;
         function GetEnumerator: T;
+{$IFDEF DEBUG}
+        function GetOperationName : String;
+        function GetOperationPath : String;
+        property OperationName : string read GetOperationName;
+        property OperationPath : string read GetOperationPath;
+{$ENDIF}
         function First : T;
         function From(Container : TEnumerable<String>) : IBoundStringQueryEnumerator; overload;
         function From(Strings : TStrings) : IBoundStringQueryEnumerator; overload;
@@ -114,6 +120,9 @@ type
 function Query : IUnboundStringQueryEnumerator;
 begin
   Result := TStringQueryEnumerator.Create(TEnumerationStrategy<String>.Create);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Query';
+{$ENDIF}
 end;
 
 { TStringQueryEnumerator }
@@ -153,6 +162,9 @@ begin
 
   Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(LContainsPredicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Contains(''%s'', %s', [Value, IgnoreCase.ToString]);
+{$ENDIF}
 end;
 
 constructor TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Create(Query: TStringQueryEnumerator);
@@ -177,12 +189,18 @@ begin
 
   Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(LEndsWithPredicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('EndsWith(''%s'', %s', [Value, IgnoreCase.ToString]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.First: T;
 begin
   Result := TStringQueryEnumerator.Create(TTakeWhileEnumerationStrategy<String>.Create(TPredicateFactory<String>.LessThanOrEqualTo(1)),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'First';
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.From(Container: TEnumerable<String>): IBoundStringQueryEnumerator;
@@ -193,6 +211,9 @@ begin
   Result := TStringQueryEnumerator.Create(TEnumerationStrategy<String>.Create,
                                           IBaseQueryEnumerator<String>(FQuery),
                                           EnumeratorAdapter);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('From(%s)', [Container.ToString]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.From(Strings: TStrings): IBoundStringQueryEnumerator;
@@ -200,12 +221,27 @@ begin
   Result := TStringQueryEnumerator.Create(TEnumerationStrategy<String>.Create,
                                           IBaseQueryEnumerator<String>(FQuery),
                                           TStringsEnumeratorAdapter.Create(Strings.GetEnumerator));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('From(%s)', [Strings.ToString]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.GetEnumerator: T;
 begin
   Result := FQuery;
 end;
+
+{$IFDEF DEBUG}
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.GetOperationName: String;
+begin
+  Result := FQuery.OperationName;
+end;
+
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.GetOperationPath: String;
+begin
+  Result := FQuery.OperationPath;
+end;
+{$ENDIF}
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Matches(
   const Value: String; IgnoreCase: Boolean): T;
@@ -219,6 +255,9 @@ begin
 
   Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(LMatchesPredicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Matches(''%s'', %s', [Value, IgnoreCase.ToString]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Predicate: TPredicate<string>;
@@ -230,12 +269,18 @@ function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Skip(Count: Intege
 begin
   Result := TStringQueryEnumerator.Create(TSkipWhileEnumerationStrategy<String>.Create(TPredicateFactory<String>.LessThanOrEqualTo(Count)),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Skip(%d)', [Count]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SkipWhile(
   UnboundQuery: IUnboundStringQueryEnumerator): T;
 begin
   Result := SkipWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SkipWhile(
@@ -243,6 +288,9 @@ function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SkipWhile(
 begin
   Result := TStringQueryEnumerator.Create(TSkipWhileEnumerationStrategy<String>.Create(Predicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'SkipWhile(Predicate)';
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.StartsWith(
@@ -262,24 +310,36 @@ begin
 
   Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(LStartsWithPredicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('StartsWith(''%s'', %s', [Value, IgnoreCase.ToString]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
   Result := TStringQueryEnumerator.Create(TTakeWhileEnumerationStrategy<String>.Create(TPredicateFactory<String>.LessThanOrEqualTo(Count)),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Take(%d)', [Count]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.TakeWhile(
   UnboundQuery: IUnboundStringQueryEnumerator): T;
 begin
   Result := TakeWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('TakeWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.TakeWhile(Predicate: TPredicate<String>): T;
 begin
   Result := TStringQueryEnumerator.Create(TTakeWhileEnumerationStrategy<String>.Create(Predicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'TakeWhile(Predicate)';
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.ToTStrings: TStrings;
@@ -299,12 +359,18 @@ function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Where(
 begin
   Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(Predicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Where(Predicate)';
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
   UnboundQuery: IUnboundStringQueryEnumerator): T;
 begin
   Result := WhereNot(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('WhereNot(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
@@ -312,6 +378,9 @@ function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
 begin
   Result := TStringQueryEnumerator.Create(TWhereNotEnumerationStrategy<String>.Create(Predicate),
                                           IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'WhereNot(Predicate)';
+{$ENDIF}
 end;
 
 end.

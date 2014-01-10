@@ -60,6 +60,12 @@ type
       public
         constructor Create(Query : TQueryEnumerator<T>); virtual;
         function GetEnumerator: TReturnType;
+{$IFDEF DEBUG}
+        function GetOperationName : String;
+        function GetOperationPath : String;
+        property OperationName : string read GetOperationName;
+        property OperationPath : string read GetOperationPath;
+{$ENDIF}
         function First : TReturnType;
         function From(Container : TEnumerable<T>) : IBoundQueryEnumerator<T>;
         function Skip(Count : Integer): TReturnType;
@@ -102,6 +108,9 @@ implementation
 class function Query.Select<T>: IUnboundQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Query.Select<T>';
+{$ENDIF}
 end;
 
 
@@ -118,6 +127,9 @@ function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.First: TReturnTyp
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(1)),
                                        IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'First';
+{$ENDIF}
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.From(
@@ -129,6 +141,9 @@ begin
   Result := TQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create,
                                        IBaseQueryEnumerator<T>(FQuery),
                                        EnumeratorWrapper);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('From(%s)', [Container.ToString]);
+{$ENDIF}
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.GetEnumerator: TReturnType;
@@ -136,27 +151,39 @@ begin
   Result := FQuery;
 end;
 
+{$IFDEF DEBUG}
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.GetOperationName: String;
+begin
+  Result := FQuery.OperationName;
+end;
+
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.GetOperationPath: String;
+begin
+  Result := FQuery.OperationPath;
+end;
+{$ENDIF}
+
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Predicate: TPredicate<T>;
 begin
   Result := TPredicateFactory<T>.QuerySingleValue(FQuery);
-end;
-
-function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.WhereNot(
-  UnboundQuery: IUnboundQueryEnumerator<T>): TReturnType;
-begin
-  Result := WhereNot(UnboundQuery.Predicate);
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Skip(Count: Integer): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
                                        IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Skip(%d)', [Count]);
+{$ENDIF}
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.SkipWhile(
   UnboundQuery: IUnboundQueryEnumerator<T>): TReturnType;
 begin
   Result := SkipWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.SkipWhile(
@@ -164,18 +191,27 @@ function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.SkipWhile(
 begin
   Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(Predicate),
                                        IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'SkipWhile(Predicate)';
+{$ENDIF}
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Take(Count: Integer): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
                                        IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Take(%d)', [Count]);
+{$ENDIF}
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.TakeWhile(
   UnboundQuery: IUnboundQueryEnumerator<T>): TReturnType;
 begin
   Result := TakeWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('TakeWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.TakeWhile(
@@ -183,6 +219,9 @@ function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.TakeWhile(
 begin
   Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(Predicate),
                                        IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'TakeWhile(Predicate)';
+{$ENDIF}
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.ToTList: TList<T>;
@@ -216,14 +255,29 @@ function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Where(
 begin
   Result := TQueryEnumerator<T>.Create(TWhereEnumerationStrategy<T>.Create(Predicate),
                                        IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Where(Predicate)';
+{$ENDIF}
 end;
 
+
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.WhereNot(
+  UnboundQuery: IUnboundQueryEnumerator<T>): TReturnType;
+begin
+  Result := WhereNot(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('WhereNot(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<T>): TReturnType;
 begin
   Result := TQueryEnumerator<T>.Create(TWhereNotEnumerationStrategy<T>.Create(Predicate),
                                           IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'WhereNot(Predicate)';
+{$ENDIF}
 end;
 
 { TQueryEnumerator<T> }

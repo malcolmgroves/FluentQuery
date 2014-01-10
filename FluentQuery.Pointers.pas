@@ -70,6 +70,12 @@ type
       public
         constructor Create(Query : TPointerQueryEnumerator); virtual;
         function GetEnumerator: T;
+{$IFDEF DEBUG}
+        function GetOperationName : String;
+        function GetOperationPath : String;
+        property OperationName : string read GetOperationName;
+        property OperationPath : string read GetOperationPath;
+{$ENDIF}
         function First : T;
         function From(List : TList) : IBoundPointerQueryEnumerator; overload;
         function From(Container : TEnumerable<Pointer>) : IBoundPointerQueryEnumerator; overload;
@@ -103,6 +109,9 @@ type
 function Query : IUnboundPointerQueryEnumerator;
 begin
   Result := TPointerQueryEnumerator.Create(TEnumerationStrategy<Pointer>.Create);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Query';
+{$ENDIF}
 end;
 
 
@@ -120,6 +129,9 @@ begin
   Result := TPointerQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Pointer>.Create(TPredicateFactory<Pointer>.LessThanOrEqualTo(1)),
                                            IBaseQueryEnumerator<Pointer>(FQuery));
 
+{$IFDEF DEBUG}
+  Result.OperationName := 'First';
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.From(
@@ -128,6 +140,9 @@ begin
   Result := TPointerQueryEnumerator.Create(TEnumerationStrategy<Pointer>.Create,
                                            IBaseQueryEnumerator<Pointer>(FQuery),
                                            TListEnumeratorAdapter.Create(List.GetEnumerator));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('From(%s)', [List.ToString]);
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.From(
@@ -136,12 +151,27 @@ begin
   Result := TPointerQueryEnumerator.Create(TEnumerationStrategy<Pointer>.Create,
                                            IBaseQueryEnumerator<Pointer>(FQuery),
                                            TGenericEnumeratorAdapter<Pointer>.Create(Container.GetEnumerator));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('From(%s)', [Container.ToString]);
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.GetEnumerator: T;
 begin
   Result := FQuery;
 end;
+
+{$IFDEF DEBUG}
+function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.GetOperationName: String;
+begin
+  Result := FQuery.OperationName;
+end;
+
+function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.GetOperationPath: String;
+begin
+  Result := FQuery.OperationPath;
+end;
+{$ENDIF}
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.IsAssigned: T;
 var
@@ -154,6 +184,9 @@ begin
 
   Result := TPointerQueryEnumerator.Create(TWhereEnumerationStrategy<Pointer>.Create(LIsAssigned),
                                           IBaseQueryEnumerator<Pointer>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'IsAssigned';
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Predicate: TPredicate<Pointer>;
@@ -161,22 +194,22 @@ begin
   Result := TPredicateFactory<Pointer>.QuerySingleValue(FQuery);
 end;
 
-function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.WhereNot(
-  UnboundQuery: IUnboundPointerQueryEnumerator): T;
-begin
-  Result := WhereNot(UnboundQuery.Predicate);
-end;
-
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
   Result := TPointerQueryEnumerator.Create(TSkipWhileEnumerationStrategy<Pointer>.Create(TPredicateFactory<Pointer>.LessThanOrEqualTo(Count)),
                                            IBaseQueryEnumerator<Pointer>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Skip(%d)', [Count]);
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.SkipWhile(
   UnboundQuery: IUnboundPointerQueryEnumerator): T;
 begin
   Result := SkipWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.SkipWhile(
@@ -184,18 +217,27 @@ function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.SkipWhile(
 begin
   Result := TPointerQueryEnumerator.Create(TSkipWhileEnumerationStrategy<Pointer>.Create(Predicate),
                                            IBaseQueryEnumerator<Pointer>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'SkipWhile(Predicate)';
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
   Result := TPointerQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Pointer>.Create(TPredicateFactory<Pointer>.LessThanOrEqualTo(Count)),
                                            IBaseQueryEnumerator<Pointer>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Take(%d)', [Count]);
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.TakeWhile(
   UnboundQuery: IUnboundPointerQueryEnumerator): T;
 begin
   Result := TakeWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('TakeWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.TakeWhile(
@@ -203,6 +245,9 @@ function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.TakeWhile(
 begin
   Result := TPointerQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Pointer>.Create(Predicate),
                                            IBaseQueryEnumerator<Pointer>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'TakeWhile(Predicate)';
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Where(
@@ -210,6 +255,18 @@ function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Where(
 begin
   Result := TPointerQueryEnumerator.Create(TWhereEnumerationStrategy<Pointer>.Create(Predicate),
                                           IBaseQueryEnumerator<Pointer>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Where(Predicate)';
+{$ENDIF}
+end;
+
+function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.WhereNot(
+  UnboundQuery: IUnboundPointerQueryEnumerator): T;
+begin
+  Result := WhereNot(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('WhereNot(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.WhereNot(
@@ -217,6 +274,9 @@ function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.WhereNot(
 begin
   Result := TPointerQueryEnumerator.Create(TWhereNotEnumerationStrategy<Pointer>.Create(Predicate),
                                           IBaseQueryEnumerator<Pointer>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'WhereNot(Predicate)';
+{$ENDIF}
 end;
 
 { TPointerQueryEnumerator }
