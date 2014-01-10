@@ -31,11 +31,16 @@ type
   published
     procedure TestPassThrough;
     procedure TestIsAssigned;
+    procedure TestWhereNotIsAssigned;
+    procedure TestWhereNotIsAssignedPredicate;
+    procedure TestTakeWhileIsAssigned;
   end;
 
 
 
 implementation
+uses
+  SysUtils;
 
 { TestTQueryPointer }
 
@@ -128,6 +133,35 @@ begin
 end;
 
 
+procedure TestTQueryTList.TestWhereNotIsAssigned;
+var
+  LPassCount : Integer;
+  LPointer : Pointer;
+begin
+  LPassCount := 0;
+  for LPointer in Query
+                    .From(FList)
+                    .WhereNot(Query.IsAssigned) do
+    Inc(LPassCount);
+  Check(LPassCount = FList.Count - 4, 'WhereNot(IsAssigned) Query should enumerate all but four items');
+end;
+
+procedure TestTQueryTList.TestWhereNotIsAssignedPredicate;
+var
+  LPassCount : Integer;
+  LPointer : Pointer;
+  LIsAssigned : TPredicate<Pointer>;
+begin
+  LPassCount := 0;
+  LIsAssigned := Query.IsAssigned.Predicate;
+
+  for LPointer in Query
+                    .From(FList)
+                    .WhereNot(LIsAssigned) do
+    Inc(LPassCount);
+  Check(LPassCount = FList.Count - 4, 'WhereNot(Predicate(IsAssigned)) Query should enumerate all but four items');
+end;
+
 procedure TestTQueryTList.TestPassThrough;
 var
   LPassCount : Integer;
@@ -139,6 +173,19 @@ begin
   Check(LPassCount = FList.Count, 'Passthrough Query should enumerate all items');
 end;
 
+
+procedure TestTQueryTList.TestTakeWhileIsAssigned;
+var
+  LPassCount : Integer;
+  LPointer : Pointer;
+begin
+  LPassCount := 0;
+  for LPointer in Query
+                    .From(FList)
+                    .TakeWhile(Query.IsAssigned) do
+    Inc(LPassCount);
+  Check(LPassCount = 1, 'TakeWhile(IsAssigned) Query should enumerate only the first item');
+end;
 
 initialization
   // Register any test cases with the test runner
