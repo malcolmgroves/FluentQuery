@@ -16,17 +16,19 @@ program FluentQueryTests;
 
 uses
   DUnitTestRunner,
-  FluentQuery.Strings.Tests in 'FluentQuery.Strings.Tests.pas',
   FluentQuery.Core.EnumerationStrategies in '..\FluentQuery.Core.EnumerationStrategies.pas',
   FluentQuery.Core.Enumerators in '..\FluentQuery.Core.Enumerators.pas',
   FluentQuery.Core.Types in '..\FluentQuery.Core.Types.pas',
-  FluentQuery.Strings in '..\FluentQuery.Strings.pas',
+  FluentQuery.Integers in '..\FluentQuery.Integers.pas',
   FluentQuery.Generics in '..\FluentQuery.Generics.pas',
   FluentQuery.Chars in '..\FluentQuery.Chars.pas',
   FluentQuery.Pointers in '..\FluentQuery.Pointers.pas',
   FluentQuery.Pointers.Tests in 'FluentQuery.Pointers.Tests.pas',
+  FluentQuery.Integers.Tests in 'FluentQuery.Integers.Tests.pas',
+  FluentQuery.Chars.Tests in 'FluentQuery.Chars.Tests.pas',
   FluentQuery.Generics.Tests in 'FluentQuery.Generics.Tests.pas',
-  FluentQuery.Chars.Tests in 'FluentQuery.Chars.Tests.pas';
+  FluentQuery.Strings.Tests in 'FluentQuery.Strings.Tests.pas',
+  FluentQuery.Strings in '..\FluentQuery.Strings.pas';
 
 {$R *.RES}
 

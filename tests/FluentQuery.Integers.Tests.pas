@@ -17,17 +17,17 @@
 {                                                    }
 {****************************************************}
 
-unit FluentQuery.Generics.Tests;
+unit FluentQuery.Integers.Tests;
 
 interface
 
 uses
   TestFramework,
   System.Generics.Collections,
-  FluentQuery.Generics;
+  FluentQuery.Integers;
 
 type
-  TestTQueryIntegerGenerics = class(TTestCase)
+  TestTQueryInteger = class(TTestCase)
   strict private
     FIntegerCollection: TList<Integer>;
   public
@@ -40,6 +40,11 @@ type
     procedure TestTakeGreaterThanCount;
     procedure TestTakeZero;
     procedure TestWhereEven;
+    procedure TestIsEven;
+    procedure TestIsOdd;
+    procedure TestIsPositive;
+    procedure TestIsNegative;
+    procedure TestIsZero;
     procedure TestWhereNotWhereEven;
     procedure TestWhereNotEven;
     procedure TestWhereNone;
@@ -62,30 +67,12 @@ type
     procedure TestFirst;
   end;
 
-  TPerson = class
-  public
-    Name : string;
-    Age : Integer;
-    constructor Create(Name : string; Age : Integer);
-  end;
-
-  TestTQueryPerson = class(TTestCase)
-  strict private
-    FPersonCollection: TObjectList<TPerson>;
-  public
-    procedure SetUp; override;
-    procedure TearDown; override;
-  published
-    procedure TestPassThrough;
-//    procedure TestCreateObjectList;
-  end;
-
 
 implementation
 uses
   System.SysUtils;
 
-procedure TestTQueryIntegerGenerics.SetUp;
+procedure TestTQueryInteger.SetUp;
 begin
   FIntegerCollection := TList<Integer>.Create;
   FIntegerCollection.Add(1);
@@ -100,51 +87,51 @@ begin
   FIntegerCollection.Add(10);
 end;
 
-procedure TestTQueryIntegerGenerics.TearDown;
+procedure TestTQueryInteger.TearDown;
 begin
   FIntegerCollection.Free;
   FIntegerCollection := nil;
 end;
 
 
-procedure TestTQueryIntegerGenerics.TestTakeEqualCount;
+procedure TestTQueryInteger.TestTakeEqualCount;
 var
   LPassCount, I, MaxPassCount : Integer;
 begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count;
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  for I in Query.From(FIntegerCollection).Take(MaxPassCount) do
     Inc(LPassCount);
 
   Check(LPassCount = MaxPassCount, 'Take = Collection.Count should enumerate all items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestTakeGreaterThanCount;
+procedure TestTQueryInteger.TestTakeGreaterThanCount;
 var
   LPassCount, I, MaxPassCount : Integer;
 begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count + 1;
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  for I in Query.From(FIntegerCollection).Take(MaxPassCount) do
     Inc(LPassCount);
 
   Check(LPassCount = FIntegerCollection.Count, 'Take > collection.count should enumerate all items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestTakeLowerThanCount;
+procedure TestTQueryInteger.TestTakeLowerThanCount;
 var
   LPassCount, I, MaxPassCount : Integer;
 begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count - 1;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  for I in Query.From(FIntegerCollection).Take(MaxPassCount) do
     Inc(LPassCount);
 
   Check(LPassCount = MaxPassCount, 'Take < collection.count should not enumerate all items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestTakeWhere;
+procedure TestTQueryInteger.TestTakeWhere;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -157,7 +144,6 @@ begin
                   end;
 
   for I in Query
-             .Select<Integer>
              .From(FIntegerCollection)
              .Take(5)
              .Where(LEvenNumbers) do
@@ -166,7 +152,7 @@ begin
   Check(LPassCount = 2, 'Should enumerate even numbered items in the first 5');
 end;
 
-procedure TestTQueryIntegerGenerics.TestTakeWhile;
+procedure TestTQueryInteger.TestTakeWhile;
 var
   LEnumerationCount, I : Integer;
   LFourOrLess : TPredicate<Integer>;
@@ -178,7 +164,6 @@ begin
                  end;
 
   for I in Query
-             .Select<Integer>
              .From(FIntegerCollection)
              .TakeWhile(LFourOrLess) do
     Inc(LEnumerationCount);
@@ -186,7 +171,7 @@ begin
   Check(LEnumerationCount = 4, 'TakeWhile 4 or less should have enumerated 4 items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestTakeWhileFalse;
+procedure TestTQueryInteger.TestTakeWhileFalse;
 var
   LEnumerationCount, I : Integer;
   LFalse : TPredicate<Integer>;
@@ -197,13 +182,13 @@ begin
               Result := False;
             end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).TakeWhile(LFalse) do
+  for I in Query.From(FIntegerCollection).TakeWhile(LFalse) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = 0, 'TakeWhile False should have enumerated zero items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestTakeWhileTrue;
+procedure TestTQueryInteger.TestTakeWhileTrue;
 var
   LEnumerationCount, I : Integer;
   LTrue : TPredicate<Integer>;
@@ -214,37 +199,125 @@ begin
              Result := True;
            end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).TakeWhile(LTrue) do
+  for I in Query.From(FIntegerCollection).TakeWhile(LTrue) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = FIntegerCollection.Count, 'TakeWhile True should have enumerated all items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestTakeZero;
+procedure TestTQueryInteger.TestTakeZero;
 var
   LPassCount, I, MaxPassCount : Integer;
 begin
   LPassCount := 0;
   MaxPassCount := 0;
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  for I in Query.From(FIntegerCollection).Take(MaxPassCount) do
     Inc(LPassCount);
 
   Check(LPassCount = MaxPassCount, 'Take = 0 should enumerate no items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestFirst;
+procedure TestTQueryInteger.TestFirst;
 var
   LPassCount, I : Integer;
 begin
   LPassCount := 0;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).First do
+  for I in Query.From(FIntegerCollection).First do
     Inc(LPassCount);
 
   Check(LPassCount = 1, 'First on a non-empty collection should enumerate one item');
 end;
 
-procedure TestTQueryIntegerGenerics.TestWhereNotEven;
+procedure TestTQueryInteger.TestIsEven;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).Even do
+    Inc(LPassCount);
+  Check(LPassCount = 5, 'Should enumerate even numbered items');
+end;
+
+procedure TestTQueryInteger.TestIsNegative;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).Negative do
+    Inc(LPassCount);
+  Check(LPassCount = 0, 'Should enumerate zero items');
+
+  FIntegerCollection.Add(-1);
+  FIntegerCollection.Add(0);
+  FIntegerCollection.Add(-1);
+  FIntegerCollection.Add(-10);
+  FIntegerCollection.Add(-5);
+
+  LPassCount := 0;
+  for I in Query.From(FIntegerCollection).Negative do
+    Inc(LPassCount);
+  Check(LPassCount = 4, 'Should enumerate four items');
+end;
+
+procedure TestTQueryInteger.TestIsOdd;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).Odd do
+    Inc(LPassCount);
+  Check(LPassCount = 5, 'Should enumerate odd numbered items');
+end;
+
+procedure TestTQueryInteger.TestIsPositive;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).Positive do
+    Inc(LPassCount);
+  Check(LPassCount = 10, 'Should enumerate ten items');
+
+  FIntegerCollection.Add(-1);
+  FIntegerCollection.Add(0);
+  FIntegerCollection.Add(-1);
+  FIntegerCollection.Add(-10);
+  FIntegerCollection.Add(-5);
+
+  LPassCount := 0;
+  for I in Query.From(FIntegerCollection).Positive do
+    Inc(LPassCount);
+  Check(LPassCount = 10, 'Should enumerate ten items');
+end;
+
+procedure TestTQueryInteger.TestIsZero;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).Zero do
+    Inc(LPassCount);
+  Check(LPassCount = 0, 'Should enumerate zero items');
+
+  FIntegerCollection.Add(-1);
+  FIntegerCollection.Add(0);
+  FIntegerCollection.Add(-1);
+  FIntegerCollection.Add(-10);
+  FIntegerCollection.Add(-5);
+
+  LPassCount := 0;
+  for I in Query.From(FIntegerCollection).Zero do
+    Inc(LPassCount);
+  Check(LPassCount = 1, 'Should enumerate one item');
+end;
+
+procedure TestTQueryInteger.TestWhereNotEven;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -257,7 +330,6 @@ begin
                   end;
 
   for I in Query
-             .Select<Integer>
              .From(FIntegerCollection)
              .WhereNot(LEvenNumbers) do
   begin
@@ -268,7 +340,7 @@ begin
   Check(LPassCount = 5, 'Should enumerate even numbered items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestWhereNotWhereEven;
+procedure TestTQueryInteger.TestWhereNotWhereEven;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -281,9 +353,8 @@ begin
                   end;
 
   for I in Query
-             .Select<Integer>
              .From(FIntegerCollection)
-             .WhereNot(Query.Select<Integer>.Where(LEvenNumbers)) do
+             .WhereNot(Query.Where(LEvenNumbers)) do
   begin
     Inc(LPassCount);
     Check(I mod 2 <> 0,
@@ -292,7 +363,7 @@ begin
   Check(LPassCount = 5, 'Should enumerate even numbered items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestCreateList;
+procedure TestTQueryInteger.TestCreateList;
 var
   LIntegerList : TList<Integer>;
   LFourOrLess : TPredicate<Integer>;
@@ -304,7 +375,6 @@ begin
 
 
   LIntegerList := Query
-                    .Select<Integer>
                     .From(FIntegerCollection)
                     .TakeWhile(LFourOrLess)
                     .ToTList;
@@ -319,56 +389,56 @@ begin
   end;
 end;
 
-procedure TestTQueryIntegerGenerics.TestPassThrough;
+procedure TestTQueryInteger.TestPassThrough;
 var
   LPassCount, I : Integer;
 begin
   LPassCount := 0;
-  for I in Query.Select<Integer>.From(FIntegerCollection) do
+  for I in Query.From(FIntegerCollection) do
     Inc(LPassCount);
   Check(LPassCount = FIntegerCollection.Count, 'Passthrough Query should enumerate all items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestSkipEqualCount;
+procedure TestTQueryInteger.TestSkipEqualCount;
 var
   LEnumerationCount, I, LSkipCount : Integer;
 begin
   LEnumerationCount := 0;
   LSkipCount := FIntegerCollection.Count;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  for I in Query.From(FIntegerCollection).Skip(LSkipCount) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = 0, 'Skip of Collection.Count should have enumerated zero items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestSkipGreaterThanCount;
+procedure TestTQueryInteger.TestSkipGreaterThanCount;
 var
   LEnumerationCount, I, LSkipCount : Integer;
 begin
   LEnumerationCount := 0;
   LSkipCount := FIntegerCollection.Count + 2;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  for I in Query.From(FIntegerCollection).Skip(LSkipCount) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = 0, 'Skip of Collection.Count + 2 should have enumerated zero items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestSkipLowerThanCount;
+procedure TestTQueryInteger.TestSkipLowerThanCount;
 var
   LEnumerationCount, I, LSkipCount : Integer;
 begin
   LEnumerationCount := 0;
   LSkipCount := FIntegerCollection.Count - 2;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  for I in Query.From(FIntegerCollection).Skip(LSkipCount) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = 2, 'Skip of Collection.Count - 2 should have enumerated 2 items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestSkipWhere;
+procedure TestTQueryInteger.TestSkipWhere;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -380,7 +450,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query.Select<Integer>
+  for I in Query
              .From(FIntegerCollection)
              .Skip(5)
              .Where(LEvenNumbers) do
@@ -389,7 +459,7 @@ begin
   Check(LPassCount = 3, 'Should enumerate even numbered items after 5');
 end;
 
-procedure TestTQueryIntegerGenerics.TestSkipWhile;
+procedure TestTQueryInteger.TestSkipWhile;
 var
   LEnumerationCount, I : Integer;
   LFourOrLess : TPredicate<Integer>;
@@ -400,13 +470,13 @@ begin
                    Result := Value <= 4;
                  end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LFourOrLess) do
+  for I in Query.From(FIntegerCollection).SkipWhile(LFourOrLess) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = 6, 'SkipWhile 4 or less should have enumerated 6 items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestSkipWhileFalse;
+procedure TestTQueryInteger.TestSkipWhileFalse;
 var
   LEnumerationCount, I : Integer;
   LFalsePredicate : TPredicate<Integer>;
@@ -417,13 +487,13 @@ begin
                        Result := False;
                      end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LFalsePredicate) do
+  for I in Query.From(FIntegerCollection).SkipWhile(LFalsePredicate) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = FIntegerCollection.Count, 'SkipWhile False should have enumerated all items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestSkipWhileTrue;
+procedure TestTQueryInteger.TestSkipWhileTrue;
 var
   LEnumerationCount, I : Integer;
   LTruePredicate : TPredicate<Integer>;
@@ -434,26 +504,26 @@ begin
                        Result := True;
                      end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LTruePredicate) do
+  for I in Query.From(FIntegerCollection).SkipWhile(LTruePredicate) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = 0, 'SkipWhile True should have enumerated zero items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestSkipZero;
+procedure TestTQueryInteger.TestSkipZero;
 var
   LEnumerationCount, I, LSkipCount : Integer;
 begin
   LEnumerationCount := 0;
   LSkipCount := 0;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  for I in Query.From(FIntegerCollection).Skip(LSkipCount) do
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = FIntegerCollection.Count, 'Skip of zero should have enumerated all items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestWhereEven;
+procedure TestTQueryInteger.TestWhereEven;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -465,12 +535,12 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  for I in Query.From(FIntegerCollection).Where(LEvenNumbers) do
     Inc(LPassCount);
   Check(LPassCount = 5, 'Should enumerate even numbered items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestWhereAll;
+procedure TestTQueryInteger.TestWhereAll;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -482,13 +552,13 @@ begin
                     Result := True;
                   end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  for I in Query.From(FIntegerCollection).Where(LEvenNumbers) do
     Inc(LPassCount);
 
   Check(LPassCount = 10, 'Should enumerate all items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestWhereTake;
+procedure TestTQueryInteger.TestWhereTake;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -500,7 +570,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query.Select<Integer>
+  for I in Query
              .From(FIntegerCollection)
              .Where(LEvenNumbers)
              .Take(3) do
@@ -509,7 +579,7 @@ begin
   Check(LPassCount = 3, 'Should enumerate the first 3 even numbered items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestWhereNone;
+procedure TestTQueryInteger.TestWhereNone;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -521,13 +591,13 @@ begin
                     Result := Value > 10;
                   end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  for I in Query.From(FIntegerCollection).Where(LEvenNumbers) do
     Inc(LPassCount);
 
   Check(LPassCount = 0, 'Should enumerate no items');
 end;
 
-procedure TestTQueryIntegerGenerics.TestWhereSkip;
+procedure TestTQueryInteger.TestWhereSkip;
 var
   LPassCount, I : Integer;
   LEvenNumbers : TPredicate<Integer>;
@@ -539,7 +609,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query.Select<Integer>
+  for I in Query
              .From(FIntegerCollection)
              .Where(LEvenNumbers)
              .Skip(3) do
@@ -548,72 +618,10 @@ begin
   Check(LPassCount = 2, 'Should enumerate 8 and 10, the last 2 even numbered items');
 end;
 
-{ TPerson }
-
-constructor TPerson.Create(Name: string; Age: Integer);
-begin
-  self.Name := Name;
-  self.Age := Age;
-end;
-
-{ TestTQueryPerson }
-
-procedure TestTQueryPerson.SetUp;
-begin
-  inherited;
-  FPersonCollection := TObjectList<TPerson>.Create;
-  FPersonCollection.Add(TPerson.Create('Malcolm', 43));
-  FPersonCollection.Add(TPerson.Create('Julie', 41));
-  FPersonCollection.Add(TPerson.Create('Jesse', 5));
-  FPersonCollection.Add(TPerson.Create('Lauren', 3));
-end;
-
-procedure TestTQueryPerson.TearDown;
-begin
-  inherited;
-  FPersonCollection.Free;
-end;
-
-//procedure TestTQueryPerson.TestCreateObjectList;
-//var
-//  LPersonList : TList<TPerson>;
-//  L18OrMore : TPredicate<TPerson>;
-//begin
-//  L18OrMore := function (Value : TPerson) : Boolean
-//               begin
-//                 Result := Value.Age >= 18;
-//               end;
-//
-//
-//  LPersonList := CreateTObjectList<TPerson>.From(Query.Select<TPerson>
-//                                            .From(FPersonCollection)
-//                                            .Where(L18OrMore),
-//                                          False);
-//  try
-//    Check(LPersonList.Count = 2, 'Should have 4 items in list');
-//    Check(LPersonList.Items[0].Name = 'Malcolm', 'First item should be Malcolm');
-//    Check(LPersonList.Items[1].Name = 'Julie', 'Second item should be Julie');
-//  finally
-//    LPersonList.Free;
-//  end;
-//end;
-
-procedure TestTQueryPerson.TestPassThrough;
-var
-  LPassCount : Integer;
-  LPerson : TPerson;
-begin
-  LPassCount := 0;
-  for LPerson in Query.Select<TPerson>.From(FPersonCollection) do
-    Inc(LPassCount);
-  Check(LPassCount = FPersonCollection.Count, 'Passthrough Query should enumerate all items');
-end;
-
 
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest('Generics/TList<Integer>', TestTQueryIntegerGenerics.Suite);
-  RegisterTest('Generics/TObjectList<TPerson>', TestTQueryPerson.Suite);
+  RegisterTest('Integers/TList<Integer>', TestTQueryInteger.Suite);
 end.
 
