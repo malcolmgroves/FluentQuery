@@ -59,6 +59,11 @@ type
     function GreaterThanOrEquals(const Value : Integer) : IBoundIntegerQueryEnumerator;
     // terminating operations
     function ToTList : TList<Integer>;
+    function Sum : Integer;
+    function Average : Double;
+    function Max : Integer;
+    function Min : Integer;
+    // sum, average, max, min,
   end;
 
   IUnboundIntegerQueryEnumerator = interface(IBaseQueryEnumerator<Integer>)
@@ -141,6 +146,10 @@ type
         function GreaterThan(const Value : Integer) : T;
         function LessThanOrEquals(const Value : Integer) : T;
         function GreaterThanOrEquals(const Value : Integer) : T;
+        function Sum : Integer;
+        function Average : Double;
+        function Max : Integer;
+        function Min : Integer;
       end;
   protected
     FBoundIntegerQueryEnumerator : TIntegerQueryEnumeratorImpl<IBoundIntegerQueryEnumerator>;
@@ -186,6 +195,24 @@ begin
   inherited;
 end;
 
+
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Average: Double;
+var
+  LTotal, LCount : Integer;
+begin
+  LTotal := 0;
+  LCount := 0;
+  while FQuery.MoveNext do
+  begin
+    LTotal := LTotal + FQuery.GetCurrent;
+    Inc(LCount)
+  end;
+
+  if LCount = 0 then
+    Result := 0 { TODO : Should this return zero or throw an error? }
+  else
+    Result := LTotal/LCount;
+end;
 
 constructor TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Create(Query: TIntegerQueryEnumerator);
 begin
@@ -403,6 +430,36 @@ begin
 {$ENDIF}
 end;
 
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Max: Integer;
+var
+  LMax, LCurrent : Integer;
+begin
+  LMax := -MaxInt;
+  while FQuery.MoveNext do
+  begin
+    LCurrent := FQuery.GetCurrent;
+    if LCurrent > LMax then
+      LMax := LCurrent;
+  end;
+
+  Result := LMax;
+end;
+
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Min: Integer;
+var
+  LMin, LCurrent : Integer;
+begin
+  LMin := MaxInt;
+  while FQuery.MoveNext do
+  begin
+    LCurrent := FQuery.GetCurrent;
+    if LCurrent < LMin then
+      LMin := LCurrent;
+  end;
+
+  Result := LMin;
+end;
+
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Predicate: TPredicate<Integer>;
 begin
   Result := TPredicateFactory<Integer>.QuerySingleValue(FQuery);
@@ -424,6 +481,17 @@ begin
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
 {$ENDIF}
+end;
+
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Sum: Integer;
+var
+  LTotal : Integer;
+begin
+  LTotal := 0;
+  while FQuery.MoveNext do
+    LTotal := LTotal + FQuery.GetCurrent;
+
+  Result := LTotal;
 end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.SkipWhile(

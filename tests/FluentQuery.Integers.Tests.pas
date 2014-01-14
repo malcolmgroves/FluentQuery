@@ -65,12 +65,16 @@ type
     procedure TestTakeWhile;
     procedure TestCreateList;
     procedure TestFirst;
+    procedure TestSum;
+    procedure TestAverage;
+    procedure TestMax;
+    procedure TestMin;
   end;
 
 
 implementation
 uses
-  System.SysUtils;
+  System.SysUtils, Math;
 
 procedure TestTQueryInteger.SetUp;
 begin
@@ -317,6 +321,28 @@ begin
   Check(LPassCount = 1, 'Should enumerate one item');
 end;
 
+procedure TestTQueryInteger.TestMax;
+var
+  Value : Integer;
+begin
+  Value := Query.From(FIntegerCollection).Max;
+  Check(Value = 10, 'Max should return 10');
+
+  Value := Query.From(FIntegerCollection).Odd.Max;
+  Check(Value = 9, 'Odd.Max should return 9');
+end;
+
+procedure TestTQueryInteger.TestMin;
+var
+  Value : Integer;
+begin
+  Value := Query.From(FIntegerCollection).Min;
+  Check(Value = 1, 'Min should return 1');
+
+  Value := Query.From(FIntegerCollection).Even.Min;
+  Check(Value = 2, 'Even.Min should return 2');
+end;
+
 procedure TestTQueryInteger.TestWhereNotEven;
 var
   LPassCount, I : Integer;
@@ -361,6 +387,17 @@ begin
           'Should enumerate odd numbered items, but enumerated ' + I.ToString);
   end;
   Check(LPassCount = 5, 'Should enumerate even numbered items');
+end;
+
+procedure TestTQueryInteger.TestAverage;
+var
+  Value : Double;
+begin
+  Value := Query.From(FIntegerCollection).Average;
+  Check(SameValue(Value, 5.1), 'Average should return 5.1');
+
+  Value := Query.From(FIntegerCollection).Even.Average;
+  Check(SameValue(Value, 5.2), 'Even.Average should return 5.2');
 end;
 
 procedure TestTQueryInteger.TestCreateList;
@@ -521,6 +558,17 @@ begin
     Inc(LEnumerationCount);
 
   Check(LEnumerationCount = FIntegerCollection.Count, 'Skip of zero should have enumerated all items');
+end;
+
+procedure TestTQueryInteger.TestSum;
+var
+  Value : Integer;
+begin
+  Value := Query.From(FIntegerCollection).Sum;
+  Check(Value = 51, 'Sum should return 51');
+
+  Value := Query.From(FIntegerCollection).Even.Sum;
+  Check(Value = 26, 'Even.Sum should return 26');
 end;
 
 procedure TestTQueryInteger.TestWhereEven;
