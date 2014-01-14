@@ -82,6 +82,7 @@ type
   end;
 
   function Query : IUnboundStringQueryEnumerator;
+  function StringQuery : IUnboundStringQueryEnumerator;
 
 implementation
 
@@ -141,6 +142,14 @@ type
                                        read FUnboundStringQueryEnumerator implements IUnboundStringQueryEnumerator;
   end;
 
+
+function StringQuery : IUnboundStringQueryEnumerator;
+begin
+  Result := Query;
+{$IFDEF DEBUG}
+  Result.OperationName := 'StringQuery';
+{$ENDIF}
+end;
 
 function Query : IUnboundStringQueryEnumerator;
 begin

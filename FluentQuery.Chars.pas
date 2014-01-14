@@ -104,6 +104,7 @@ type
   end;
 
   function Query : IUnboundCharQueryEnumerator;
+  function CharQuery : IUnboundCharQueryEnumerator;
 
 
 
@@ -181,6 +182,14 @@ type
   end;
 
 
+function CharQuery : IUnboundCharQueryEnumerator;
+begin
+  Result := Query;
+{$IFDEF DEBUG}
+  Result.OperationName := 'CharQuery';
+{$ENDIF}
+end;
+
 function Query : IUnboundCharQueryEnumerator;
 begin
   Result := TCharQueryEnumerator.Create(TEnumerationStrategy<Char>.Create);
@@ -188,7 +197,6 @@ begin
   Result.OperationName := 'Query';
 {$ENDIF}
 end;
-
 
 { TCharQueryEnumerator }
 

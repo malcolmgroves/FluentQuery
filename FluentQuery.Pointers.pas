@@ -70,6 +70,7 @@ type
   end;
 
   function Query : IUnboundPointerQueryEnumerator;
+  function PointerQuery : IUnboundPointerQueryEnumerator;
 
 
 
@@ -125,6 +126,14 @@ type
   end;
 
 
+function PointerQuery : IUnboundPointerQueryEnumerator;
+begin
+  Result := Query;
+{$IFDEF DEBUG}
+  Result.OperationName := 'PointerQuery';
+{$ENDIF}
+end;
+
 function Query : IUnboundPointerQueryEnumerator;
 begin
   Result := TPointerQueryEnumerator.Create(TEnumerationStrategy<Pointer>.Create);
@@ -132,7 +141,6 @@ begin
   Result.OperationName := 'Query';
 {$ENDIF}
 end;
-
 
 
 { TPointerQueryEnumerator }

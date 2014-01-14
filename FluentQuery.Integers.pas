@@ -97,6 +97,7 @@ type
   end;
 
   function Query : IUnboundIntegerQueryEnumerator;
+  function IntegerQuery : IUnboundIntegerQueryEnumerator;
 
 implementation
 
@@ -165,6 +166,14 @@ type
                                        read FUnboundIntegerQueryEnumerator implements IUnboundIntegerQueryEnumerator;
   end;
 
+
+function IntegerQuery : IUnboundIntegerQueryEnumerator;
+begin
+  Result := Query;
+{$IFDEF DEBUG}
+  Result.OperationName := 'IntegerQuery';
+{$ENDIF}
+end;
 
 function Query : IUnboundIntegerQueryEnumerator;
 begin
