@@ -37,6 +37,7 @@ type
     procedure TestPassthrough;
     procedure TestMatchesCaseSensitive;
     procedure TestEquals;
+    procedure NotEquals;
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
     procedure TestIsDigit;
@@ -67,6 +68,17 @@ type
 implementation
 
 { TestTQueryChar }
+
+procedure TestTQueryChar.NotEquals;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query.From(FStringVal).NotEquals('y') do
+    Inc(LPassCount);
+  Check(LPassCount = FStringVal.Length - 1, 'NotEquals Query should enumerate all but one char');
+end;
 
 procedure TestTQueryChar.SetUp;
 begin

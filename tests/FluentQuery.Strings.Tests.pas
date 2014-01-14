@@ -39,6 +39,7 @@ type
     procedure TestSkipTake;
     procedure TestMatchesCaseSensitive;
     procedure TestEquals;
+    procedure TestNotEquals;
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
     procedure TestSkipTakeCreateStrings;
@@ -205,6 +206,29 @@ begin
     for LString in Query.From(LNameStrings).Matches('jesse', False) do
       Inc(LPassCount);
     Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
+  finally
+    LNameStrings.Free;
+  end;
+end;
+
+procedure TestTQueryTStrings.TestNotEquals;
+var
+  LPassCount : Integer;
+  LString : String;
+  LNameStrings : TStrings;
+begin
+  LNameStrings := TStringList.Create;
+  try
+    LNameStrings.Add('Malcolm');
+    LNameStrings.Add('Julie');
+    LNameStrings.Add('Jesse');
+    LNameStrings.Add('jesse');
+    LNameStrings.Add('Lauren');
+
+    LPassCount := 0;
+    for LString in Query.From(LNameStrings).NotEquals('jesse') do
+      Inc(LPassCount);
+    Check(LPassCount = 4, 'NotEquals Query should enumerate four strings');
   finally
     LNameStrings.Free;
   end;

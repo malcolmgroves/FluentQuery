@@ -63,7 +63,6 @@ type
     function Average : Double;
     function Max : Integer;
     function Min : Integer;
-    // sum, average, max, min,
   end;
 
   IUnboundIntegerQueryEnumerator = interface(IBaseQueryEnumerator<Integer>)
