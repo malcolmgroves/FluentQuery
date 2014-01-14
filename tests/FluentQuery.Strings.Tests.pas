@@ -38,6 +38,7 @@ type
     procedure TestPassThrough;
     procedure TestSkipTake;
     procedure TestMatchesCaseSensitive;
+    procedure TestEquals;
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
     procedure TestSkipTakeCreateStrings;
@@ -119,6 +120,29 @@ begin
   Check(PassCount = 0, 'Unbound Query should return no items');
 end;
 
+procedure TestTQueryTStrings.TestEquals;
+var
+  LPassCount : Integer;
+  LString : String;
+  LNameStrings : TStrings;
+begin
+  LNameStrings := TStringList.Create;
+  try
+    LNameStrings.Add('Malcolm');
+    LNameStrings.Add('Julie');
+    LNameStrings.Add('Jesse');
+    LNameStrings.Add('jesse');
+    LNameStrings.Add('Lauren');
+
+    LPassCount := 0;
+    for LString in Query.From(LNameStrings).Equals('jesse') do
+      Inc(LPassCount);
+    Check(LPassCount = 1, 'Equals Query should enumerate one string');
+  finally
+    LNameStrings.Free;
+  end;
+end;
+
 procedure TestTQueryTStrings.TestMatchesCaseInsensitive;
 var
   LPassCount : Integer;
@@ -153,6 +177,7 @@ begin
     LNameStrings.Add('Julie');
     LNameStrings.Add('Jesse');
     LNameStrings.Add('Lauren');
+    LNameStrings.Add('jesse');
 
     LPassCount := 0;
     for LString in Query.From(LNameStrings).Matches('Jesse', False) do

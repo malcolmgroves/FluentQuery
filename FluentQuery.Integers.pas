@@ -121,7 +121,7 @@ type
         property OperationName : string read GetOperationName;
         property OperationPath : string read GetOperationPath;
 {$ENDIF}
-        function Equals(const Value : Integer) : T;
+        function Equals(const Value : Integer) : T; reintroduce;
         function NotEquals(const Value : Integer) : T;
         function First : T;
         function From(Container : TEnumerable<Integer>) : IBoundIntegerQueryEnumerator; overload;

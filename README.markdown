@@ -1,6 +1,6 @@
 What is FluentQuery?
 ====================
-FluentQuery allows you to query containers of items in Delphi in a fluent, declarative fashion. 
+FluentQuery allows you to operate on containers of items in Delphi in a fluent, declarative fashion. 
 
 
 Huh?
@@ -108,6 +108,7 @@ FluentQuery currently supports querying over the following types of containers:
 - Anything with a TEnumerator&lt;T>, such as TList&lt;T>, TObjectList&lt;T>, etc 
 - Strings in a TStrings, such as TStringList, etc
 - Chars in a String
+- Integers in a generic container, such as a TList&lt;Integer>, etc
 - Pointers in a TList
 
 The latest list is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Supported-Containers).
