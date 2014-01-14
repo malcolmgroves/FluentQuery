@@ -407,7 +407,7 @@ var
 begin
   ExpectedException := EEmptyResultSetException;
   Value := Query.From(FIntegerCollection).Zero.Average;
-  StopExpectingException('Calling Average on an Empty ResultSet should have failed');
+  StopExpectingException('Calling Average on an Empty ResultSet should fail');
 end;
 
 procedure TestTQueryInteger.TestCreateList;

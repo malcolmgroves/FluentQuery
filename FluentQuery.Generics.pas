@@ -120,11 +120,13 @@ type
     class function Select<T> : IUnboundQueryEnumerator<T>;
   end;
 
+  GenericQuery = Query;
+
 implementation
 
 { Query }
 
-class function Query.Select<T>: IUnboundQueryEnumerator<T>;
+class function GenericQuery.Select<T>: IUnboundQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create);
 {$IFDEF DEBUG}
