@@ -67,6 +67,7 @@ type
     procedure TestFirst;
     procedure TestSum;
     procedure TestAverage;
+    procedure TestAverageEmptyResultSet;
     procedure TestMax;
     procedure TestMin;
   end;
@@ -74,7 +75,7 @@ type
 
 implementation
 uses
-  System.SysUtils, Math;
+  System.SysUtils, Math, FluentQuery.Core.Types;
 
 procedure TestTQueryInteger.SetUp;
 begin
@@ -398,6 +399,15 @@ begin
 
   Value := Query.From(FIntegerCollection).Even.Average;
   Check(SameValue(Value, 5.2), 'Even.Average should return 5.2');
+end;
+
+procedure TestTQueryInteger.TestAverageEmptyResultSet;
+var
+  Value : Double;
+begin
+  ExpectedException := EEmptyResultSetException;
+  Value := Query.From(FIntegerCollection).Zero.Average;
+  StopExpectingException('Calling Average on an Empty ResultSet should have failed');
 end;
 
 procedure TestTQueryInteger.TestCreateList;

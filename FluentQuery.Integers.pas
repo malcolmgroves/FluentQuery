@@ -208,7 +208,7 @@ begin
   end;
 
   if LCount = 0 then
-    Result := 0 { TODO : Should this return zero or throw an error? }
+    raise EEmptyResultSetException.Create('Cannot take Average of an empty ResultSet')
   else
     Result := LTotal/LCount;
 end;
