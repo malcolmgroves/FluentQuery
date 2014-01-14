@@ -36,6 +36,8 @@ type
   published
     procedure TestPassthrough;
     procedure TestMatchesCaseSensitive;
+    procedure TestEquals;
+    procedure NotEquals;
     procedure TestNoMatchesCaseSensitive;
     procedure TestMatchesCaseInsensitive;
     procedure TestIsDigit;
@@ -66,6 +68,17 @@ type
 implementation
 
 { TestTQueryChar }
+
+procedure TestTQueryChar.NotEquals;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query.From(FStringVal).NotEquals('y') do
+    Inc(LPassCount);
+  Check(LPassCount = FStringVal.Length - 1, 'NotEquals Query should enumerate all but one char');
+end;
 
 procedure TestTQueryChar.SetUp;
 begin
@@ -99,6 +112,17 @@ begin
 
   Check(LResultString.Length = 4, 'Take(4) should enumerate 4 chars');
   Check(LResultString = 'FGHI', 'IsUpper.Skip(5).Take(4) should enumerate F, G, H and then I');
+end;
+
+procedure TestTQueryChar.TestEquals;
+var
+  LPassCount : Integer;
+  LChar : Char;
+begin
+  LPassCount := 0;
+  for LChar in Query.From(FStringVal).Equals('y') do
+    Inc(LPassCount);
+  Check(LPassCount = 1, 'Equals Query should enumerate one char');
 end;
 
 procedure TestTQueryChar.TestIsDigit;

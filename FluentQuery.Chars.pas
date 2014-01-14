@@ -43,6 +43,8 @@ type
     function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
     function WhereNot(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
     // type-specific operations
+    function Equals(const Value : Char) : IBoundCharQueryEnumerator;
+    function NotEquals(const Value : Char) : IBoundCharQueryEnumerator;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQueryEnumerator;
     function IsControl: IBoundCharQueryEnumerator;
     function IsDigit: IBoundCharQueryEnumerator;
@@ -79,6 +81,8 @@ type
     function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator; overload;
     function WhereNot(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator; overload;
     // type-specific operations
+    function Equals(const Value : Char) : IUnboundCharQueryEnumerator;
+    function NotEquals(const Value : Char) : IUnboundCharQueryEnumerator;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQueryEnumerator;
     function IsControl: IUnboundCharQueryEnumerator;
     function IsDigit: IUnboundCharQueryEnumerator;
@@ -128,6 +132,8 @@ type
         property OperationName : string read GetOperationName;
         property OperationPath : string read GetOperationPath;
 {$ENDIF}
+        function Equals(const Value : Char) : TReturnType; reintroduce;
+        function NotEquals(const Value : Char) : TReturnType;
         function First : TReturnType;
         function From(StringValue : String) : IBoundCharQueryEnumerator; overload;
         function From(Collection : TEnumerable<Char>) : IBoundCharQueryEnumerator; overload;
@@ -190,6 +196,15 @@ constructor TCharQueryEnumerator.TCharQueryEnumeratorImpl<TReturnType>.Create(
   Query: TCharQueryEnumerator);
 begin
   FQuery := Query;
+end;
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<TReturnType>.Equals(
+  const Value: Char): TReturnType;
+begin
+  Result := Matches(Value, False);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Equals';
+{$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<TReturnType>.First: TReturnType;
@@ -504,6 +519,23 @@ begin
                                         IBaseQueryEnumerator<Char>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Matches(''%s'', %s', [Value, IgnoreCase.ToString]);
+{$ENDIF}
+end;
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<TReturnType>.NotEquals(
+  const Value: Char): TReturnType;
+var
+  LPredicate : TPredicate<Char>;
+begin
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue <> Value;
+                end;
+
+  Result := TCharQueryEnumerator.Create(TWhereEnumerationStrategy<Char>.Create(LPredicate),
+                                        IBaseQueryEnumerator<Char>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('NotEquals(''%s'')', [Value]);
 {$ENDIF}
 end;
 

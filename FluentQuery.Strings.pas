@@ -45,6 +45,8 @@ type
     function WhereNot(UnboundQuery : IUnboundStringQueryEnumerator) : IBoundStringQueryEnumerator; overload;
     function WhereNot(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator; overload;
     // type-specific operations
+    function Equals(const Value : String) : IBoundStringQueryEnumerator;
+    function NotEquals(const Value : String) : IBoundStringQueryEnumerator;
     function Matches(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function Contains(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
@@ -70,6 +72,8 @@ type
     function WhereNot(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator; overload;
     // type-specific operations
     function Matches(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    function Equals(const Value : String) : IUnboundStringQueryEnumerator;
+    function NotEquals(const Value : String) : IUnboundStringQueryEnumerator;
     function Contains(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
@@ -114,6 +118,8 @@ type
         function Where(Predicate : TPredicate<String>) : T;
         function WhereNot(UnboundQuery : IUnboundStringQueryEnumerator) : T; overload;
         function WhereNot(Predicate : TPredicate<String>) : T; overload;
+        function Equals(const Value : String) : T; reintroduce;
+        function NotEquals(const Value : String) : T;
         function Matches(const Value : String; IgnoreCase : Boolean = True) : T;
         function Contains(const Value : String; IgnoreCase : Boolean = True) : T;
         function StartsWith(const Value : String; IgnoreCase : Boolean = True) : T;
@@ -213,6 +219,15 @@ begin
 {$ENDIF}
 end;
 
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Equals(
+  const Value: String): T;
+begin
+  Result := Matches(Value, False);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Equals';
+{$ENDIF}
+end;
+
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.First: T;
 begin
   Result := TStringQueryEnumerator.Create(TTakeWhileEnumerationStrategy<String>.Create(TPredicateFactory<String>.LessThanOrEqualTo(1)),
@@ -276,6 +291,23 @@ begin
                                           IBaseQueryEnumerator<String>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Matches(''%s'', %s', [Value, IgnoreCase.ToString]);
+{$ENDIF}
+end;
+
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.NotEquals(
+  const Value: String): T;
+var
+  LPredicate : TPredicate<String>;
+begin
+  LPredicate := function (CurrentValue : String) : Boolean
+                       begin
+                         Result := CurrentValue.CompareTo(Value) <> 0;
+                       end;
+
+  Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(LPredicate),
+                                          IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('NotEquals(''%s'')', [Value]);
 {$ENDIF}
 end;
 
