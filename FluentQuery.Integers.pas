@@ -104,9 +104,7 @@ implementation
 type
   TIntegerQueryEnumerator = class(TBaseQueryEnumerator<Integer>,
                                  IBoundIntegerQueryEnumerator,
-                                 IUnboundIntegerQueryEnumerator,
-                                 IBaseQueryEnumerator<Integer>,
-                                 IMinimalEnumerator<Integer>)
+                                 IUnboundIntegerQueryEnumerator)
   protected
     type
       TIntegerQueryEnumeratorImpl<T : IBaseQueryEnumerator<Integer>> = class

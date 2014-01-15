@@ -68,9 +68,7 @@ type
 
   TQueryEnumerator<T> = class(TBaseQueryEnumerator<T>,
                               IBoundQueryEnumerator<T>,
-                              IUnboundQueryEnumerator<T>,
-                              IBaseQueryEnumerator<T>,
-                              IMinimalEnumerator<T>)
+                              IUnboundQueryEnumerator<T>)
   protected
     type
       TQueryEnumeratorImpl<TReturnType : IBaseQueryEnumerator<T>> = class

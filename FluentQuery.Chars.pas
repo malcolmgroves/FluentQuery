@@ -116,9 +116,7 @@ uses
 type
   TCharQueryEnumerator = class(TBaseQueryEnumerator<Char>,
                                IBoundCharQueryEnumerator,
-                               IUnboundCharQueryEnumerator,
-                               IBaseQueryEnumerator<Char>,
-                               IMinimalEnumerator<Char>)
+                               IUnboundCharQueryEnumerator)
   protected
     type
       TCharQueryEnumeratorImpl<TReturnType : IBaseQueryEnumerator<Char>> = class

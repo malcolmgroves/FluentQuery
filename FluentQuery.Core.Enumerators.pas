@@ -27,7 +27,7 @@ uses
   FluentQuery.Core.EnumerationStrategies;
 
 type
-  TBaseQueryEnumerator<T> = class(TInterfacedObject, IMinimalEnumerator<T>, IBaseQueryEnumerator<T>)
+  TBaseQueryEnumerator<T> = class(TInterfacedObject, IBaseQueryEnumerator<T>)
   protected
     FUpstreamQuery : IBaseQueryEnumerator<T>;
     FEnumerationStrategy : TEnumerationStrategy<T>;

@@ -79,9 +79,7 @@ implementation
 type
   TPointerQueryEnumerator = class(TBaseQueryEnumerator<Pointer>,
                                   IBoundPointerQueryEnumerator,
-                                  IUnboundPointerQueryEnumerator,
-                                  IBaseQueryEnumerator<Pointer>,
-                                  IMinimalEnumerator<Pointer>)
+                                  IUnboundPointerQueryEnumerator)
   protected
     type
       TPointerQueryEnumeratorImpl<T : IBaseQueryEnumerator<Pointer>> = class

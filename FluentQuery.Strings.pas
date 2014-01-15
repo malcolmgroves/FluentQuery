@@ -89,9 +89,7 @@ implementation
 type
   TStringQueryEnumerator = class(TBaseQueryEnumerator<String>,
                                  IBoundStringQueryEnumerator,
-                                 IUnboundStringQueryEnumerator,
-                                 IBaseQueryEnumerator<String>,
-                                 IMinimalEnumerator<String>)
+                                 IUnboundStringQueryEnumerator)
   protected
     type
       TStringQueryEnumeratorImpl<T : IBaseQueryEnumerator<String>> = class
