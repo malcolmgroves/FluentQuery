@@ -99,6 +99,8 @@ type
   function Query : IUnboundIntegerQueryEnumerator;
   function IntegerQuery : IUnboundIntegerQueryEnumerator;
 
+  function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQueryEnumerator;
+
 implementation
 
 type
@@ -164,7 +166,6 @@ type
                                        read FUnboundIntegerQueryEnumerator implements IUnboundIntegerQueryEnumerator;
   end;
 
-
 function IntegerQuery : IUnboundIntegerQueryEnumerator;
 begin
   Result := Query;
@@ -178,6 +179,27 @@ begin
   Result := TIntegerQueryEnumerator.Create(TEnumerationStrategy<Integer>.Create);
 {$IFDEF DEBUG}
   Result.OperationName := 'Query';
+{$ENDIF}
+end;
+
+function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQueryEnumerator;
+var
+  RangeEnumerator : IMinimalEnumerator<Integer>;
+begin
+  if Start < Finish then
+    RangeEnumerator := TIntegerRangeEnumerator.Create(Start, Finish)
+  else if Start > Finish then
+    RangeEnumerator := TIntegerRangeReverseEnumerator.Create(Start, Finish)
+  else
+    RangeEnumerator := TSingleValueAdapter<Integer>.Create(Start);
+
+  Result := TIntegerQueryEnumerator.Create(TEnumerationStrategy<Integer>.Create,
+                                           nil,
+                                           RangeEnumerator);
+
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'Range';
 {$ENDIF}
 end;
 

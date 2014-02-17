@@ -106,6 +106,29 @@ type
     property Current: Pointer read GetCurrent;
   end;
 
+  TIntegerRangeEnumerator = class(TInterfacedObject, IMinimalEnumerator<Integer>)
+  private
+    FFinish : Integer;
+    FCurrent : Integer;
+  protected
+    function MoveNext: Boolean;
+    function GetCurrent: Integer;
+  public
+    constructor Create(Start : Integer = 0; Finish : Integer = MaxInt);
+  end;
+
+  TIntegerRangeReverseEnumerator = class(TInterfacedObject, IMinimalEnumerator<Integer>)
+  private
+    FFinish : Integer;
+    FCurrent : Integer;
+  protected
+    function MoveNext: Boolean;
+    function GetCurrent: Integer;
+  public
+    constructor Create(Start : Integer = 0; Finish : Integer = MaxInt);
+  end;
+
+
 implementation
 
 { TStringsEnumeratorWrapper }
@@ -289,5 +312,50 @@ procedure TBaseQueryEnumerator<T>.SetUpstreamQuery(
 begin
   FUpstreamQuery := UpstreamQuery;
 end;
+
+{ TIntegerRangeEnumerator }
+
+constructor TIntegerRangeEnumerator.Create(Start, Finish: Integer);
+begin
+  FFinish := Finish;
+  FCurrent := Start - 1;
+end;
+
+function TIntegerRangeEnumerator.GetCurrent: Integer;
+begin
+  Result := FCurrent;
+end;
+
+function TIntegerRangeEnumerator.MoveNext: Boolean;
+begin
+  if FCurrent = MaxInt then
+    Exit(False); //avoid wraparound
+
+  Inc(FCurrent);
+  Result := FCurrent <= FFinish;
+end;
+
+{ TIntegerRangeReverseEnumerator }
+
+constructor TIntegerRangeReverseEnumerator.Create(Start, Finish: Integer);
+begin
+  FFinish := Finish;
+  FCurrent := Start + 1;
+end;
+
+function TIntegerRangeReverseEnumerator.GetCurrent: Integer;
+begin
+  Result := FCurrent;
+end;
+
+function TIntegerRangeReverseEnumerator.MoveNext: Boolean;
+begin
+  if FCurrent = -MaxInt then
+    Exit(False); //avoid wraparound
+
+  Dec(FCurrent);
+  Result := FCurrent >= FFinish;
+end;
+
 
 end.

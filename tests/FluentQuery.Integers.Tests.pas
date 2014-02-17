@@ -72,6 +72,21 @@ type
     procedure TestMin;
   end;
 
+  TestIntegerRange = class(TTestCase)
+  published
+    procedure Test1To10PassThrough;
+    procedure Test0To10PassThrough;
+    procedure TestNegativeToPositivePassThrough;
+    procedure TestNegativeTo0PassThrough;
+    procedure Test0To0PassThrough;
+    procedure TestStartAtNegativeMaxIntPassThrough;
+    procedure TestEndAtMaxIntPassThrough;
+    procedure TestMinGreaterThanMax;
+    procedure TestReverseStartAtMaxIntPassThrough;
+    procedure TestReverseEndAtNegativeMaxIntPassThrough;
+    procedure Test1To10Evens;
+  end;
+
 
 implementation
 uses
@@ -678,8 +693,150 @@ end;
 
 
 
+{ TestIntegerRange }
+
+procedure TestIntegerRange.Test0To0PassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(0, 0) do
+    Inc(LPassCount);
+
+  CheckEquals(1, LPassCount);
+end;
+
+procedure TestIntegerRange.Test0To10PassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(0, 10) do
+    Inc(LPassCount);
+
+  CheckEquals(11, LPassCount);
+end;
+
+procedure TestIntegerRange.Test1To10Evens;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(1, 10).Even do
+  begin
+    Inc(LPassCount);
+    CheckEquals(0, I mod 2);
+  end;
+
+  CheckEquals(5, LPassCount);
+end;
+
+procedure TestIntegerRange.Test1To10PassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(1, 10) do
+    Inc(LPassCount);
+
+  CheckEquals(10, LPassCount);
+end;
+
+procedure TestIntegerRange.TestEndAtMaxIntPassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(MaxInt - 10) do
+    Inc(LPassCount);
+
+  CheckEquals(11, LPassCount);
+end;
+
+procedure TestIntegerRange.TestMinGreaterThanMax;
+var
+  LPassCount, I, LPreviousI : Integer;
+begin
+  LPassCount := 0;
+  LPreviousI := MaxInt;
+
+  for I in Range(10, 1) do
+  begin
+    Inc(LPassCount);
+    Check(I < LPreviousI, 'Should be counting down');
+  end;
+
+  CheckEquals(10, LPassCount);
+end;
+
+procedure TestIntegerRange.TestNegativeTo0PassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(-10, 0) do
+    Inc(LPassCount);
+
+  CheckEquals(11, LPassCount);
+end;
+
+procedure TestIntegerRange.TestNegativeToPositivePassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(-10, 10) do
+    Inc(LPassCount);
+
+  CheckEquals(21, LPassCount);
+end;
+
+procedure TestIntegerRange.TestReverseEndAtNegativeMaxIntPassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(-MaxInt + 10, -MaxInt) do
+    Inc(LPassCount);
+
+  CheckEquals(11, LPassCount);
+end;
+
+procedure TestIntegerRange.TestReverseStartAtMaxIntPassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(MaxInt, MaxInt - 10) do
+    Inc(LPassCount);
+
+  CheckEquals(11, LPassCount);
+end;
+
+procedure TestIntegerRange.TestStartAtNegativeMaxIntPassThrough;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Range(-MaxInt, -MaxInt + 10) do
+    Inc(LPassCount);
+
+  CheckEquals(11, LPassCount);
+end;
+
 initialization
   // Register any test cases with the test runner
   RegisterTest('Integers/TList<Integer>', TestTQueryInteger.Suite);
+  RegisterTest('Integers/Range', TestIntegerRange.Suite);
 end.
 
