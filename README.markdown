@@ -1,6 +1,6 @@
 What is FluentQuery?
 ====================
-FluentQuery allows you to operate on containers of items in Delphi in a fluent, declarative fashion. 
+FluentQuery allows you to operate on containers of items in Delphi and AppMethod in a fluent, declarative fashion. 
 
 
 Huh?
@@ -10,7 +10,7 @@ OK, I agree, that was not very helpful.
 
 Let's say you have a TListbox of names, and you want to display the first two that start with 'Miss' (case-insensitive) and contain a hyphen.  
 
-The standard solution in Delphi would be something like this:
+The standard solution in Delphi and AppMethod would be something like this:
 
     var
       LName : String;
