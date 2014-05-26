@@ -67,6 +67,9 @@ type
     procedure TestEndsWithCaseSensitive;
     procedure TestEndsWithCaseSensitiveNone;
     procedure TestEndsWithCaseInsensitive;
+    procedure TestSubstring;
+    procedure TestSubstringIndexGreaterThanLength;
+    procedure TestSubstringLength;
   end;
 
   TestFluentStringPredicate = class(TTestCase)
@@ -445,6 +448,78 @@ begin
   for LString in Query.From(FStringCollection).StartsWith('s', False) do
     Inc(LPassCount);
   Check(LPassCount = 0, 'Case Sensitive StartsWith ''s'' Query with no matches should enumerate zero strings');
+end;
+
+procedure TestTQueryString.TestSubstring;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+
+  for LString in Query.From(FStringCollection).SubString(2) do
+  begin
+    case LPassCount of
+      0 : CheckEqualsString('e', LString);
+      1 : CheckEqualsString('o', LString);
+      2 : CheckEqualsString('ree', LString);
+      3 : CheckEqualsString('ur', LString);
+      4 : CheckEqualsString('ve', LString);
+      5 : CheckEqualsString('x', LString);
+      6 : CheckEqualsString('ven', LString);
+      7 : CheckEqualsString('ght', LString);
+      8 : CheckEqualsString('ne', LString);
+      9 : CheckEqualsString('n', LString);
+    end;
+
+    Inc(LPassCount);
+  end;
+  CheckEquals(FStringCollection.Count,  LPassCount);
+end;
+
+procedure TestTQueryString.TestSubstringIndexGreaterThanLength;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+
+  for LString in Query.From(FStringCollection).SubString(99) do
+  begin
+    case LPassCount of
+      0..9 : CheckEqualsString('', LString);
+    end;
+
+    Inc(LPassCount);
+  end;
+  CheckEquals(FStringCollection.Count,  LPassCount);
+end;
+
+procedure TestTQueryString.TestSubstringLength;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+
+  for LString in Query.From(FStringCollection).SubString(2, 1) do
+  begin
+    case LPassCount of
+      0 : CheckEqualsString('e', LString);
+      1 : CheckEqualsString('o', LString);
+      2 : CheckEqualsString('r', LString);
+      3 : CheckEqualsString('u', LString);
+      4 : CheckEqualsString('v', LString);
+      5 : CheckEqualsString('x', LString);
+      6 : CheckEqualsString('v', LString);
+      7 : CheckEqualsString('g', LString);
+      8 : CheckEqualsString('n', LString);
+      9 : CheckEqualsString('n', LString);
+    end;
+
+    Inc(LPassCount);
+  end;
+  CheckEquals(FStringCollection.Count,  LPassCount);
 end;
 
 procedure TestTQueryString.TestStartsWithCaseInsensitive;

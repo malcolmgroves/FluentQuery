@@ -51,6 +51,8 @@ type
     function Contains(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
+    function SubString(const StartIndex : Integer) : IBoundStringQueryEnumerator; overload;
+    function SubString(const StartIndex : Integer; Length : Integer) : IBoundStringQueryEnumerator; overload;
     // terminating operations
     function ToTStrings : TStrings;
   end;
@@ -77,6 +79,8 @@ type
     function Contains(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    function SubString(const StartIndex : Integer) : IUnboundStringQueryEnumerator; overload;
+    function SubString(const StartIndex : Integer; Length : Integer) : IUnboundStringQueryEnumerator; overload;
     // terminating operations
     function Predicate : TPredicate<string>;
   end;
@@ -123,6 +127,8 @@ type
         function Contains(const Value : String; IgnoreCase : Boolean = True) : T;
         function StartsWith(const Value : String; IgnoreCase : Boolean = True) : T;
         function EndsWith(const Value : String; IgnoreCase : Boolean = True) : T;
+        function SubString(const StartIndex : Integer) : T; overload;
+        function SubString(const StartIndex : Integer; Length : Integer) : T; overload;
         function ToTStrings : TStrings;
       end;
   protected
@@ -297,7 +303,7 @@ begin
   Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(LMatchesPredicate),
                                           IBaseQueryEnumerator<String>(FQuery));
 {$IFDEF DEBUG}
-  Result.OperationName := Format('Matches(''%s'', %s', [Value, IgnoreCase.ToString]);
+  Result.OperationName := Format('Matches(''%s'', %s)', [Value, IgnoreCase.ToString]);
 {$ENDIF}
 end;
 
@@ -369,7 +375,41 @@ begin
   Result := TStringQueryEnumerator.Create(TWhereEnumerationStrategy<String>.Create(LStartsWithPredicate),
                                           IBaseQueryEnumerator<String>(FQuery));
 {$IFDEF DEBUG}
-  Result.OperationName := Format('StartsWith(''%s'', %s', [Value, IgnoreCase.ToString]);
+  Result.OperationName := Format('StartsWith(''%s'', %s)', [Value, IgnoreCase.ToString]);
+{$ENDIF}
+end;
+
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SubString(
+  const StartIndex: Integer): T;
+var
+  LSubstringTransform : TFunc<String,String>;
+begin
+  LSubstringTransform := function (CurrentValue : String) : String
+                       begin
+                         Result := CurrentValue.Substring(StartIndex);
+                       end;
+
+  Result := TStringQueryEnumerator.Create(TIsomorphicTransformEnumerationStrategy<String>.Create(LSubstringTransform),
+                                          IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Substring(''%d'')', [StartIndex]);
+{$ENDIF}
+end;
+
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SubString(
+  const StartIndex: Integer; Length: Integer): T;
+var
+  LSubstringTransform : TFunc<String,String>;
+begin
+  LSubstringTransform := function (CurrentValue : String) : String
+                       begin
+                         Result := CurrentValue.Substring(StartIndex, Length);
+                       end;
+
+  Result := TStringQueryEnumerator.Create(TIsomorphicTransformEnumerationStrategy<String>.Create(LSubstringTransform),
+                                          IBaseQueryEnumerator<String>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Substring(''%d'', ''%d'')', [StartIndex, Length]);
 {$ENDIF}
 end;
 
