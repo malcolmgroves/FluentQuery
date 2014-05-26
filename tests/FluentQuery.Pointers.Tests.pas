@@ -61,6 +61,9 @@ implementation
 uses
   SysUtils;
 
+var
+  DummyPointer : Pointer; // used to suppress warnings in tests about unused loop variables
+
 { TestTQueryPointer }
 
 procedure TestTQueryPointer.SetUp;
@@ -96,7 +99,10 @@ begin
   for LPointer in Query
                     .From(FList)
                     .IsAssigned do
+  begin
     Inc(LPassCount);
+    DummyPointer := LPointer; // suppress warnings about unused loop variable
+  end;
   Check(LPassCount = 4, 'IsAssigned Query should enumerate four items');
 end;
 
@@ -107,7 +113,10 @@ var
 begin
   LPassCount := 0;
   for LPointer in Query.From(FList) do
+  begin
     Inc(LPassCount);
+    DummyPointer := LPointer; // suppress warnings about unused loop variable
+  end;
   Check(LPassCount = FList.Count, 'Passthrough Query should enumerate all items');
 end;
 
@@ -147,7 +156,10 @@ begin
   for LPointer in Query
                     .From(FList)
                     .IsAssigned do
+  begin
     Inc(LPassCount);
+    DummyPointer := LPointer; // suppress warnings about unused loop variable
+  end;
   Check(LPassCount = 4, 'IsAssigned Query should enumerate four items');
 end;
 
@@ -161,7 +173,10 @@ begin
   for LPointer in Query
                     .From(FList)
                     .WhereNot(Query.IsAssigned) do
+  begin
     Inc(LPassCount);
+    DummyPointer := LPointer; // suppress warnings about unused loop variable
+  end;
   Check(LPassCount = FList.Count - 4, 'WhereNot(IsAssigned) Query should enumerate all but four items');
 end;
 
@@ -177,7 +192,10 @@ begin
   for LPointer in Query
                     .From(FList)
                     .WhereNot(LIsAssigned) do
+  begin
     Inc(LPassCount);
+    DummyPointer := LPointer; // suppress warnings about unused loop variable
+  end;
   Check(LPassCount = FList.Count - 4, 'WhereNot(Predicate(IsAssigned)) Query should enumerate all but four items');
 end;
 
@@ -188,7 +206,10 @@ var
 begin
   LPassCount := 0;
   for LPointer in Query.From(FList) do
+  begin
     Inc(LPassCount);
+    DummyPointer := LPointer; // suppress warnings about unused loop variable
+  end;
   Check(LPassCount = FList.Count, 'Passthrough Query should enumerate all items');
 end;
 
@@ -202,7 +223,10 @@ begin
   for LPointer in Query
                     .From(FList)
                     .TakeWhile(Query.IsAssigned) do
+  begin
     Inc(LPassCount);
+    DummyPointer := LPointer; // suppress warnings about unused loop variable
+  end;
   Check(LPassCount = 1, 'TakeWhile(IsAssigned) Query should enumerate only the first item');
 end;
 

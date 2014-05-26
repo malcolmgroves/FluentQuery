@@ -80,6 +80,8 @@ type
 //    procedure TestCreateObjectList;
   end;
 
+var
+  DummyInt : Integer; // used to suppress warnings about not using loop variables in tests
 
 implementation
 uses
@@ -114,7 +116,10 @@ begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count;
   for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = MaxPassCount, 'Take = Collection.Count should enumerate all items');
 end;
@@ -126,7 +131,10 @@ begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count + 1;
   for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = FIntegerCollection.Count, 'Take > collection.count should enumerate all items');
 end;
@@ -139,7 +147,10 @@ begin
   MaxPassCount := FIntegerCollection.Count - 1;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = MaxPassCount, 'Take < collection.count should not enumerate all items');
 end;
@@ -161,7 +172,10 @@ begin
              .From(FIntegerCollection)
              .Take(5)
              .Where(LEvenNumbers) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = 2, 'Should enumerate even numbered items in the first 5');
 end;
@@ -181,7 +195,10 @@ begin
              .Select<Integer>
              .From(FIntegerCollection)
              .TakeWhile(LFourOrLess) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = 4, 'TakeWhile 4 or less should have enumerated 4 items');
 end;
@@ -198,7 +215,10 @@ begin
             end;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).TakeWhile(LFalse) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = 0, 'TakeWhile False should have enumerated zero items');
 end;
@@ -215,7 +235,10 @@ begin
            end;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).TakeWhile(LTrue) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = FIntegerCollection.Count, 'TakeWhile True should have enumerated all items');
 end;
@@ -227,7 +250,10 @@ begin
   LPassCount := 0;
   MaxPassCount := 0;
   for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = MaxPassCount, 'Take = 0 should enumerate no items');
 end;
@@ -239,7 +265,10 @@ begin
   LPassCount := 0;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).First do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = 1, 'First on a non-empty collection should enumerate one item');
 end;
@@ -325,7 +354,10 @@ var
 begin
   LPassCount := 0;
   for I in Query.Select<Integer>.From(FIntegerCollection) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
   Check(LPassCount = FIntegerCollection.Count, 'Passthrough Query should enumerate all items');
 end;
 
@@ -337,7 +369,10 @@ begin
   LSkipCount := FIntegerCollection.Count;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = 0, 'Skip of Collection.Count should have enumerated zero items');
 end;
@@ -350,7 +385,10 @@ begin
   LSkipCount := FIntegerCollection.Count + 2;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = 0, 'Skip of Collection.Count + 2 should have enumerated zero items');
 end;
@@ -363,7 +401,10 @@ begin
   LSkipCount := FIntegerCollection.Count - 2;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = 2, 'Skip of Collection.Count - 2 should have enumerated 2 items');
 end;
@@ -384,7 +425,10 @@ begin
              .From(FIntegerCollection)
              .Skip(5)
              .Where(LEvenNumbers) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = 3, 'Should enumerate even numbered items after 5');
 end;
@@ -401,7 +445,10 @@ begin
                  end;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LFourOrLess) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = 6, 'SkipWhile 4 or less should have enumerated 6 items');
 end;
@@ -418,7 +465,10 @@ begin
                      end;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LFalsePredicate) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = FIntegerCollection.Count, 'SkipWhile False should have enumerated all items');
 end;
@@ -435,7 +485,10 @@ begin
                      end;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LTruePredicate) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = 0, 'SkipWhile True should have enumerated zero items');
 end;
@@ -448,7 +501,10 @@ begin
   LSkipCount := 0;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  begin
     Inc(LEnumerationCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LEnumerationCount = FIntegerCollection.Count, 'Skip of zero should have enumerated all items');
 end;
@@ -466,7 +522,10 @@ begin
                   end;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
   Check(LPassCount = 5, 'Should enumerate even numbered items');
 end;
 
@@ -483,7 +542,10 @@ begin
                   end;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = 10, 'Should enumerate all items');
 end;
@@ -504,7 +566,10 @@ begin
              .From(FIntegerCollection)
              .Where(LEvenNumbers)
              .Take(3) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = 3, 'Should enumerate the first 3 even numbered items');
 end;
@@ -522,7 +587,10 @@ begin
                   end;
 
   for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = 0, 'Should enumerate no items');
 end;
@@ -543,7 +611,10 @@ begin
              .From(FIntegerCollection)
              .Where(LEvenNumbers)
              .Skip(3) do
+  begin
     Inc(LPassCount);
+    DummyInt := i;  // just to suppress warning about not using I
+  end;
 
   Check(LPassCount = 2, 'Should enumerate 8 and 10, the last 2 even numbered items');
 end;
@@ -605,7 +676,10 @@ var
 begin
   LPassCount := 0;
   for LPerson in Query.Select<TPerson>.From(FPersonCollection) do
+  begin
+    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
     Inc(LPassCount);
+  end;
   Check(LPassCount = FPersonCollection.Count, 'Passthrough Query should enumerate all items');
 end;
 
