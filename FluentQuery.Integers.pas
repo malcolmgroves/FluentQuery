@@ -57,6 +57,12 @@ type
     function GreaterThan(const Value : Integer) : IBoundIntegerQueryEnumerator;
     function LessThanOrEquals(const Value : Integer) : IBoundIntegerQueryEnumerator;
     function GreaterThanOrEquals(const Value : Integer) : IBoundIntegerQueryEnumerator;
+    function SkipUntil(const Value : Integer): IBoundIntegerQueryEnumerator; overload;
+    function SkipUntil(Predicate : TPredicate<Integer>): IBoundIntegerQueryEnumerator; overload;
+    function SkipUntil(UnboundQuery : IUnboundIntegerQueryEnumerator): IBoundIntegerQueryEnumerator; overload;
+    function TakeUntil(const Value : Integer) : IBoundIntegerQueryEnumerator; overload;
+    function TakeUntil(Predicate : TPredicate<Integer>) : IBoundIntegerQueryEnumerator; overload;
+    function TakeUntil(UnboundQuery : IUnboundIntegerQueryEnumerator) : IBoundIntegerQueryEnumerator; overload;
     // terminating operations
     function ToTList : TList<Integer>;
     function Sum : Integer;
@@ -92,6 +98,12 @@ type
     function GreaterThan(const Value : Integer) : IUnboundIntegerQueryEnumerator;
     function LessThanOrEquals(const Value : Integer) : IUnboundIntegerQueryEnumerator;
     function GreaterThanOrEquals(const Value : Integer) : IUnboundIntegerQueryEnumerator;
+    function SkipUntil(const Value : Integer): IUnboundIntegerQueryEnumerator; overload;
+    function SkipUntil(Predicate : TPredicate<Integer>): IUnboundIntegerQueryEnumerator; overload;
+    function SkipUntil(UnboundQuery : IUnboundIntegerQueryEnumerator): IUnboundIntegerQueryEnumerator; overload;
+    function TakeUntil(const Value : Integer) : IUnboundIntegerQueryEnumerator; overload;
+    function TakeUntil(Predicate : TPredicate<Integer>) : IUnboundIntegerQueryEnumerator; overload;
+    function TakeUntil(UnboundQuery : IUnboundIntegerQueryEnumerator) : IUnboundIntegerQueryEnumerator; overload;
     // terminating operations
     function Predicate : TPredicate<Integer>;
   end;
@@ -129,9 +141,15 @@ type
         function Skip(Count : Integer): T;
         function SkipWhile(Predicate : TPredicate<Integer>) : T; overload;
         function SkipWhile(UnboundQuery : IUnboundIntegerQueryEnumerator) : T; overload;
+        function SkipUntil(const Value : Integer): T; overload;
+        function SkipUntil(Predicate : TPredicate<Integer>): T; overload;
+        function SkipUntil(UnboundQuery : IUnboundIntegerQueryEnumerator): T; overload;
         function Take(Count : Integer): T;
         function TakeWhile(Predicate : TPredicate<Integer>): T; overload;
         function TakeWhile(UnboundQuery : IUnboundIntegerQueryEnumerator): T; overload;
+        function TakeUntil(const Value : Integer) : T; overload;
+        function TakeUntil(Predicate : TPredicate<Integer>) : T; overload;
+        function TakeUntil(UnboundQuery : IUnboundIntegerQueryEnumerator) : T; overload;
         function ToTList : TList<Integer>;
         function Where(Predicate : TPredicate<Integer>) : T;
         function WhereNot(UnboundQuery : IUnboundIntegerQueryEnumerator) : T; overload;
@@ -502,6 +520,33 @@ begin
 {$ENDIF}
 end;
 
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.SkipUntil(
+  Predicate: TPredicate<Integer>): T;
+begin
+  Result := SkipWhile(TPredicateFactory<Integer>.InvertPredicate(Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := 'SkipUntil(Predicate)';
+{$ENDIF}
+end;
+
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.SkipUntil(
+  UnboundQuery: IUnboundIntegerQueryEnumerator): T;
+begin
+  Result := SkipWhile(TPredicateFactory<Integer>.InvertPredicate(UnboundQuery.Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SkipUntil(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.SkipUntil(
+  const Value: Integer): T;
+begin
+  Result := SkipWhile(Query.NotEquals(Value).Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SkipUntil(%d)', [Value]);
+{$ENDIF}
+end;
+
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.SkipWhile(
   UnboundQuery: IUnboundIntegerQueryEnumerator): T;
 begin
@@ -538,6 +583,33 @@ begin
                                           IBaseQueryEnumerator<Integer>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
+{$ENDIF}
+end;
+
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.TakeUntil(
+  Predicate: TPredicate<Integer>): T;
+begin
+  Result := TakeWhile(TPredicateFactory<Integer>.InvertPredicate(Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := 'TakeUntil(Predicate)';
+{$ENDIF}
+end;
+
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.TakeUntil(
+  UnboundQuery: IUnboundIntegerQueryEnumerator): T;
+begin
+  Result := TakeWhile(TPredicateFactory<Integer>.InvertPredicate(UnboundQuery.Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('TakeUntil(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.TakeUntil(
+  const Value: Integer): T;
+begin
+  Result := TakeWhile(Query.NotEquals(Value).Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('TakeUntil(%d)', [Value]);
 {$ENDIF}
 end;
 
