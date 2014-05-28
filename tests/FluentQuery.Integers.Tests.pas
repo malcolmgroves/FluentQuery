@@ -60,9 +60,15 @@ type
     procedure TestSkipWhileTrue;
     procedure TestSkipWhileFalse;
     procedure TestSkipWhile;
+    procedure TestSkipWhileUnboundQuery;
     procedure TestTakeWhileFalse;
     procedure TestTakeWhileTrue;
     procedure TestTakeWhile;
+    procedure TestTakeWhileLessEqual4Evens;
+    procedure TestTake5Evens;
+    procedure TestTakeWhileUnboundQuery;
+    procedure TestTakeWhileUnboundQueryEvens;
+    procedure TestSkipWhileUnboundQueryTakeWhileUnbundQuery;
     procedure TestCreateList;
     procedure TestFirst;
     procedure TestSum;
@@ -210,6 +216,21 @@ begin
   Check(LPassCount = 4, 'TakeWhile 4 or less should have enumerated 4 items');
 end;
 
+procedure TestTQueryInteger.TestTake5Evens;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).Take(5).Even do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  CheckEquals(2, LPassCount);
+end;
+
 procedure TestTQueryInteger.TestTakeWhileFalse;
 var
   LPassCount, I : Integer;
@@ -230,6 +251,29 @@ begin
   Check(LPassCount = 0, 'TakeWhile False should have enumerated zero items');
 end;
 
+procedure TestTQueryInteger.TestTakeWhileLessEqual4Evens;
+var
+  LPassCount, I : Integer;
+  LFourOrLess : TPredicate<Integer>;
+begin
+  LPassCount := 0;
+  LFourOrLess := function (Value : Integer) : Boolean
+                 begin
+                   Result := Value <= 4;
+                 end;
+
+  for I in Query
+             .From(FIntegerCollection)
+             .TakeWhile(LFourOrLess)
+             .Even do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  CheckEquals(2, LPassCount);
+end;
+
 procedure TestTQueryInteger.TestTakeWhileTrue;
 var
   LPassCount, I : Integer;
@@ -248,6 +292,41 @@ begin
   end;
 
   Check(LPassCount = FIntegerCollection.Count, 'TakeWhile True should have enumerated all items');
+end;
+
+procedure TestTQueryInteger.TestTakeWhileUnboundQuery;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query
+             .From(FIntegerCollection)
+             .TakeWhile(Query.LessThanOrEquals(4)) do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  CheckEquals(4, LPassCount);
+end;
+
+procedure TestTQueryInteger.TestTakeWhileUnboundQueryEvens;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query
+             .From(FIntegerCollection)
+             .TakeWhile(Query.LessThanOrEquals(4))
+             .Even do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  CheckEquals(2, LPassCount);
 end;
 
 procedure TestTQueryInteger.TestTakeZero;
@@ -647,6 +726,39 @@ begin
   end;
 
   Check(LPassCount = 0, 'SkipWhile True should have enumerated zero items');
+end;
+
+procedure TestTQueryInteger.TestSkipWhileUnboundQuery;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).SkipWhile(Query.LessThanOrEquals(4)) do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  Check(LPassCount = 6, 'SkipWhile 4 or less should have enumerated 6 items');
+end;
+
+procedure TestTQueryInteger.TestSkipWhileUnboundQueryTakeWhileUnbundQuery;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query
+             .From(FIntegerCollection)
+             .TakeWhile(Query.LessThanOrEquals(8))
+             .SkipWhile(Query.LessThanOrEquals(4)) do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  CheckEquals(4, LPassCount);
 end;
 
 procedure TestTQueryInteger.TestSkipZero;
