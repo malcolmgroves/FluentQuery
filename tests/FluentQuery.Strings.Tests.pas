@@ -70,6 +70,9 @@ type
     procedure TestSubstring;
     procedure TestSubstringIndexGreaterThanLength;
     procedure TestSubstringLength;
+    procedure TestName;
+    procedure TestNameValueIsEmpty;
+    procedure TestNameIsNotFound;
   end;
 
   TestFluentStringPredicate = class(TTestCase)
@@ -520,6 +523,50 @@ begin
     Inc(LPassCount);
   end;
   CheckEquals(FStringCollection.Count,  LPassCount);
+end;
+
+procedure TestTQueryString.TestName;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  FStringCollection.Add('Param=Hello World');
+
+  for LString in Query.From(FStringCollection).Name('param') do
+  begin
+    Inc(LPassCount);
+    CheckEquals('Hello World', LString);
+  end;
+  CheckEquals(1, LPassCount);
+end;
+
+procedure TestTQueryString.TestNameIsNotFound;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+
+  for LString in Query.From(FStringCollection).Name('param') do
+    Inc(LPassCount);
+  CheckEquals(0, LPassCount);
+end;
+
+procedure TestTQueryString.TestNameValueIsEmpty;
+var
+  LPassCount : Integer;
+  LString : String;
+begin
+  LPassCount := 0;
+  FStringCollection.Add('Param=');
+
+  for LString in Query.From(FStringCollection).Name('param') do
+  begin
+    Inc(LPassCount);
+    CheckEquals('', LString);
+  end;
+  CheckEquals(LPassCount, 1);
 end;
 
 procedure TestTQueryString.TestStartsWithCaseInsensitive;
