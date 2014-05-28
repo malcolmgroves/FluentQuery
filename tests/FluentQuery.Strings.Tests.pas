@@ -533,7 +533,7 @@ begin
   LPassCount := 0;
   FStringCollection.Add('Param=Hello World');
 
-  for LString in Query.From(FStringCollection).Name('param') do
+  for LString in Query.From(FStringCollection).Value('param') do
   begin
     Inc(LPassCount);
     CheckEquals('Hello World', LString);
@@ -548,7 +548,7 @@ var
 begin
   LPassCount := 0;
 
-  for LString in Query.From(FStringCollection).Name('param') do
+  for LString in Query.From(FStringCollection).Value('param') do
     Inc(LPassCount);
   CheckEquals(0, LPassCount);
 end;
@@ -561,7 +561,7 @@ begin
   LPassCount := 0;
   FStringCollection.Add('Param=');
 
-  for LString in Query.From(FStringCollection).Name('param') do
+  for LString in Query.From(FStringCollection).Value('param') do
   begin
     Inc(LPassCount);
     CheckEquals('', LString);

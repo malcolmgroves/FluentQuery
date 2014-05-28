@@ -53,7 +53,7 @@ type
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function SubString(const StartIndex : Integer) : IBoundStringQueryEnumerator; overload;
     function SubString(const StartIndex : Integer; Length : Integer) : IBoundStringQueryEnumerator; overload;
-    function Name(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
+    function Value(const Name : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     // terminating operations
     function ToTStrings : TStrings;
   end;
@@ -82,7 +82,7 @@ type
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function SubString(const StartIndex : Integer) : IUnboundStringQueryEnumerator; overload;
     function SubString(const StartIndex : Integer; Length : Integer) : IUnboundStringQueryEnumerator; overload;
-    function Name(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    function Value(const Name : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     // terminating operations
     function Predicate : TPredicate<string>;
   end;
@@ -131,7 +131,7 @@ type
         function EndsWith(const Value : String; IgnoreCase : Boolean = True) : T;
         function SubString(const StartIndex : Integer) : T; overload;
         function SubString(const StartIndex : Integer; Length : Integer) : T; overload;
-        function Name(const Value : String; IgnoreCase : Boolean = True) : T;
+        function Value(const Name : String; IgnoreCase : Boolean = True) : T;
         function ToTStrings : TStrings;
       end;
   protected
@@ -298,8 +298,8 @@ begin
 {$ENDIF}
 end;
 
-function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Name(
-  const Value: String; IgnoreCase: Boolean): T;
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Value(
+  const Name: String; IgnoreCase: Boolean): T;
 var
   LSubstringTransform : TFunc<String,String>;
 begin
@@ -312,11 +312,11 @@ begin
               TIsomorphicTransformEnumerationStrategy<String>.Create(LSubstringTransform),
               TStringQueryEnumerator.Create(
                 TWhereEnumerationStrategy<String>.Create(
-                  TStringPredicateFactory.StartsWith(Value, IgnoreCase)),
+                  TStringPredicateFactory.StartsWith(Name, IgnoreCase)),
                 IBaseQueryEnumerator<String>(FQuery)));
 
 {$IFDEF DEBUG}
-  Result.OperationName := Format('Name(%s, %s)', [Value, IgnoreCase.ToString]);
+  Result.OperationName := Format('Value(%s, %s)', [Name, IgnoreCase.ToString]);
 {$ENDIF}
 end;
 
