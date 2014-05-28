@@ -66,6 +66,14 @@ type
     function ShouldIncludeItem(Enumerator : IMinimalEnumerator<T>) : Boolean; override;
   end;
 
+  TIsomorphicTransformEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
+  protected
+    FTransformFunc : TFunc<T, T>;
+  public
+    function GetCurrent(Enumerator : IMinimalEnumerator<T>): T; override;
+    constructor Create(TransformFunc : TFunc<T, T>); virtual;
+  end;
+
   TPredicateFactory<T> = class
   public
     class function LessThanOrEqualTo(Count : Integer) : TPredicate<T>;
@@ -247,6 +255,23 @@ begin
     on E : EArgumentOutOfRangeException do
       Result := False;
   end;
+end;
+
+{ TTransformEnumerationStrategy<T> }
+
+constructor TIsomorphicTransformEnumerationStrategy<T>.Create(
+  TransformFunc: TFunc<T, T>);
+begin
+  FTransformFunc := TransformFunc;
+end;
+
+function TIsomorphicTransformEnumerationStrategy<T>.GetCurrent(
+  Enumerator: IMinimalEnumerator<T>): T;
+begin
+  if Assigned(FTransformFunc) then
+    Result := FTransformFunc(Enumerator.Current)
+  else
+    Result := Enumerator.Current;
 end;
 
 end.
