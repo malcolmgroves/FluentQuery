@@ -31,21 +31,9 @@ type
   IUnboundCharQueryEnumerator = interface;
   IBoundCharQueryEnumerator = interface(IBaseQueryEnumerator<Char>)
     function GetEnumerator: IBoundCharQueryEnumerator;
-    // common operations
-    function First : IBoundCharQueryEnumerator;
-    function Skip(Count : Integer): IBoundCharQueryEnumerator;
-    function SkipWhile(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
-    function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
-    function Take(Count : Integer): IBoundCharQueryEnumerator;
-    function TakeWhile(Predicate : TPredicate<Char>): IBoundCharQueryEnumerator; overload;
-    function TakeWhile(UnboundQuery : IUnboundCharQueryEnumerator): IBoundCharQueryEnumerator; overload;
-    function Where(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator;
-    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
-    function WhereNot(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
-    // type-specific operations
+    // Query Operations
     function Equals(const Value : Char) : IBoundCharQueryEnumerator;
-    function NotEquals(const Value : Char) : IBoundCharQueryEnumerator;
-    function Matches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQueryEnumerator;
+    function First : IBoundCharQueryEnumerator;
     function IsControl: IBoundCharQueryEnumerator;
     function IsDigit: IBoundCharQueryEnumerator;
     function IsHighSurrogate: IBoundCharQueryEnumerator;
@@ -61,29 +49,30 @@ type
     function IsSymbol: IBoundCharQueryEnumerator;
     function IsUpper: IBoundCharQueryEnumerator;
     function IsWhiteSpace: IBoundCharQueryEnumerator;
+    function Map(Transformer : TFunc<Char, Char>) : IBoundCharQueryEnumerator;
+    function MapWhere(Transformer : TFunc<Char, Char>; Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator;
+    function Matches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQueryEnumerator;
+    function NotEquals(const Value : Char) : IBoundCharQueryEnumerator;
+    function Skip(Count : Integer): IBoundCharQueryEnumerator;
+    function SkipWhile(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
+    function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
+    function Take(Count : Integer): IBoundCharQueryEnumerator;
+    function TakeWhile(Predicate : TPredicate<Char>): IBoundCharQueryEnumerator; overload;
+    function TakeWhile(UnboundQuery : IUnboundCharQueryEnumerator): IBoundCharQueryEnumerator; overload;
+    function Where(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator;
+    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
+    function WhereNot(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
     // terminating operations
     function ToAString : String;
   end;
 
   IUnboundCharQueryEnumerator = interface(IBaseQueryEnumerator<Char>)
     function GetEnumerator: IUnboundCharQueryEnumerator;
-    // common operations
-    function First : IUnboundCharQueryEnumerator;
     function From(StringValue : String) : IBoundCharQueryEnumerator; overload;
     function From(Container : TEnumerable<Char>) : IBoundCharQueryEnumerator; overload;
-    function Skip(Count : Integer): IUnboundCharQueryEnumerator;
-    function SkipWhile(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator; overload;
-    function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator; overload;
-    function Take(Count : Integer): IUnboundCharQueryEnumerator;
-    function TakeWhile(Predicate : TPredicate<Char>): IUnboundCharQueryEnumerator; overload;
-    function TakeWhile(UnboundQuery : IUnboundCharQueryEnumerator): IUnboundCharQueryEnumerator; overload;
-    function Where(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator;
-    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator; overload;
-    function WhereNot(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator; overload;
-    // type-specific operations
+    // Query Operations
     function Equals(const Value : Char) : IUnboundCharQueryEnumerator;
-    function NotEquals(const Value : Char) : IUnboundCharQueryEnumerator;
-    function Matches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQueryEnumerator;
+    function First : IUnboundCharQueryEnumerator;
     function IsControl: IUnboundCharQueryEnumerator;
     function IsDigit: IUnboundCharQueryEnumerator;
     function IsHighSurrogate: IUnboundCharQueryEnumerator;
@@ -99,6 +88,19 @@ type
     function IsSymbol: IUnboundCharQueryEnumerator;
     function IsUpper: IUnboundCharQueryEnumerator;
     function IsWhiteSpace: IUnboundCharQueryEnumerator;
+    function Map(Transformer : TFunc<Char, Char>) : IUnboundCharQueryEnumerator;
+    function MapWhere(Transformer : TFunc<Char, Char>; Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator;
+    function Matches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQueryEnumerator;
+    function NotEquals(const Value : Char) : IUnboundCharQueryEnumerator;
+    function Skip(Count : Integer): IUnboundCharQueryEnumerator;
+    function SkipWhile(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator; overload;
+    function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator; overload;
+    function Take(Count : Integer): IUnboundCharQueryEnumerator;
+    function TakeWhile(Predicate : TPredicate<Char>): IUnboundCharQueryEnumerator; overload;
+    function TakeWhile(UnboundQuery : IUnboundCharQueryEnumerator): IUnboundCharQueryEnumerator; overload;
+    function Where(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator;
+    function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator; overload;
+    function WhereNot(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator; overload;
     // terminating operations
     function Predicate : TPredicate<Char>;
   end;
@@ -134,6 +136,8 @@ type
         function From(StringValue : String) : IBoundCharQueryEnumerator; overload;
         function From(Collection : TEnumerable<Char>) : IBoundCharQueryEnumerator; overload;
         // Primitive Operations
+        function Map(Transformer : TFunc<Char, Char>) : T;
+        function MapWhere(Transformer : TFunc<Char, Char>; Predicate : TPredicate<Char>) : T;
         function SkipWhile(Predicate : TPredicate<Char>) : T; overload;
         function TakeWhile(Predicate : TPredicate<Char>): T; overload;
         function Where(Predicate : TPredicate<Char>) : T;
@@ -492,6 +496,29 @@ begin
   Result := Where(LMatchesPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsWhitespace';
+{$ENDIF}
+end;
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Map(
+  Transformer: TFunc<Char, Char>): T;
+begin
+  Result := TCharQueryEnumerator.Create(TIsomorphicTransformEnumerationStrategy<Char>.Create(Transformer),
+                                        IBaseQueryEnumerator<Char>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Map(Transformer)';
+{$ENDIF}
+end;
+
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.MapWhere(
+  Transformer: TFunc<Char, Char>; Predicate: TPredicate<Char>): T;
+begin
+  Result := TCharQueryEnumerator.Create(
+              TIsomorphicTransformEnumerationStrategy<Char>.Create(Transformer),
+              TCharQueryEnumerator.Create(
+                TWhereEnumerationStrategy<Char>.Create(Predicate),
+                IBaseQueryEnumerator<Char>(FQuery)));
+{$IFDEF DEBUG}
+  Result.OperationName := 'MapWhere(Transformer, Predicate)';
 {$ENDIF}
 end;
 

@@ -35,6 +35,8 @@ type
     function GetEnumerator: IBoundPointerQueryEnumerator;
     // common operations
     function First : IBoundPointerQueryEnumerator;
+    function Map(Transformer : TFunc<Pointer, Pointer>) : IBoundPointerQueryEnumerator;
+    function MapWhere(Transformer : TFunc<Pointer, Pointer>; Predicate : TPredicate<Pointer>) : IBoundPointerQueryEnumerator;
     function Skip(Count : Integer): IBoundPointerQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<Pointer>) : IBoundPointerQueryEnumerator; overload;
     function SkipWhile(UnboundQuery : IUnboundPointerQueryEnumerator) : IBoundPointerQueryEnumerator; overload;
@@ -54,6 +56,8 @@ type
     function First : IUnboundPointerQueryEnumerator;
     function From(List : TList) : IBoundPointerQueryEnumerator; overload;
     function From(Container : TEnumerable<Pointer>) : IBoundPointerQueryEnumerator; overload;
+    function Map(Transformer : TFunc<Pointer, Pointer>) : IUnboundPointerQueryEnumerator;
+    function MapWhere(Transformer : TFunc<Pointer, Pointer>; Predicate : TPredicate<Pointer>) : IUnboundPointerQueryEnumerator;
     function Skip(Count : Integer): IUnboundPointerQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<Pointer>) : IUnboundPointerQueryEnumerator; overload;
     function SkipWhile(UnboundQuery : IUnboundPointerQueryEnumerator) : IUnboundPointerQueryEnumerator; overload;
@@ -97,6 +101,8 @@ type
         function From(List : TList) : IBoundPointerQueryEnumerator; overload;
         function From(Container : TEnumerable<Pointer>) : IBoundPointerQueryEnumerator; overload;
         // Primitive Operations
+        function Map(Transformer : TFunc<Pointer, Pointer>) : T;
+        function MapWhere(Transformer : TFunc<Pointer, Pointer>; Predicate : TPredicate<Pointer>) : T;
         function SkipWhile(Predicate : TPredicate<Pointer>) : T; overload;
         function TakeWhile(Predicate : TPredicate<Pointer>): T; overload;
         function Where(Predicate : TPredicate<Pointer>) : T;
@@ -213,6 +219,29 @@ begin
   Result := Where(LIsAssigned);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsAssigned';
+{$ENDIF}
+end;
+
+function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Map(
+  Transformer: TFunc<Pointer, Pointer>): T;
+begin
+  Result := TPointerQueryEnumerator.Create(TIsomorphicTransformEnumerationStrategy<Pointer>.Create(Transformer),
+                                          IBaseQueryEnumerator<Pointer>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Map(Transformer)';
+{$ENDIF}
+end;
+
+function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.MapWhere(
+  Transformer: TFunc<Pointer, Pointer>; Predicate: TPredicate<Pointer>): T;
+begin
+  Result := TPointerQueryEnumerator.Create(
+              TIsomorphicTransformEnumerationStrategy<Pointer>.Create(Transformer),
+              TPointerQueryEnumerator.Create(
+                TWhereEnumerationStrategy<Pointer>.Create(Predicate),
+                IBaseQueryEnumerator<Pointer>(FQuery)));
+{$IFDEF DEBUG}
+  Result.OperationName := 'MapWhere(Transformer, Predicate)';
 {$ENDIF}
 end;
 
