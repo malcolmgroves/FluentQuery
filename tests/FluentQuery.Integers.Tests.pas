@@ -75,6 +75,8 @@ type
     procedure TestTakeUntilUnboundQuery;
     procedure TestSkipUntilUnboundQuery;
     procedure TestSkipUntilUnboundQueryTakeUntilUnboundQuery;
+    procedure TestTakeBetweenUnboundQueries;
+    procedure TestTakeBetweenValues;
     procedure TestCreateList;
     procedure TestFirst;
     procedure TestSum;
@@ -267,6 +269,41 @@ begin
   end;
 
   CheckEquals(2, LPassCount);
+end;
+
+procedure TestTQueryInteger.TestTakeBetweenUnboundQueries;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).TakeBetween(Query.Equals(4), Query.Equals(9)) do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  CheckEquals(5, LPassCount);
+end;
+
+procedure TestTQueryInteger.TestTakeBetweenValues;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).TakeBetween(4, 7) do
+  begin
+    Inc(LPassCount);
+    case LPassCount of
+      1 : CheckEquals(4, I);
+      2 : CheckEquals(5, I);
+      3 : CheckEquals(6, I);
+    end;
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  CheckEquals(3, LPassCount);
 end;
 
 procedure TestTQueryInteger.TestTakeWhileFalse;

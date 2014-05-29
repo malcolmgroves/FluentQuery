@@ -70,9 +70,9 @@ type
     procedure TestSubstring;
     procedure TestSubstringIndexGreaterThanLength;
     procedure TestSubstringLength;
-    procedure TestName;
-    procedure TestNameValueIsEmpty;
-    procedure TestNameIsNotFound;
+    procedure TestValue;
+    procedure TestValueNameIsEmpty;
+    procedure TestValueNameIsNotFound;
   end;
 
   TestFluentStringPredicate = class(TTestCase)
@@ -525,7 +525,7 @@ begin
   CheckEquals(FStringCollection.Count,  LPassCount);
 end;
 
-procedure TestTQueryString.TestName;
+procedure TestTQueryString.TestValue;
 var
   LPassCount : Integer;
   LString : String;
@@ -541,7 +541,7 @@ begin
   CheckEquals(1, LPassCount);
 end;
 
-procedure TestTQueryString.TestNameIsNotFound;
+procedure TestTQueryString.TestValueNameIsNotFound;
 var
   LPassCount : Integer;
   LString : String;
@@ -553,7 +553,7 @@ begin
   CheckEquals(0, LPassCount);
 end;
 
-procedure TestTQueryString.TestNameValueIsEmpty;
+procedure TestTQueryString.TestValueNameIsEmpty;
 var
   LPassCount : Integer;
   LString : String;
