@@ -74,10 +74,13 @@ type
     constructor Create(TransformFunc : TFunc<T, T>); virtual;
   end;
 
+
+
   TPredicateFactory<T> = class
   public
     class function LessThanOrEqualTo(Count : Integer) : TPredicate<T>;
     class function QuerySingleValue(UnboundQuery : IBaseQueryEnumerator<T>) : TPredicate<T>;
+    class function InvertPredicate(Predicate : TPredicate<T>) : TPredicate<T>;
   end;
 
 
@@ -217,6 +220,15 @@ begin
 end;
 
 { TEnumerationPredicates<T> }
+
+class function TPredicateFactory<T>.InvertPredicate(
+  Predicate: TPredicate<T>): TPredicate<T>;
+begin
+  Result := function (CurrentValue : T) : Boolean
+            begin
+              Result := not Predicate(CurrentValue);
+            end;
+end;
 
 class function TPredicateFactory<T>.LessThanOrEqualTo(
   Count: Integer): TPredicate<T>;
