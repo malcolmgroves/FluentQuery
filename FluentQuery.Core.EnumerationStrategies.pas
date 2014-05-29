@@ -74,6 +74,8 @@ type
     constructor Create(TransformFunc : TFunc<T, T>); virtual;
   end;
 
+
+
   TPredicateFactory<T> = class
   public
     class function LessThanOrEqualTo(Count : Integer) : TPredicate<T>;

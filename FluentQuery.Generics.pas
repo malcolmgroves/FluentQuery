@@ -83,17 +83,20 @@ type
         property OperationName : string read GetOperationName;
         property OperationPath : string read GetOperationPath;
 {$ENDIF}
-        function First : TReturnType;
         function From(Container : TEnumerable<T>) : IBoundQueryEnumerator<T>;
-        function Skip(Count : Integer): TReturnType;
+        // Primitive Operations
         function SkipWhile(Predicate : TPredicate<T>) : TReturnType; overload;
+        function TakeWhile(Predicate : TPredicate<T>): TReturnType; overload;
+        function Where(Predicate : TPredicate<T>) : TReturnType;
+        // Derivative Operations
+        function First : TReturnType;
+        function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundQueryEnumerator<T>) : TReturnType; overload;
         function Take(Count : Integer): TReturnType;
-        function TakeWhile(Predicate : TPredicate<T>): TReturnType; overload;
         function TakeWhile(UnboundQuery : IUnboundQueryEnumerator<T>): TReturnType; overload;
-        function Where(Predicate : TPredicate<T>) : TReturnType;
         function WhereNot(UnboundQuery : IUnboundQueryEnumerator<T>) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
+        // Terminating Operations
         function Predicate : TPredicate<T>;
         function ToTList : TList<T>;
 //        function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
@@ -144,8 +147,7 @@ end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.First: TReturnType;
 begin
-  Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(1)),
-                                       IBaseQueryEnumerator<T>(FQuery));
+  Result := TakeWhile(TPredicateFactory<T>.LessThanOrEqualTo(1));
 {$IFDEF DEBUG}
   Result.OperationName := 'First';
 {$ENDIF}
@@ -189,8 +191,7 @@ end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Skip(Count: Integer): TReturnType;
 begin
-  Result := TQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
-                                       IBaseQueryEnumerator<T>(FQuery));
+  Result := SkipWhile(TPredicateFactory<T>.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -217,8 +218,7 @@ end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Take(Count: Integer): TReturnType;
 begin
-  Result := TQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(TPredicateFactory<T>.LessThanOrEqualTo(Count)),
-                                       IBaseQueryEnumerator<T>(FQuery));
+  Result := TakeWhile(TPredicateFactory<T>.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
