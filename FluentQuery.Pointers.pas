@@ -34,7 +34,6 @@ type
   IBoundPointerQueryEnumerator = interface(IBaseQueryEnumerator<Pointer>)
     function GetEnumerator: IBoundPointerQueryEnumerator;
     // common operations
-    function First : IBoundPointerQueryEnumerator;
     function Map(Transformer : TFunc<Pointer, Pointer>) : IBoundPointerQueryEnumerator;
     function MapWhere(Transformer : TFunc<Pointer, Pointer>; Predicate : TPredicate<Pointer>) : IBoundPointerQueryEnumerator;
     function Skip(Count : Integer): IBoundPointerQueryEnumerator;
@@ -48,12 +47,12 @@ type
     function WhereNot(Predicate : TPredicate<Pointer>) : IBoundPointerQueryEnumerator; overload;
     // type-specific operations
     function IsAssigned : IBoundPointerQueryEnumerator;
+    function First : Pointer;
   end;
 
   IUnboundPointerQueryEnumerator = interface(IBaseQueryEnumerator<Pointer>)
     function GetEnumerator: IUnboundPointerQueryEnumerator;
     // common operations
-    function First : IUnboundPointerQueryEnumerator;
     function From(List : TList) : IBoundPointerQueryEnumerator; overload;
     function From(Container : TEnumerable<Pointer>) : IBoundPointerQueryEnumerator; overload;
     function Map(Transformer : TFunc<Pointer, Pointer>) : IUnboundPointerQueryEnumerator;
@@ -107,7 +106,6 @@ type
         function TakeWhile(Predicate : TPredicate<Pointer>): T; overload;
         function Where(Predicate : TPredicate<Pointer>) : T;
         // Derivative Operations
-        function First : T;
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundPointerQueryEnumerator) : T; overload;
         function Take(Count : Integer): T;
@@ -117,6 +115,7 @@ type
         function IsAssigned : T;
         // Terminating Operations
         function Predicate : TPredicate<Pointer>;
+        function First : Pointer;
       end;
   protected
     FBoundPointerQueryEnumerator : TPointerQueryEnumeratorImpl<IBoundPointerQueryEnumerator>;
@@ -158,14 +157,12 @@ begin
   FQuery := Query;
 end;
 
-function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.First: T;
+function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.First: Pointer;
 begin
-  Result := TPointerQueryEnumerator.Create(TTakeWhileEnumerationStrategy<Pointer>.Create(TPredicateFactory<Pointer>.LessThanOrEqualTo(1)),
-                                           IBaseQueryEnumerator<Pointer>(FQuery));
-
-{$IFDEF DEBUG}
-  Result.OperationName := 'First';
-{$ENDIF}
+  if FQuery.MoveNext then
+    Result := FQuery.GetCurrent
+  else
+    raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.From(

@@ -33,7 +33,6 @@ type
   IBoundQueryEnumerator<T> = interface(IBaseQueryEnumerator<T>)
     function GetEnumerator: IBoundQueryEnumerator<T>;
     // query operations
-    function First : IBoundQueryEnumerator<T>;
     function Map(Transformer : TFunc<T, T>) : IBoundQueryEnumerator<T>;
     function MapWhere(Transformer : TFunc<T, T>; Predicate : TPredicate<T>) : IBoundQueryEnumerator<T>;
     function Skip(Count : Integer): IBoundQueryEnumerator<T>;
@@ -47,6 +46,7 @@ type
     function WhereNot(Predicate : TPredicate<T>) : IBoundQueryEnumerator<T>; overload;
     // terminating operations
     function ToTList : TList<T>;
+    function First : T;
 //    function ToTObjectList : TObjectList<T>;
   end;
 
@@ -54,7 +54,6 @@ type
     function GetEnumerator: IUnboundQueryEnumerator<T>;
     function From(Container : TEnumerable<T>) : IBoundQueryEnumerator<T>;
     // query operations
-    function First : IUnboundQueryEnumerator<T>;
     function Map(Transformer : TFunc<T, T>) : IUnboundQueryEnumerator<T>;
     function MapWhere(Transformer : TFunc<T, T>; Predicate : TPredicate<T>) : IUnboundQueryEnumerator<T>;
     function Skip(Count : Integer): IUnboundQueryEnumerator<T>;
@@ -95,7 +94,6 @@ type
         function TakeWhile(Predicate : TPredicate<T>): TReturnType; overload;
         function Where(Predicate : TPredicate<T>) : TReturnType;
         // Derivative Operations
-        function First : TReturnType;
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundQueryEnumerator<T>) : TReturnType; overload;
         function Take(Count : Integer): TReturnType;
@@ -105,6 +103,7 @@ type
         // Terminating Operations
         function Predicate : TPredicate<T>;
         function ToTList : TList<T>;
+        function First : T;
 //        function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
       end;
   protected
@@ -151,12 +150,12 @@ begin
   FQuery := Query;
 end;
 
-function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.First: TReturnType;
+function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.First: T;
 begin
-  Result := TakeWhile(TPredicateFactory<T>.LessThanOrEqualTo(1));
-{$IFDEF DEBUG}
-  Result.OperationName := 'First';
-{$ENDIF}
+  if FQuery.MoveNext then
+    Result := FQuery.GetCurrent
+  else
+    raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.From(

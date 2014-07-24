@@ -33,7 +33,6 @@ type
     function GetEnumerator: IBoundCharQueryEnumerator;
     // Query Operations
     function Equals(const Value : Char) : IBoundCharQueryEnumerator;
-    function First : IBoundCharQueryEnumerator;
     function IsControl: IBoundCharQueryEnumerator;
     function IsDigit: IBoundCharQueryEnumerator;
     function IsHighSurrogate: IBoundCharQueryEnumerator;
@@ -63,6 +62,7 @@ type
     function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
     function WhereNot(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
     // terminating operations
+    function First : Char;
     function ToAString : String;
   end;
 
@@ -72,7 +72,6 @@ type
     function From(Container : TEnumerable<Char>) : IBoundCharQueryEnumerator; overload;
     // Query Operations
     function Equals(const Value : Char) : IUnboundCharQueryEnumerator;
-    function First : IUnboundCharQueryEnumerator;
     function IsControl: IUnboundCharQueryEnumerator;
     function IsDigit: IUnboundCharQueryEnumerator;
     function IsHighSurrogate: IUnboundCharQueryEnumerator;
@@ -144,7 +143,6 @@ type
         // Derivative Operations
         function Equals(const Value : Char) : T; reintroduce;
         function NotEquals(const Value : Char) : T;
-        function First : T;
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : T; overload;
         function Take(Count : Integer): T;
@@ -170,6 +168,7 @@ type
         // Terminating Operations
         function Predicate : TPredicate<Char>;
         function ToAString : String;
+        function First : Char;
       end;
   protected
     FBoundCharQueryEnumerator : TCharQueryEnumeratorImpl<IBoundCharQueryEnumerator>;
@@ -220,12 +219,12 @@ begin
 {$ENDIF}
 end;
 
-function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.First: T;
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.First: Char;
 begin
-  Result := TakeWhile(TPredicateFactory<Char>.LessThanOrEqualTo(1));
-{$IFDEF DEBUG}
-  Result.OperationName := 'First';
-{$ENDIF}
+  if FQuery.MoveNext then
+    Result := FQuery.GetCurrent
+  else
+    raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.From(

@@ -66,6 +66,7 @@ type
     procedure TestTakeWhile;
     procedure TestTakeWhileLessEqual4Evens;
     procedure TestTake5Evens;
+    procedure TestTake1;
     procedure TestTakeWhileUnboundQuery;
     procedure TestTakeWhileUnboundQueryEvens;
     procedure TestSkipWhileUnboundQueryTakeWhileUnbundQuery;
@@ -79,6 +80,7 @@ type
     procedure TestTakeBetweenValues;
     procedure TestCreateList;
     procedure TestFirst;
+    procedure TestFirstOnEmpty;
     procedure TestSum;
     procedure TestAverage;
     procedure TestAverageEmptyResultSet;
@@ -256,6 +258,21 @@ begin
   Check(LPassCount = 4, 'TakeWhile 4 or less should have enumerated 4 items');
 end;
 
+procedure TestTQueryInteger.TestTake1;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.From(FIntegerCollection).Take(1) do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  Check(LPassCount = 1, 'Take(1) on a non-empty collection should enumerate one item');
+end;
+
 procedure TestTQueryInteger.TestTake5Evens;
 var
   LPassCount, I : Integer;
@@ -421,17 +438,19 @@ end;
 
 procedure TestTQueryInteger.TestFirst;
 var
-  LPassCount, I : Integer;
+  I : Integer;
 begin
-  LPassCount := 0;
+  I := Query.From(FIntegerCollection).Even.First;
+  Check(I = 2, 'First Even should be 2');
+end;
 
-  for I in Query.From(FIntegerCollection).First do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 1, 'First on a non-empty collection should enumerate one item');
+procedure TestTQueryInteger.TestFirstOnEmpty;
+var
+  I : Integer;
+begin
+  ExpectedException := EEmptyResultSetException;
+  I := Query.From(FIntegerCollection).GreaterThan(1000).First;
+  StopExpectingException;
 end;
 
 procedure TestTQueryInteger.TestIsEven;

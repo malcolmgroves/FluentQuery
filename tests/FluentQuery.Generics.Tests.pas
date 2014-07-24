@@ -39,6 +39,7 @@ type
     procedure TestTakeEqualCount;
     procedure TestTakeGreaterThanCount;
     procedure TestTakeZero;
+    procedure TestTakeOne;
     procedure TestWhereEven;
     procedure TestWhereNotWhereEven;
     procedure TestWhereNotEven;
@@ -155,6 +156,21 @@ begin
   Check(LPassCount = MaxPassCount, 'Take < collection.count should not enumerate all items');
 end;
 
+procedure TestTQueryIntegerGenerics.TestTakeOne;
+var
+  LPassCount, I : Integer;
+begin
+  LPassCount := 0;
+
+  for I in Query.Select<Integer>.From(FIntegerCollection).Take(1) do
+  begin
+    Inc(LPassCount);
+    DummyInt := i;   // just to suppress warning about not using I
+  end;
+
+  Check(LPassCount = 1, 'Take(1) on a non-empty collection should enumerate one item');
+end;
+
 procedure TestTQueryIntegerGenerics.TestTakeWhere;
 var
   LPassCount, I : Integer;
@@ -260,17 +276,11 @@ end;
 
 procedure TestTQueryIntegerGenerics.TestFirst;
 var
-  LPassCount, I : Integer;
+  I : Integer;
 begin
-  LPassCount := 0;
+  I := Query.Select<Integer>.From(FIntegerCollection).Skip(2).First;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).First do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 1, 'First on a non-empty collection should enumerate one item');
+  CheckEquals(3, I);
 end;
 
 procedure TestTQueryIntegerGenerics.TestWhereNotEven;

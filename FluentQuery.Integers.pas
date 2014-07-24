@@ -36,7 +36,6 @@ type
     // query operations
     function Equals(const Value : Integer) : IBoundIntegerQueryEnumerator;
     function Even : IBoundIntegerQueryEnumerator;
-    function First : IBoundIntegerQueryEnumerator;
     function GreaterThan(const Value : Integer) : IBoundIntegerQueryEnumerator;
     function GreaterThanOrEquals(const Value : Integer) : IBoundIntegerQueryEnumerator;
     function LessThan(const Value : Integer) : IBoundIntegerQueryEnumerator;
@@ -73,6 +72,7 @@ type
     function Average : Double;
     function Max : Integer;
     function Min : Integer;
+    function First : Integer;
   end;
 
   IUnboundIntegerQueryEnumerator = interface(IBaseQueryEnumerator<Integer>)
@@ -81,7 +81,6 @@ type
     // query operations
     function Equals(const Value : Integer) : IUnboundIntegerQueryEnumerator;
     function Even : IUnboundIntegerQueryEnumerator;
-    function First : IUnboundIntegerQueryEnumerator;
     function GreaterThan(const Value : Integer) : IUnboundIntegerQueryEnumerator;
     function GreaterThanOrEquals(const Value : Integer) : IUnboundIntegerQueryEnumerator;
     function LessThan(const Value : Integer) : IUnboundIntegerQueryEnumerator;
@@ -151,7 +150,6 @@ type
         // Derivative Operations
         function Equals(const Value : Integer) : T; reintroduce;
         function NotEquals(const Value : Integer) : T;
-        function First : T;
         function Skip(Count : Integer): T;
         function SkipUntil(const Value : Integer): T; overload;
         function SkipUntil(Predicate : TPredicate<Integer>): T; overload;
@@ -184,6 +182,7 @@ type
         function Average : Double;
         function Max : Integer;
         function Min : Integer;
+        function First : Integer;
       end;
   protected
     FBoundIntegerQueryEnumerator : TIntegerQueryEnumeratorImpl<IBoundIntegerQueryEnumerator>;
@@ -297,12 +296,12 @@ begin
 {$ENDIF}
 end;
 
-function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.First: T;
+function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.First: Integer;
 begin
-  Result := TakeWhile(TPredicateFactory<Integer>.LessThanOrEqualTo(1));
-{$IFDEF DEBUG}
-  Result.OperationName := 'First';
-{$ENDIF}
+  if FQuery.MoveNext then
+    Result := FQuery.GetCurrent
+  else
+    raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
 end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.From(Container: TEnumerable<Integer>): IBoundIntegerQueryEnumerator;

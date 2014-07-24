@@ -34,7 +34,6 @@ type
   IBoundStringQueryEnumerator = interface(IBaseQueryEnumerator<String>)
     function GetEnumerator: IBoundStringQueryEnumerator;
     // common operations
-    function First : IBoundStringQueryEnumerator;
     function Map(Transformer : TFunc<String, String>) : IBoundStringQueryEnumerator;
     function MapWhere(Transformer : TFunc<String, String>; Predicate : TPredicate<String>) : IBoundStringQueryEnumerator;
     function Skip(Count : Integer): IBoundStringQueryEnumerator;
@@ -58,6 +57,7 @@ type
     function Value(const Name : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     // terminating operations
     function ToTStrings : TStrings;
+    function First : String;
   end;
 
   IUnboundStringQueryEnumerator = interface(IBaseQueryEnumerator<String>)
@@ -65,7 +65,6 @@ type
     // common operations
     function From(Container : TEnumerable<String>) : IBoundStringQueryEnumerator; overload;
     function From(Strings : TStrings) : IBoundStringQueryEnumerator; overload;
-    function First : IUnboundStringQueryEnumerator;
     function Map(Transformer : TFunc<String, String>) : IUnboundStringQueryEnumerator;
     function MapWhere(Transformer : TFunc<String, String>; Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
     function Skip(Count : Integer): IUnboundStringQueryEnumerator;
@@ -123,7 +122,6 @@ type
         function TakeWhile(Predicate : TPredicate<String>): T; overload;
         function Where(Predicate : TPredicate<String>) : T;
         // Derivative Operations
-        function First : T;
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundStringQueryEnumerator) : T; overload;
         function Take(Count : Integer): T;
@@ -141,6 +139,7 @@ type
         function Value(const Name : String; IgnoreCase : Boolean = True) : T;
         // Terminating Operations
         function ToTStrings : TStrings;
+        function First : String;
         function Predicate : TPredicate<string>;
       end;
   protected
@@ -238,12 +237,12 @@ begin
 {$ENDIF}
 end;
 
-function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.First: T;
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.First: String;
 begin
-  Result := TakeWhile(TStringPredicateFactory.LessThanOrEqualTo(1));
-{$IFDEF DEBUG}
-  Result.OperationName := 'First';
-{$ENDIF}
+  if FQuery.MoveNext then
+    Result := FQuery.GetCurrent
+  else
+    raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.From(Container: TEnumerable<String>): IBoundStringQueryEnumerator;
