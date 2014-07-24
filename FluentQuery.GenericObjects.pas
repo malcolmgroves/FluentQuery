@@ -25,7 +25,9 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   FluentQuery.Core.EnumerationStrategies,
-  FluentQuery.Core.Enumerators;
+  FluentQuery.Core.Enumerators,
+  System.TypInfo,
+  System.Rtti;
 
 type
   IUnboundObjectQueryEnumerator<T : class> = interface;
@@ -33,6 +35,7 @@ type
   IBoundObjectQueryEnumerator<T : class> = interface(IBaseQueryEnumerator<T>)
     function GetEnumerator: IBoundObjectQueryEnumerator<T>;
     // query operations
+    function HasProperty(const Name : string; PropertyType : TTypeKind) : IBoundObjectQueryEnumerator<T>;
     function IsA(AType : TClass) : IBoundObjectQueryEnumerator<T>;
     function IsAssigned : IBoundObjectQueryEnumerator<T>;
     function Map(Transformer : TProc<T>) : IBoundObjectQueryEnumerator<T>;
@@ -54,6 +57,7 @@ type
     function GetEnumerator: IUnboundObjectQueryEnumerator<T>;
     function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>;
     // query operations
+    function HasProperty(const Name : string; PropertyType : TTypeKind) : IUnboundObjectQueryEnumerator<T>;
     function IsA(AType : TClass) : IUnboundObjectQueryEnumerator<T>;
     function IsAssigned : IUnboundObjectQueryEnumerator<T>;
     function Map(Transformer : TProc<T>) : IUnboundObjectQueryEnumerator<T>;
@@ -95,14 +99,16 @@ type
         function TakeWhile(Predicate : TPredicate<T>): TReturnType; overload;
         function Where(Predicate : TPredicate<T>) : TReturnType;
         // Derivative Operations
+//        function HasProperty(const Name : string) : TReturnType; overload;
+        function HasProperty(const Name : string; PropertyType : TTypeKind) : TReturnType; overload;
+        function IsA(AType : TClass) : TReturnType;
+        function IsAssigned : TReturnType;
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : TReturnType; overload;
         function Take(Count : Integer): TReturnType;
         function TakeWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
-        function IsA(AType : TClass) : TReturnType;
-        function IsAssigned : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<T>;
         function First : T;
@@ -193,6 +199,31 @@ function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.GetOp
 begin
   Result := FQuery.OperationPath;
 end;
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.HasProperty(
+  const Name: string; PropertyType: TTypeKind): TReturnType;
+var
+  LPropCheckPredicate : TPredicate<T>;
+begin
+  LPropCheckPredicate :=  function (Value : T) : boolean
+                          var
+                            LRTTIContext : TRTTIContext;
+                            LClassType : TRTTIType;
+                            LProperty : TRTTIProperty;
+                          begin
+                            Result := False;
+                            LRTTIContext := TRttiContext.Create;
+                            LClassType := LRTTIContext.GetType(Value.ClassInfo);
+                            LProperty := LClassType.GetProperty(Name);
+                            if Assigned(LProperty) then
+                              Result := LProperty.PropertyType.TypeKind = PropertyType;
+                          end;
+
+  Result := Where(LPropCheckPredicate);
+{$IFDEF DEBUG}
+  Result.OperationName := 'HasProperty(Name, PropertyType)';
+{$ENDIF}
+end;
+
 class function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.InPlaceTransformer(TransformProc : TProc<T>): TFunc<T, T>;
 begin
   Result := function (Value : T) : T

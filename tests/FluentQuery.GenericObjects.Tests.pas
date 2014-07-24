@@ -28,13 +28,19 @@ uses
 
 type
   TPerson = class
+  private
+    FName : string;
   public
-    Name : string;
     Age : Integer;
     constructor Create(Name : string; Age : Integer);
+    property Name : string read FName write FName;
   end;
 
   TCustomer = class(TPerson)
+  private
+    FOverdue: Boolean;
+  public
+    property Overdue : Boolean read FOverdue;
   end;
 
   TSpecialCustomer = class(TCustomer)
@@ -54,6 +60,7 @@ type
     procedure TestMapAfter;
     procedure TestIsAssigned;
     procedure TestIsA;
+    procedure TestHasProperty;
   end;
 
 var
@@ -61,7 +68,7 @@ var
 
 implementation
 uses
-  System.SysUtils;
+  System.SysUtils, System.TypInfo;
 
 
 { TPerson }
@@ -131,6 +138,25 @@ begin
     LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
   end;
   Check(LPassCount = 4, 'IsAssigned Query should enumerate four items');
+end;
+
+procedure TestTQueryPerson.TestHasProperty;
+var
+  LPassCount : Integer;
+  LPerson : TPerson;
+begin
+  LPassCount := 0;
+  FPersonCollection.Insert(2, TCustomer.Create('Acme', 3));
+  FPersonCollection.Insert(3, TCustomer.Create('Spacely''s Sprockets', 0));
+
+  for LPerson in Query.Select<TPerson>
+                    .From(FPersonCollection)
+                    .HasProperty('Overdue', tkEnumeration) do
+  begin
+    Inc(LPassCount);
+    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
+  end;
+  CheckEquals(2, LPassCount);
 end;
 
 procedure TestTQueryPerson.TestIsA;
