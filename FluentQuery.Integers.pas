@@ -41,7 +41,6 @@ type
     function LessThan(const Value : Integer) : IBoundIntegerQueryEnumerator;
     function LessThanOrEquals(const Value : Integer) : IBoundIntegerQueryEnumerator;
     function Map(Transformer : TFunc<Integer, Integer>) : IBoundIntegerQueryEnumerator;
-    function MapWhere(Transformer : TFunc<Integer, Integer>; Predicate : TPredicate<Integer>) : IBoundIntegerQueryEnumerator;
     function Negative : IBoundIntegerQueryEnumerator;
     function NonZero : IBoundIntegerQueryEnumerator;
     function NotEquals(const Value : Integer) : IBoundIntegerQueryEnumerator;
@@ -86,7 +85,6 @@ type
     function LessThan(const Value : Integer) : IUnboundIntegerQueryEnumerator;
     function LessThanOrEquals(const Value : Integer) : IUnboundIntegerQueryEnumerator;
     function Map(Transformer : TFunc<Integer, Integer>) : IUnboundIntegerQueryEnumerator;
-    function MapWhere(Transformer : TFunc<Integer, Integer>; Predicate : TPredicate<Integer>) : IUnboundIntegerQueryEnumerator;
     function Negative : IUnboundIntegerQueryEnumerator;
     function NonZero : IUnboundIntegerQueryEnumerator;
     function NotEquals(const Value : Integer) : IUnboundIntegerQueryEnumerator;
@@ -143,7 +141,6 @@ type
         function From(Container : TEnumerable<Integer>) : IBoundIntegerQueryEnumerator; overload;
         // Primitive Operations
         function Map(Transformer : TFunc<Integer, Integer>) : T;
-        function MapWhere(Transformer : TFunc<Integer, Integer>; Predicate : TPredicate<Integer>) : T;
         function SkipWhile(Predicate : TPredicate<Integer>) : T; overload;
         function TakeWhile(Predicate : TPredicate<Integer>): T; overload;
         function Where(Predicate : TPredicate<Integer>) : T;
@@ -488,18 +485,6 @@ begin
 {$ENDIF}
 end;
 
-function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.MapWhere(
-  Transformer: TFunc<Integer, Integer>; Predicate: TPredicate<Integer>): T;
-begin
-  Result := TIntegerQueryEnumerator.Create(
-              TIsomorphicTransformEnumerationStrategy<Integer>.Create(Transformer),
-              TIntegerQueryEnumerator.Create(
-                TWhereEnumerationStrategy<Integer>.Create(Predicate),
-                IBaseQueryEnumerator<Integer>(FQuery)));
-{$IFDEF DEBUG}
-  Result.OperationName := 'MapWhere(Transformer, Predicate)';
-{$ENDIF}
-end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Max: Integer;
 var

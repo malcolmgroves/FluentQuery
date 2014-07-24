@@ -49,7 +49,6 @@ type
     function IsUpper: IBoundCharQueryEnumerator;
     function IsWhiteSpace: IBoundCharQueryEnumerator;
     function Map(Transformer : TFunc<Char, Char>) : IBoundCharQueryEnumerator;
-    function MapWhere(Transformer : TFunc<Char, Char>; Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQueryEnumerator;
     function NotEquals(const Value : Char) : IBoundCharQueryEnumerator;
     function Skip(Count : Integer): IBoundCharQueryEnumerator;
@@ -88,7 +87,6 @@ type
     function IsUpper: IUnboundCharQueryEnumerator;
     function IsWhiteSpace: IUnboundCharQueryEnumerator;
     function Map(Transformer : TFunc<Char, Char>) : IUnboundCharQueryEnumerator;
-    function MapWhere(Transformer : TFunc<Char, Char>; Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQueryEnumerator;
     function NotEquals(const Value : Char) : IUnboundCharQueryEnumerator;
     function Skip(Count : Integer): IUnboundCharQueryEnumerator;
@@ -136,7 +134,6 @@ type
         function From(Collection : TEnumerable<Char>) : IBoundCharQueryEnumerator; overload;
         // Primitive Operations
         function Map(Transformer : TFunc<Char, Char>) : T;
-        function MapWhere(Transformer : TFunc<Char, Char>; Predicate : TPredicate<Char>) : T;
         function SkipWhile(Predicate : TPredicate<Char>) : T; overload;
         function TakeWhile(Predicate : TPredicate<Char>): T; overload;
         function Where(Predicate : TPredicate<Char>) : T;
@@ -508,18 +505,6 @@ begin
 {$ENDIF}
 end;
 
-function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.MapWhere(
-  Transformer: TFunc<Char, Char>; Predicate: TPredicate<Char>): T;
-begin
-  Result := TCharQueryEnumerator.Create(
-              TIsomorphicTransformEnumerationStrategy<Char>.Create(Transformer),
-              TCharQueryEnumerator.Create(
-                TWhereEnumerationStrategy<Char>.Create(Predicate),
-                IBaseQueryEnumerator<Char>(FQuery)));
-{$IFDEF DEBUG}
-  Result.OperationName := 'MapWhere(Transformer, Predicate)';
-{$ENDIF}
-end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Matches(const Value: Char;
   IgnoreCase: Boolean): T;

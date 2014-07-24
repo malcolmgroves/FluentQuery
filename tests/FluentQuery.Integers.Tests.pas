@@ -610,7 +610,8 @@ begin
 
   for I in Query
              .From(FIntegerCollection)
-             .MapWhere(LInc, Query.Even.Predicate) do
+             .Where(Query.Even.Predicate)
+             .Map(LInc) do
   begin
     Inc(LPassCount);
     case LPassCount of

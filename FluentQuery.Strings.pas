@@ -35,7 +35,6 @@ type
     function GetEnumerator: IBoundStringQueryEnumerator;
     // common operations
     function Map(Transformer : TFunc<String, String>) : IBoundStringQueryEnumerator;
-    function MapWhere(Transformer : TFunc<String, String>; Predicate : TPredicate<String>) : IBoundStringQueryEnumerator;
     function Skip(Count : Integer): IBoundStringQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<String>) : IBoundStringQueryEnumerator; overload;
     function SkipWhile(UnboundQuery : IUnboundStringQueryEnumerator) : IBoundStringQueryEnumerator; overload;
@@ -66,7 +65,6 @@ type
     function From(Container : TEnumerable<String>) : IBoundStringQueryEnumerator; overload;
     function From(Strings : TStrings) : IBoundStringQueryEnumerator; overload;
     function Map(Transformer : TFunc<String, String>) : IUnboundStringQueryEnumerator;
-    function MapWhere(Transformer : TFunc<String, String>; Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator;
     function Skip(Count : Integer): IUnboundStringQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator; overload;
     function SkipWhile(UnboundQuery : IUnboundStringQueryEnumerator) : IUnboundStringQueryEnumerator; overload;
@@ -117,7 +115,6 @@ type
         function From(Strings : TStrings) : IBoundStringQueryEnumerator; overload;
         // Primitive Operations
         function Map(Transformer : TFunc<String, String>) : T;
-        function MapWhere(Transformer : TFunc<String, String>; Predicate : TPredicate<String>) : T;
         function SkipWhile(Predicate : TPredicate<String>) : T; overload;
         function TakeWhile(Predicate : TPredicate<String>): T; overload;
         function Where(Predicate : TPredicate<String>) : T;
@@ -295,18 +292,6 @@ begin
 {$ENDIF}
 end;
 
-function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.MapWhere(
-  Transformer: TFunc<String, String>; Predicate: TPredicate<String>): T;
-begin
-  Result := TStringQueryEnumerator.Create(
-              TIsomorphicTransformEnumerationStrategy<String>.Create(Transformer),
-              TStringQueryEnumerator.Create(
-                TWhereEnumerationStrategy<String>.Create(Predicate),
-                IBaseQueryEnumerator<String>(FQuery)));
-{$IFDEF DEBUG}
-  Result.OperationName := 'MapWhere(Transformer, Predicate)';
-{$ENDIF}
-end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Matches(
   const Value: String; IgnoreCase: Boolean): T;
@@ -327,7 +312,12 @@ begin
                          Result := CurrentValue.Substring(Pos('=', CurrentValue));
                        end;
 
-  Result := MapWhere(LSubstringTransform, TStringPredicateFactory.StartsWith(Name, IgnoreCase));
+  Result := TStringQueryEnumerator.Create(
+              TIsomorphicTransformEnumerationStrategy<String>.Create(LSubstringTransform),
+              TStringQueryEnumerator.Create(
+                TWhereEnumerationStrategy<String>.Create(TStringPredicateFactory.StartsWith(Name, IgnoreCase)),
+                IBaseQueryEnumerator<String>(FQuery)));
+
 {$IFDEF DEBUG}
   Result.OperationName := Format('Value(%s, %s)', [Name, IgnoreCase.ToString]);
 {$ENDIF}
