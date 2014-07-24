@@ -33,6 +33,8 @@ type
   IBoundObjectQueryEnumerator<T : class> = interface(IBaseQueryEnumerator<T>)
     function GetEnumerator: IBoundObjectQueryEnumerator<T>;
     // query operations
+    function IsA(AType : TClass) : IBoundObjectQueryEnumerator<T>;
+    function IsAssigned : IBoundObjectQueryEnumerator<T>;
     function Map(Transformer : TProc<T>) : IBoundObjectQueryEnumerator<T>;
     function Skip(Count : Integer): IBoundObjectQueryEnumerator<T>;
     function SkipWhile(Predicate : TPredicate<T>) : IBoundObjectQueryEnumerator<T>; overload;
@@ -52,6 +54,8 @@ type
     function GetEnumerator: IUnboundObjectQueryEnumerator<T>;
     function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>;
     // query operations
+    function IsA(AType : TClass) : IUnboundObjectQueryEnumerator<T>;
+    function IsAssigned : IUnboundObjectQueryEnumerator<T>;
     function Map(Transformer : TProc<T>) : IUnboundObjectQueryEnumerator<T>;
     function Skip(Count : Integer): IUnboundObjectQueryEnumerator<T>;
     function SkipWhile(Predicate : TPredicate<T>) : IUnboundObjectQueryEnumerator<T>; overload;
@@ -97,6 +101,8 @@ type
         function TakeWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
+        function IsA(AType : TClass) : TReturnType;
+        function IsAssigned : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<T>;
         function First : T;
@@ -127,6 +133,22 @@ type
 implementation
 
 { TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType> }
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.IsA(
+  AType: TClass): TReturnType;
+var
+  LIsType : TPredicate<T>;
+begin
+  LIsType := function (Value : T): boolean
+             begin
+               Result := Value is AType;
+             end;
+
+  Result := Where(LIsType);
+{$IFDEF DEBUG}
+  Result.OperationName := 'IsAssigned';
+{$ENDIF}
+end;
 
 constructor TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Create(
   Query: TObjectQueryEnumerator<T>);
@@ -178,6 +200,21 @@ begin
                            TransformProc(Value);
                            Result := Value;
                          end;
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.IsAssigned: TReturnType;
+var
+  LIsAssigned : TPredicate<T>;
+begin
+  LIsAssigned := function (Value : T): boolean
+                 begin
+                   Result := Assigned(Value);
+                 end;
+
+  Result := Where(LIsAssigned);
+{$IFDEF DEBUG}
+  Result.OperationName := 'IsAssigned';
+{$ENDIF}
 end;
 
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Map(

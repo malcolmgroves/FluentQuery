@@ -34,6 +34,13 @@ type
     constructor Create(Name : string; Age : Integer);
   end;
 
+  TCustomer = class(TPerson)
+  end;
+
+  TSpecialCustomer = class(TCustomer)
+
+  end;
+
   TestTQueryPerson = class(TTestCase)
   strict private
     FPersonCollection: TObjectList<TPerson>;
@@ -45,6 +52,8 @@ type
     procedure TestToObjectList;
     procedure TestMapBefore;
     procedure TestMapAfter;
+    procedure TestIsAssigned;
+    procedure TestIsA;
   end;
 
 var
@@ -103,6 +112,45 @@ begin
   finally
     LPersonList.Free;
   end;
+end;
+
+procedure TestTQueryPerson.TestIsAssigned;
+var
+  LPassCount : Integer;
+  LPerson : TPerson;
+begin
+  LPassCount := 0;
+  FPersonCollection.Insert(1, nil);
+  FPersonCollection.Insert(3, nil);
+
+  for LPerson in Query.Select<TPerson>
+                    .From(FPersonCollection)
+                    .IsAssigned do
+  begin
+    Inc(LPassCount);
+    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
+  end;
+  Check(LPassCount = 4, 'IsAssigned Query should enumerate four items');
+end;
+
+procedure TestTQueryPerson.TestIsA;
+var
+  LPassCount : Integer;
+  LPerson : TPerson;
+begin
+  LPassCount := 0;
+  FPersonCollection.Insert(2, TCustomer.Create('Acme', 3));
+  FPersonCollection.Insert(3, TCustomer.Create('Spacely''s Sprockets', 0));
+  FPersonCollection.Insert(3, TSpecialCustomer.Create('Foo', 0));
+
+  for LPerson in Query.Select<TPerson>
+                    .From(FPersonCollection)
+                    .IsA(TCustomer) do
+  begin
+    Inc(LPassCount);
+    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
+  end;
+  CheckEquals(3, LPassCount);
 end;
 
 procedure TestTQueryPerson.TestMapAfter;
