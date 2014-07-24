@@ -445,11 +445,9 @@ begin
 end;
 
 procedure TestTQueryInteger.TestFirstOnEmpty;
-var
-  I : Integer;
 begin
   ExpectedException := EEmptyResultSetException;
-  I := Query.From(FIntegerCollection).GreaterThan(1000).First;
+  Query.From(FIntegerCollection).GreaterThan(1000).First;
   StopExpectingException;
 end;
 

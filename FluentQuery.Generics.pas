@@ -47,7 +47,6 @@ type
     // terminating operations
     function ToTList : TList<T>;
     function First : T;
-//    function ToTObjectList : TObjectList<T>;
   end;
 
   IUnboundQueryEnumerator<T> = interface(IBaseQueryEnumerator<T>)
@@ -104,7 +103,6 @@ type
         function Predicate : TPredicate<T>;
         function ToTList : TList<T>;
         function First : T;
-//        function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
       end;
   protected
     FBoundQueryEnumerator : TQueryEnumeratorImpl<IBoundQueryEnumerator<T>>;
@@ -187,6 +185,8 @@ function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.GetOperationPath:
 begin
   Result := FQuery.OperationPath;
 end;
+{$ENDIF}
+
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Map(
   Transformer: TFunc<T, T>): TReturnType;
 begin
@@ -210,7 +210,6 @@ begin
 {$ENDIF}
 end;
 
-{$ENDIF}
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Predicate: TPredicate<T>;
 begin
@@ -283,19 +282,6 @@ begin
 
   Result := LList;
 end;
-
-//function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.ToTObjectList(AOwnsObjects: Boolean = True): TObjectList<T>;
-//var
-//  LObjectList : TObjectList<T>;
-//  Item : T;
-//begin
-//  LObjectList := TObjectList<T>.Create(AOwnsObjects);
-//
-//  while FQuery.MoveNext do
-//    LObjectList.Add(FQuery.GetCurrent);
-//
-//  Result := LObjectList;
-//end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Where(
   Predicate: TPredicate<T>): TReturnType;

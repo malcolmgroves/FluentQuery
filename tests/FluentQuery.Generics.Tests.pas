@@ -63,24 +63,6 @@ type
     procedure TestFirst;
   end;
 
-  TPerson = class
-  public
-    Name : string;
-    Age : Integer;
-    constructor Create(Name : string; Age : Integer);
-  end;
-
-  TestTQueryPerson = class(TTestCase)
-  strict private
-    FPersonCollection: TObjectList<TPerson>;
-  public
-    procedure SetUp; override;
-    procedure TearDown; override;
-  published
-    procedure TestPassThrough;
-//    procedure TestCreateObjectList;
-  end;
-
 var
   DummyInt : Integer; // used to suppress warnings about not using loop variables in tests
 
@@ -629,75 +611,11 @@ begin
   Check(LPassCount = 2, 'Should enumerate 8 and 10, the last 2 even numbered items');
 end;
 
-{ TPerson }
-
-constructor TPerson.Create(Name: string; Age: Integer);
-begin
-  self.Name := Name;
-  self.Age := Age;
-end;
-
-{ TestTQueryPerson }
-
-procedure TestTQueryPerson.SetUp;
-begin
-  inherited;
-  FPersonCollection := TObjectList<TPerson>.Create;
-  FPersonCollection.Add(TPerson.Create('Malcolm', 43));
-  FPersonCollection.Add(TPerson.Create('Julie', 41));
-  FPersonCollection.Add(TPerson.Create('Jesse', 5));
-  FPersonCollection.Add(TPerson.Create('Lauren', 3));
-end;
-
-procedure TestTQueryPerson.TearDown;
-begin
-  inherited;
-  FPersonCollection.Free;
-end;
-
-//procedure TestTQueryPerson.TestCreateObjectList;
-//var
-//  LPersonList : TList<TPerson>;
-//  L18OrMore : TPredicate<TPerson>;
-//begin
-//  L18OrMore := function (Value : TPerson) : Boolean
-//               begin
-//                 Result := Value.Age >= 18;
-//               end;
-//
-//
-//  LPersonList := CreateTObjectList<TPerson>.From(Query.Select<TPerson>
-//                                            .From(FPersonCollection)
-//                                            .Where(L18OrMore),
-//                                          False);
-//  try
-//    Check(LPersonList.Count = 2, 'Should have 4 items in list');
-//    Check(LPersonList.Items[0].Name = 'Malcolm', 'First item should be Malcolm');
-//    Check(LPersonList.Items[1].Name = 'Julie', 'Second item should be Julie');
-//  finally
-//    LPersonList.Free;
-//  end;
-//end;
-
-procedure TestTQueryPerson.TestPassThrough;
-var
-  LPassCount : Integer;
-  LPerson : TPerson;
-begin
-  LPassCount := 0;
-  for LPerson in Query.Select<TPerson>.From(FPersonCollection) do
-  begin
-    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
-    Inc(LPassCount);
-  end;
-  Check(LPassCount = FPersonCollection.Count, 'Passthrough Query should enumerate all items');
-end;
 
 
 
 initialization
   // Register any test cases with the test runner
   RegisterTest('Generics/TList<Integer>', TestTQueryIntegerGenerics.Suite);
-  RegisterTest('Generics/TObjectList<TPerson>', TestTQueryPerson.Suite);
 end.
 
