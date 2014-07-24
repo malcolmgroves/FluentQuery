@@ -290,8 +290,7 @@ end;
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := TQueryEnumerator<T>.Create(TWhereNotEnumerationStrategy<T>.Create(Predicate),
-                                          IBaseQueryEnumerator<T>(FQuery));
+  Result := Where(TPredicateFactory<T>.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}
