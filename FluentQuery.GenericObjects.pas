@@ -33,20 +33,18 @@ type
   IBoundObjectQueryEnumerator<T : class> = interface(IBaseQueryEnumerator<T>)
     function GetEnumerator: IBoundObjectQueryEnumerator<T>;
     // query operations
-//    function Map(Transformer : TFunc<T, T>) : IBoundObjectQueryEnumerator<T>;
-//    function MapWhere(Transformer : TFunc<T, T>; Predicate : TPredicate<T>) : IBoundObjectQueryEnumerator<T>;
-//    function Skip(Count : Integer): IBoundObjectQueryEnumerator<T>;
-//    function SkipWhile(Predicate : TPredicate<T>) : IBoundObjectQueryEnumerator<T>; overload;
-//    function SkipWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : IBoundObjectQueryEnumerator<T>; overload;
-//    function Take(Count : Integer): IBoundObjectQueryEnumerator<T>;
-//    function TakeWhile(Predicate : TPredicate<T>): IBoundObjectQueryEnumerator<T>; overload;
-//    function TakeWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>): IBoundObjectQueryEnumerator<T>; overload;
+    function Map(Transformer : TProc<T>) : IBoundObjectQueryEnumerator<T>;
+    function Skip(Count : Integer): IBoundObjectQueryEnumerator<T>;
+    function SkipWhile(Predicate : TPredicate<T>) : IBoundObjectQueryEnumerator<T>; overload;
+    function SkipWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : IBoundObjectQueryEnumerator<T>; overload;
+    function Take(Count : Integer): IBoundObjectQueryEnumerator<T>;
+    function TakeWhile(Predicate : TPredicate<T>): IBoundObjectQueryEnumerator<T>; overload;
+    function TakeWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>): IBoundObjectQueryEnumerator<T>; overload;
     function Where(Predicate : TPredicate<T>) : IBoundObjectQueryEnumerator<T>;
-//    function WhereNot(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : IBoundObjectQueryEnumerator<T>; overload;
-//    function WhereNot(Predicate : TPredicate<T>) : IBoundObjectQueryEnumerator<T>; overload;
+    function WhereNot(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : IBoundObjectQueryEnumerator<T>; overload;
+    function WhereNot(Predicate : TPredicate<T>) : IBoundObjectQueryEnumerator<T>; overload;
     // terminating operations
-//    function ToTList : TList<T>;
-//    function First : T;
+    function First : T;
     function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
   end;
 
@@ -54,19 +52,18 @@ type
     function GetEnumerator: IUnboundObjectQueryEnumerator<T>;
     function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>;
     // query operations
-//    function Map(Transformer : TFunc<T, T>) : IUnboundObjectQueryEnumerator<T>;
-//    function MapWhere(Transformer : TFunc<T, T>; Predicate : TPredicate<T>) : IUnboundObjectQueryEnumerator<T>;
-//    function Skip(Count : Integer): IUnboundObjectQueryEnumerator<T>;
-//    function SkipWhile(Predicate : TPredicate<T>) : IUnboundObjectQueryEnumerator<T>; overload;
-//    function SkipWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : IUnboundObjectQueryEnumerator<T>; overload;
-//    function Take(Count : Integer): IUnboundObjectQueryEnumerator<T>;
-//    function TakeWhile(Predicate : TPredicate<T>): IUnboundObjectQueryEnumerator<T>; overload;
-//    function TakeWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>): IUnboundObjectQueryEnumerator<T>; overload;
+    function Map(Transformer : TProc<T>) : IUnboundObjectQueryEnumerator<T>;
+    function Skip(Count : Integer): IUnboundObjectQueryEnumerator<T>;
+    function SkipWhile(Predicate : TPredicate<T>) : IUnboundObjectQueryEnumerator<T>; overload;
+    function SkipWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : IUnboundObjectQueryEnumerator<T>; overload;
+    function Take(Count : Integer): IUnboundObjectQueryEnumerator<T>;
+    function TakeWhile(Predicate : TPredicate<T>): IUnboundObjectQueryEnumerator<T>; overload;
+    function TakeWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>): IUnboundObjectQueryEnumerator<T>; overload;
     function Where(Predicate : TPredicate<T>) : IUnboundObjectQueryEnumerator<T>;
-//    function WhereNot(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : IUnboundObjectQueryEnumerator<T>; overload;
-//    function WhereNot(Predicate : TPredicate<T>) : IUnboundObjectQueryEnumerator<T>; overload;
+    function WhereNot(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : IUnboundObjectQueryEnumerator<T>; overload;
+    function WhereNot(Predicate : TPredicate<T>) : IUnboundObjectQueryEnumerator<T>; overload;
     // terminating operations
-//    function Predicate : TPredicate<T>;
+    function Predicate : TPredicate<T>;
   end;
 
   TObjectQueryEnumerator<T : class> = class(TBaseQueryEnumerator<T>,
@@ -77,6 +74,7 @@ type
       TObjectQueryEnumeratorImpl<TReturnType : IBaseQueryEnumerator<T>> = class
       private
         FQuery : TObjectQueryEnumerator<T>;
+        class function InPlaceTransformer(TransformProc : TProc<T>) : TFunc<T, T>;
       public
         constructor Create(Query : TObjectQueryEnumerator<T>); virtual;
         function GetEnumerator: TReturnType;
@@ -88,22 +86,20 @@ type
 {$ENDIF}
         function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>;
         // Primitive Operations
-//        function Map(Transformer : TFunc<T, T>) : TReturnType;
-//        function MapWhere(Transformer : TFunc<T, T>; Predicate : TPredicate<T>) : TReturnType;
-//        function SkipWhile(Predicate : TPredicate<T>) : TReturnType; overload;
-//        function TakeWhile(Predicate : TPredicate<T>): TReturnType; overload;
+        function Map(Transformer : TProc<T>) : TReturnType;
+        function SkipWhile(Predicate : TPredicate<T>) : TReturnType; overload;
+        function TakeWhile(Predicate : TPredicate<T>): TReturnType; overload;
         function Where(Predicate : TPredicate<T>) : TReturnType;
         // Derivative Operations
-//        function Skip(Count : Integer): TReturnType;
-//        function SkipWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : TReturnType; overload;
-//        function Take(Count : Integer): TReturnType;
-//        function TakeWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>): TReturnType; overload;
-//        function WhereNot(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : TReturnType; overload;
-//        function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
+        function Skip(Count : Integer): TReturnType;
+        function SkipWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : TReturnType; overload;
+        function Take(Count : Integer): TReturnType;
+        function TakeWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>): TReturnType; overload;
+        function WhereNot(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : TReturnType; overload;
+        function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
         // Terminating Operations
-//        function Predicate : TPredicate<T>;
-//        function ToTList : TList<T>;
-//        function First : T;
+        function Predicate : TPredicate<T>;
+        function First : T;
         function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
       end;
   protected
@@ -138,6 +134,14 @@ begin
   FQuery := Query;
 end;
 
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.First: T;
+begin
+  if FQuery.MoveNext then
+    Result := FQuery.GetCurrent
+  else
+    raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
+end;
+
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.From(
   Container: TEnumerable<T>): IBoundObjectQueryEnumerator<T>;
 var
@@ -167,6 +171,68 @@ function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.GetOp
 begin
   Result := FQuery.OperationPath;
 end;
+class function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.InPlaceTransformer(TransformProc : TProc<T>): TFunc<T, T>;
+begin
+  Result := function (Value : T) : T
+                         begin
+                           TransformProc(Value);
+                           Result := Value;
+                         end;
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Map(
+  Transformer: TProc<T>): TReturnType;
+begin
+  Result := TObjectQueryEnumerator<T>.Create(TIsomorphicTransformEnumerationStrategy<T>.Create(InPlaceTransformer(Transformer)),
+                                          IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Map(Transformer)';
+{$ENDIF}
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Predicate: TPredicate<T>;
+begin
+  Result := TPredicateFactory<T>.QuerySingleValue(FQuery);
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.SkipWhile(
+  UnboundQuery: IUnboundObjectQueryEnumerator<T>): TReturnType;
+begin
+  Result := SkipWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.SkipWhile(
+  Predicate: TPredicate<T>): TReturnType;
+begin
+  Result := TObjectQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(Predicate),
+                                       IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'SkipWhile(Predicate)';
+{$ENDIF}
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.TakeWhile(
+  Predicate: TPredicate<T>): TReturnType;
+begin
+  Result := TObjectQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(Predicate),
+                                       IBaseQueryEnumerator<T>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'TakeWhile(Predicate)';
+{$ENDIF}
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.TakeWhile(
+  UnboundQuery: IUnboundObjectQueryEnumerator<T>): TReturnType;
+begin
+  Result := TakeWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('TakeWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.ToTObjectList(
   AOwnsObjects: Boolean): TObjectList<T>;
 var
@@ -191,7 +257,43 @@ begin
 {$ENDIF}
 end;
 
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.WhereNot(
+  Predicate: TPredicate<T>): TReturnType;
+begin
+  Result := Where(TPredicateFactory<T>.InvertPredicate(Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.WhereNot(
+  UnboundQuery: IUnboundObjectQueryEnumerator<T>): TReturnType;
+begin
+  Result := WhereNot(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('WhereNot(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+{$ENDIF}
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Skip(
+  Count: Integer): TReturnType;
+begin
+  Result := SkipWhile(TPredicateFactory<T>.LessThanOrEqualTo(Count));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Skip(%d)', [Count]);
+{$ENDIF}
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Take(
+  Count: Integer): TReturnType;
+begin
+  Result := TakeWhile(TPredicateFactory<T>.LessThanOrEqualTo(Count));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Take(%d)', [Count]);
+{$ENDIF}
+end;
 
 { TObjectQueryEnumerator<T> }
 

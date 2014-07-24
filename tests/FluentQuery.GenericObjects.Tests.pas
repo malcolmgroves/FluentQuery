@@ -43,6 +43,8 @@ type
   published
     procedure TestPassThrough;
     procedure TestToObjectList;
+    procedure TestMapBefore;
+    procedure TestMapAfter;
   end;
 
 var
@@ -86,7 +88,7 @@ var
 begin
   L18OrMore := function (Value : TPerson) : Boolean
                begin
-                 Result := Value.Age >= 18;
+                 Result := Value.Age >= 6;
                end;
 
 
@@ -102,6 +104,67 @@ begin
     LPersonList.Free;
   end;
 end;
+
+procedure TestTQueryPerson.TestMapAfter;
+var
+  LPassCount : Integer;
+  LAged6OrMore : TPredicate<TPerson>;
+  LIncrementAge : TProc<TPerson>;
+  LPerson : TPerson;
+begin
+  LPassCount := 0;
+  LIncrementAge := procedure (Value : TPerson)
+                   begin
+                     Value.Age := Value.Age + 1;
+                   end;
+
+  LAged6OrMore := function (Value : TPerson) : Boolean
+               begin
+                 Result := Value.Age >= 6;
+               end;
+
+
+  for LPerson in Query.Select<TPerson>
+                      .From(FPersonCollection)
+                      .Where(LAged6OrMore)
+                      .Map(LIncrementAge) do
+  begin
+    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
+    Inc(LPassCount);
+  end;
+  CheckEquals(2, LPassCount);
+end;
+
+procedure TestTQueryPerson.TestMapBefore;
+var
+  LPassCount : Integer;
+  LAged6OrMore : TPredicate<TPerson>;
+  LIncrementAge : TProc<TPerson>;
+  LPerson : TPerson;
+begin
+  LPassCount := 0;
+  LIncrementAge := procedure (Value : TPerson)
+                   begin
+                     Value.Age := Value.Age + 1;
+                   end;
+
+  LAged6OrMore := function (Value : TPerson) : Boolean
+               begin
+                 Result := Value.Age >= 6;
+               end;
+
+
+  for LPerson in Query.Select<TPerson>
+                      .From(FPersonCollection)
+                      .Map(LIncrementAge)
+                      .Where(LAged6OrMore) do
+  begin
+    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
+    Inc(LPassCount);
+  end;
+  CheckEquals(3, LPassCount);
+end;
+
 
 procedure TestTQueryPerson.TestPassThrough;
 var
