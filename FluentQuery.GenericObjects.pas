@@ -199,6 +199,8 @@ function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.GetOp
 begin
   Result := FQuery.OperationPath;
 end;
+{$ENDIF}
+
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.HasProperty(
   const Name: string; PropertyType: TTypeKind): TReturnType;
 var
@@ -268,7 +270,7 @@ function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.SkipW
 begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
-  Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+  Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
 {$ENDIF}
 end;
 
@@ -342,8 +344,6 @@ begin
   Result.OperationName := Format('WhereNot(%s)', [UnboundQuery.OperationPath]);
 {$ENDIF}
 end;
-
-{$ENDIF}
 
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Skip(
   Count: Integer): TReturnType;

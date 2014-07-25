@@ -329,6 +329,7 @@ function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.GetOperationPath
 begin
   Result := FQuery.OperationPath;
 end;
+{$ENDIF}
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.GreaterThan(
   const Value: Integer): T;
@@ -362,7 +363,7 @@ begin
 {$ENDIF}
 end;
 
-{$ENDIF}
+
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Even: T;
 var
