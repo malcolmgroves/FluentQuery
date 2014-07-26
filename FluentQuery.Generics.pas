@@ -116,22 +116,22 @@ type
   end;
 
 
-  Query = class
+  GenericQuery<T> = class
   public
-    class function Select<T> : IUnboundQueryEnumerator<T>;
+    class function Select : IUnboundQueryEnumerator<T>;
   end;
 
-  GenericQuery = Query;
+//  GenericQuery<T> = Query<T>;
 
 implementation
 
 { Query }
 
-class function Query.Select<T>: IUnboundQueryEnumerator<T>;
+class function GenericQuery<T>.Select: IUnboundQueryEnumerator<T>;
 begin
   Result := TQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create);
 {$IFDEF DEBUG}
-  Result.OperationName := 'Query.Select<T>';
+  Result.OperationName := 'GenericQuery<T>.Select';
 {$ENDIF}
 end;
 

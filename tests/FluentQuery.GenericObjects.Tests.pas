@@ -61,6 +61,7 @@ type
     procedure TestIsAssigned;
     procedure TestIsA;
     procedure TestHasProperty;
+    procedure TestSelectSubTypeFrom;
   end;
 
 var
@@ -108,7 +109,7 @@ begin
                end;
 
 
-  LPersonList := Query.Select<TPerson>
+  LPersonList := ObjectQuery<TPerson>.Select
                       .From(FPersonCollection)
                       .Where(L18OrMore)
                       .ToTObjectList(False);
@@ -130,7 +131,7 @@ begin
   FPersonCollection.Insert(1, nil);
   FPersonCollection.Insert(3, nil);
 
-  for LPerson in Query.Select<TPerson>
+  for LPerson in ObjectQuery<TPerson>.Select
                     .From(FPersonCollection)
                     .IsAssigned do
   begin
@@ -149,7 +150,7 @@ begin
   FPersonCollection.Insert(2, TCustomer.Create('Acme', 3));
   FPersonCollection.Insert(3, TCustomer.Create('Spacely''s Sprockets', 0));
 
-  for LPerson in Query.Select<TPerson>
+  for LPerson in ObjectQuery<TPerson>.Select
                     .From(FPersonCollection)
                     .HasProperty('Overdue', tkEnumeration) do
   begin
@@ -169,7 +170,7 @@ begin
   FPersonCollection.Insert(3, TCustomer.Create('Spacely''s Sprockets', 0));
   FPersonCollection.Insert(3, TSpecialCustomer.Create('Foo', 0));
 
-  for LPerson in Query.Select<TPerson>
+  for LPerson in ObjectQuery<TPerson>.Select
                     .From(FPersonCollection)
                     .IsA(TCustomer) do
   begin
@@ -198,7 +199,7 @@ begin
                end;
 
 
-  for LPerson in Query.Select<TPerson>
+  for LPerson in ObjectQuery<TPerson>.Select
                       .From(FPersonCollection)
                       .Where(LAged6OrMore)
                       .Map(LIncrementAge) do
@@ -228,7 +229,7 @@ begin
                end;
 
 
-  for LPerson in Query.Select<TPerson>
+  for LPerson in ObjectQuery<TPerson>.Select
                       .From(FPersonCollection)
                       .Map(LIncrementAge)
                       .Where(LAged6OrMore) do
@@ -246,7 +247,7 @@ var
   LPerson : TPerson;
 begin
   LPassCount := 0;
-  for LPerson in Query.Select<TPerson>.From(FPersonCollection) do
+  for LPerson in ObjectQuery<TPerson>.Select.From(FPersonCollection) do
   begin
     LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
     Inc(LPassCount);
@@ -255,6 +256,23 @@ begin
 end;
 
 
+
+procedure TestTQueryPerson.TestSelectSubTypeFrom;
+var
+  LPassCount : Integer;
+  LCustomer : TCustomer;
+begin
+  LPassCount := 0;
+  FPersonCollection.Insert(2, TCustomer.Create('Acme', 3));
+  FPersonCollection.Insert(3, TCustomer.Create('Spacely''s Sprockets', 0));
+
+  for LCustomer in ObjectQuery<TCustomer>.From<TPerson>(FPersonCollection) do
+  begin
+    Inc(LPassCount);
+    LCustomer.Age := LCustomer.Age + 1; // suppress warnings about not using LPerson
+  end;
+  CheckEquals(2, LPassCount);
+end;
 
 initialization
   // Register any test cases with the test runner

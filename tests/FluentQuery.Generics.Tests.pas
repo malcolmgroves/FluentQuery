@@ -98,7 +98,7 @@ var
 begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count;
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -113,7 +113,7 @@ var
 begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count + 1;
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -129,7 +129,7 @@ begin
   LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count - 1;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -144,7 +144,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(1) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(1) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -165,8 +165,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query
-             .Select<Integer>
+  for I in GenericQuery<Integer>.Select
              .From(FIntegerCollection)
              .Take(5)
              .Where(LEvenNumbers) do
@@ -189,8 +188,7 @@ begin
                    Result := Value <= 4;
                  end;
 
-  for I in Query
-             .Select<Integer>
+  for I in GenericQuery<Integer>.Select
              .From(FIntegerCollection)
              .TakeWhile(LFourOrLess) do
   begin
@@ -212,7 +210,7 @@ begin
               Result := False;
             end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).TakeWhile(LFalse) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).TakeWhile(LFalse) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -232,7 +230,7 @@ begin
              Result := True;
            end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).TakeWhile(LTrue) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).TakeWhile(LTrue) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -247,7 +245,7 @@ var
 begin
   LPassCount := 0;
   MaxPassCount := 0;
-  for I in Query.Select<Integer>.From(FIntegerCollection).Take(MaxPassCount) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -260,7 +258,7 @@ procedure TestTQueryIntegerGenerics.TestFirst;
 var
   I : Integer;
 begin
-  I := Query.Select<Integer>.From(FIntegerCollection).Skip(2).First;
+  I := GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(2).First;
 
   CheckEquals(3, I);
 end;
@@ -277,8 +275,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query
-             .Select<Integer>
+  for I in GenericQuery<Integer>.Select
              .From(FIntegerCollection)
              .WhereNot(LEvenNumbers) do
   begin
@@ -301,10 +298,9 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query
-             .Select<Integer>
+  for I in GenericQuery<Integer>.Select
              .From(FIntegerCollection)
-             .WhereNot(Query.Select<Integer>.Where(LEvenNumbers)) do
+             .WhereNot(GenericQuery<Integer>.Select.Where(LEvenNumbers)) do
   begin
     Inc(LPassCount);
     Check(I mod 2 <> 0,
@@ -324,8 +320,7 @@ begin
                  end;
 
 
-  LIntegerList := Query
-                    .Select<Integer>
+  LIntegerList := GenericQuery<Integer>.Select
                     .From(FIntegerCollection)
                     .TakeWhile(LFourOrLess)
                     .ToTList;
@@ -345,7 +340,7 @@ var
   LPassCount, I : Integer;
 begin
   LPassCount := 0;
-  for I in Query.Select<Integer>.From(FIntegerCollection) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -360,7 +355,7 @@ begin
   LEnumerationCount := 0;
   LSkipCount := FIntegerCollection.Count;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(LSkipCount) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -376,7 +371,7 @@ begin
   LEnumerationCount := 0;
   LSkipCount := FIntegerCollection.Count + 2;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(LSkipCount) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -392,7 +387,7 @@ begin
   LEnumerationCount := 0;
   LSkipCount := FIntegerCollection.Count - 2;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(LSkipCount) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -413,7 +408,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query.Select<Integer>
+  for I in GenericQuery<Integer>.Select
              .From(FIntegerCollection)
              .Skip(5)
              .Where(LEvenNumbers) do
@@ -436,7 +431,7 @@ begin
                    Result := Value <= 4;
                  end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LFourOrLess) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(LFourOrLess) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -456,7 +451,7 @@ begin
                        Result := False;
                      end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LFalsePredicate) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(LFalsePredicate) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -476,7 +471,7 @@ begin
                        Result := True;
                      end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).SkipWhile(LTruePredicate) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(LTruePredicate) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -492,7 +487,7 @@ begin
   LEnumerationCount := 0;
   LSkipCount := 0;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Skip(LSkipCount) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(LSkipCount) do
   begin
     Inc(LEnumerationCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -513,7 +508,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Where(LEvenNumbers) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -533,7 +528,7 @@ begin
                     Result := True;
                   end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Where(LEvenNumbers) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -554,7 +549,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query.Select<Integer>
+  for I in GenericQuery<Integer>.Select
              .From(FIntegerCollection)
              .Where(LEvenNumbers)
              .Take(3) do
@@ -578,7 +573,7 @@ begin
                     Result := Value > 10;
                   end;
 
-  for I in Query.Select<Integer>.From(FIntegerCollection).Where(LEvenNumbers) do
+  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Where(LEvenNumbers) do
   begin
     Inc(LPassCount);
     DummyInt := i;   // just to suppress warning about not using I
@@ -599,7 +594,7 @@ begin
                     Result := Value mod 2 = 0;
                   end;
 
-  for I in Query.Select<Integer>
+  for I in GenericQuery<Integer>.Select
              .From(FIntegerCollection)
              .Where(LEvenNumbers)
              .Skip(3) do

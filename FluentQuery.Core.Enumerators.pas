@@ -75,6 +75,17 @@ type
     property Current: T read GetCurrent;
   end;
 
+  TSuperTypeEnumeratorAdapter<TSuperType : class; TSubType : class> = class(TInterfacedObject, IMinimalEnumerator<TSubType>)
+  protected
+    FEnumerator : IMinimalEnumerator<TSuperType>;
+    function GetCurrent: TSubType;
+  public
+    constructor Create(Enumerator : IMinimalEnumerator<TSuperType>); virtual;
+    function MoveNext: Boolean;
+    property Current: TSubType read GetCurrent;
+  end;
+
+
   TStringEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<Char>)
   protected
     FStringValue : String;
@@ -357,5 +368,24 @@ begin
   Result := FCurrent >= FFinish;
 end;
 
+
+{ TSuperTypeEnumeratorAdapter<TSuperType, TSubType> }
+
+constructor TSuperTypeEnumeratorAdapter<TSuperType, TSubType>.Create(
+  Enumerator: IMinimalEnumerator<TSuperType>);
+begin
+  FEnumerator := Enumerator;
+end;
+
+
+function TSuperTypeEnumeratorAdapter<TSuperType, TSubType>.GetCurrent: TSubType;
+begin
+  Result := FEnumerator.Current as TSubType;
+end;
+
+function TSuperTypeEnumeratorAdapter<TSuperType, TSubType>.MoveNext: Boolean;
+begin
+  Result := FEnumerator.MoveNext;
+end;
 
 end.

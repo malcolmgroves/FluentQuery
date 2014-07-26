@@ -128,12 +128,11 @@ type
                                        read FUnboundQueryEnumerator implements IUnboundObjectQueryEnumerator<T>;
   end;
 
-  Query = class
+  ObjectQuery<T : class> = class
   public
-    class function Select<T : class> : IUnboundObjectQueryEnumerator<T>;
+    class function Select : IUnboundObjectQueryEnumerator<T>;
+    class function From<TSuperType : class>(Container : TEnumerable<TSuperType>) : IBoundObjectQueryEnumerator<T>;
   end;
-
-  ObjectQuery = Query;
 
 
 implementation
@@ -383,11 +382,27 @@ end;
 
 { Query }
 
-class function Query.Select<T>: IUnboundObjectQueryEnumerator<T>;
+class function ObjectQuery<T>.Select: IUnboundObjectQueryEnumerator<T>;
 begin
   Result := TObjectQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create);
 {$IFDEF DEBUG}
   Result.OperationName := 'Query.Select<T>';
+{$ENDIF}
+end;
+
+
+class function ObjectQuery<T>.From<TSuperType>(
+  Container: TEnumerable<TSuperType>): IBoundObjectQueryEnumerator<T>;
+var
+  LSuperTypeAdapter : TSuperTypeEnumeratorAdapter<TSuperType, T>;
+begin
+  LSuperTypeAdapter := TSuperTypeEnumeratorAdapter<TSuperType, T>.Create(
+                         ObjectQuery<TSuperType>.Select.From(Container).IsA(T));
+  Result := TObjectQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create,
+                                                    nil,
+                                                    LSuperTypeAdapter);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Query.SelectSubTypeFrom';
 {$ENDIF}
 end;
 
