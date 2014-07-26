@@ -32,12 +32,12 @@ The standard solution in Delphi and AppMethod would be something like this:
 
 There's nothing incorrect about that code, but it's unclear both in terms of what items in the listbox we're acting on, and unclear what we're doing to those items. This is because the code that selects the strings we want to display, and the code that actually displays them, are all mixed in together.
 
-FluidQuery lets you represent the same thing like this:
+FluentQuery lets you represent the same thing like this:
 
     var
       LName : String;
     begin
-      for LName in Query
+      for LName in StringQuery
                      .From(ListBox1.Items)
                      .StartsWith('Miss')
                      .Contains('-')
@@ -58,38 +58,30 @@ Not just for strings
 
 FluentQuery is not just for strings in Listboxes though. Want all the char's in a string that are either letters or digits? Use:
    
-    for LChar in Query.From(FMyString).IsLetterOrDigit do
+    for LChar in StringQuery.From(FMyString).IsLetterOrDigit do
     
-If FluentQuery does not contain a query operation you need, no problem. You can use the Where operation which takes a TPredicate&lt;T> to do your custom querying. This example finds the first TPerson object in your TObjectList&lt;TPerson> that is over 18: 
-
-    var
-      LPerson : TPerson;
-      LOver18 : TPredicate<TPerson>;
-    begin
-      LOver18 := function (Person : TPerson) : boolean
-                 begin
-                   Result := Person.Age > 18;
-                 end;
-
-      for LPerson in Query
-                       .Select<TPerson>
-                       .From(FPersonCollection)
-                       .Where(LOver18)
-                       .First do
-      begin
-          // do something here with your adult LPerson
-      end;
-    end;
-    
+If FluentQuery does not contain a query operation you need, no problem. You can use the Where operation which takes a TPredicate&lt;T> to do your custom querying. This example finds all TPerson objects in your TObjectList&lt;TPerson> that are over 18: 
+c    
     
 Not just for..in loops
 --------------------------
-FluentQuery is not just for for..in loops though. You can export the results of a query as another collection, such as:
+FluentQuery is not just for for..in loops though. In the prior example, if you only want the First TPerson object over 18, your query could look like this:
+
+
+
+      LPerson := ObjectQuery<TPerson>
+                       .Select
+                       .From(FPersonCollection)
+                       .Where(LOver18)
+                       .First;
+
+
+You can export the results of a query as another collection, such as:
 
     var
       LStrings : TStrings;
     begin
-      LStrings := Query
+      LStrings := StringQuery
                     .From(FStrings)
                     .Skip(4)
                     .Take(3)
@@ -97,7 +89,7 @@ FluentQuery is not just for for..in loops though. You can export the results of 
 
 You can also use FluentQuery to define a TPredicate&lt;T> for use in other classes, such as this example filtering a listbox:
 
-    Listbox.FilterPredicate := Query.EndsWith('e').Predicate;
+    Listbox.FilterPredicate := StringQuery.EndsWith('e').Predicate;
 
 The goal is to define a declarative query language for any Delphi container. 
 
@@ -123,4 +115,4 @@ For the latest details of the operations available for different types, check th
 
 Back Story
 ----------
-This issue of mixing Selection code and Action code has bugged me for awhile, but I've never really found a solution I'm happy with. I tried some [experiments](http://www.malcolmgroves.com/blog/?p=273) but was never satisfied that the cure was better than the disease. A series of functional languages sessions at the recent [Yow Conference](http://yowconference.com.au/) in Australia was the light bulb moment that led me to this. John Kaster later pointed me at the .NET Enumerable Extension Methods, that let me resolve my clumsy naming. 
+This issue of mixing Selection code and Action code has bugged me for awhile, but I've never really found a solution I'm happy with. I tried some [experiments](http://www.malcolmgroves.com/blog/?p=273) but was never satisfied that the cure was better than the disease. A series of functional languages sessions at the recent [Yow Conference](http://yowconference.com.au/) in Australia was the light bulb moment that led me to this.  
