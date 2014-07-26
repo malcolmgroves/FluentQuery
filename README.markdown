@@ -61,7 +61,26 @@ FluentQuery is not just for strings in Listboxes though. Want all the char's in 
     for LChar in StringQuery.From(FMyString).IsLetterOrDigit do
     
 If FluentQuery does not contain a query operation you need, no problem. You can use the Where operation which takes a TPredicate&lt;T> to do your custom querying. This example finds all TPerson objects in your TObjectList&lt;TPerson> that are over 18: 
-c    
+
+
+    var
+      LPerson : TPerson;
+      LOver18 : TPredicate<TPerson>;
+    begin
+      LOver18 := function (Person : TPerson) : boolean
+                 begin
+                   Result := Person.Age > 18;
+                 end;
+    
+      for LPerson in ObjectQuery<TPerson>
+                       .Select
+                       .From(FPersonCollection)
+                       .Where(LOver18) do
+      begin
+          // do something here with your adult LPerson
+      end;
+    end;
+   
     
 Not just for..in loops
 --------------------------
