@@ -48,6 +48,7 @@ type
     function Equals(const Value : String) : IBoundStringQueryEnumerator;
     function NotEquals(const Value : String) : IBoundStringQueryEnumerator;
     function Matches(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
+    function NotMatches(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function Contains(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function StartsWith(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
     function EndsWith(const Value : String; IgnoreCase : Boolean = True) : IBoundStringQueryEnumerator;
@@ -76,6 +77,7 @@ type
     function WhereNot(Predicate : TPredicate<String>) : IUnboundStringQueryEnumerator; overload;
     // type-specific operations
     function Matches(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
+    function NotMatches(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
     function Equals(const Value : String) : IUnboundStringQueryEnumerator;
     function NotEquals(const Value : String) : IUnboundStringQueryEnumerator;
     function Contains(const Value : String; IgnoreCase : Boolean = True) : IUnboundStringQueryEnumerator;
@@ -92,6 +94,8 @@ type
   function StringQuery : IUnboundStringQueryEnumerator;
 
 implementation
+
+uses FluentQuery.Strings.MethodFactories;
 
 type
   TStringQueryEnumerator = class(TBaseQueryEnumerator<String>,
@@ -128,6 +132,7 @@ type
         function Equals(const Value : String) : T; reintroduce;
         function NotEquals(const Value : String) : T;
         function Matches(const Value : String; IgnoreCase : Boolean = True) : T;
+        function NotMatches(const Value : String; IgnoreCase : Boolean = True) : T;
         function Contains(const Value : String; IgnoreCase : Boolean = True) : T;
         function StartsWith(const Value : String; IgnoreCase : Boolean = True) : T;
         function EndsWith(const Value : String; IgnoreCase : Boolean = True) : T;
@@ -155,15 +160,6 @@ type
   end;
 
 
-  TStringPredicateFactory = class(TPredicateFactory<String>)
-  private
-    class function CaseCorrect(IgnoreCase : Boolean; const Value : String ) : string; inline;
-  public
-    class function StartsWith(const Value : string; IgnoreCase : Boolean) : TPredicate<String>;
-    class function EndsWith(const Value : string; IgnoreCase : Boolean) : TPredicate<String>;
-    class function Contains(const Value : string; IgnoreCase : Boolean) : TPredicate<String>;
-    class function Matches(const Value : string; IgnoreCase : Boolean) : TPredicate<String>;
-  end;
 
 
 function StringQuery : IUnboundStringQueryEnumerator;
@@ -205,7 +201,7 @@ end;
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Contains(
   const Value: String; IgnoreCase: Boolean): T;
 begin
-  Result := Where(TStringPredicateFactory.Contains(Value, IgnoreCase));
+  Result := Where(TStringMethodFactory.Contains(Value, IgnoreCase));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Contains(''%s'', %s', [Value, IgnoreCase.ToString]);
 {$ENDIF}
@@ -219,7 +215,7 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.EndsWith(const Value: String; IgnoreCase: Boolean): T;
 begin
-  Result := Where(TStringPredicateFactory.EndsWith(Value, IgnoreCase));
+  Result := Where(TStringMethodFactory.EndsWith(Value, IgnoreCase));
 {$IFDEF DEBUG}
   Result.OperationName := Format('EndsWith(''%s'', %s', [Value, IgnoreCase.ToString]);
 {$ENDIF}
@@ -296,7 +292,7 @@ end;
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Matches(
   const Value: String; IgnoreCase: Boolean): T;
 begin
-  Result := Where(TStringPredicateFactory.Matches(Value, IgnoreCase));
+  Result := Where(TStringMethodFactory.Matches(Value, IgnoreCase));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Matches(''%s'', %s)', [Value, IgnoreCase.ToString]);
 {$ENDIF}
@@ -304,18 +300,11 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Value(
   const Name: String; IgnoreCase: Boolean): T;
-var
-  LSubstringTransform : TFunc<String,String>;
 begin
-  LSubstringTransform := function (CurrentValue : String) : String
-                       begin
-                         Result := CurrentValue.Substring(Pos('=', CurrentValue));
-                       end;
-
   Result := TStringQueryEnumerator.Create(
-              TIsomorphicTransformEnumerationStrategy<String>.Create(LSubstringTransform),
+              TIsomorphicTransformEnumerationStrategy<String>.Create(TStringMethodFactory.SubStringAfter('=', -1)),
               TStringQueryEnumerator.Create(
-                TWhereEnumerationStrategy<String>.Create(TStringPredicateFactory.StartsWith(Name, IgnoreCase)),
+                TWhereEnumerationStrategy<String>.Create(TStringMethodFactory.StartsWith(Name, IgnoreCase)),
                 IBaseQueryEnumerator<String>(FQuery)));
 
 {$IFDEF DEBUG}
@@ -325,28 +314,30 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.NotEquals(
   const Value: String): T;
-var
-  LPredicate : TPredicate<String>;
 begin
-  LPredicate := function (CurrentValue : String) : Boolean
-                       begin
-                         Result := CurrentValue.CompareTo(Value) <> 0;
-                       end;
-
-  Result := Where(LPredicate);
+  Result := NotMatches(Value, False);
 {$IFDEF DEBUG}
   Result.OperationName := Format('NotEquals(''%s'')', [Value]);
 {$ENDIF}
 end;
 
+function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.NotMatches(
+  const Value: String; IgnoreCase: Boolean): T;
+begin
+  Result := WhereNot(TStringMethodFactory.Matches(Value, IgnoreCase));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('NotMatches(''%s'', %s)', [Value, IgnoreCase.ToString]);
+{$ENDIF}
+end;
+
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Predicate: TPredicate<string>;
 begin
-  Result := TStringPredicateFactory.QuerySingleValue(FQuery);
+  Result := TStringMethodFactory.QuerySingleValue(FQuery);
 end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TStringPredicateFactory.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TStringMethodFactory.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -374,7 +365,7 @@ end;
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.StartsWith(
   const Value: String; IgnoreCase: Boolean): T;
 begin
-  Result := Where(TStringPredicateFactory.StartsWith(Value, IgnoreCase));
+  Result := Where(TStringMethodFactory.StartsWith(Value, IgnoreCase));
 {$IFDEF DEBUG}
   Result.OperationName := Format('StartsWith(''%s'', %s)', [Value, IgnoreCase.ToString]);
 {$ENDIF}
@@ -382,15 +373,8 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SubString(
   const StartIndex: Integer): T;
-var
-  LSubstringTransform : TFunc<String,String>;
 begin
-  LSubstringTransform := function (CurrentValue : String) : String
-                       begin
-                         Result := CurrentValue.Substring(StartIndex);
-                       end;
-
-  Result := Map(LSubstringTransform);
+  Result := Map(TStringMethodFactory.SubString(StartIndex, -1));
 
 {$IFDEF DEBUG}
   Result.OperationName := Format('Substring(''%d'')', [StartIndex]);
@@ -399,15 +383,8 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.SubString(
   const StartIndex: Integer; Length: Integer): T;
-var
-  LSubstringTransform : TFunc<String,String>;
 begin
-  LSubstringTransform :=  function (CurrentValue : String) : String
-                          begin
-                            Result := CurrentValue.Substring(StartIndex, Length);
-                          end;
-
-  Result := Map(LSubstringTransform);
+  Result := Map(TStringMethodFactory.SubString(StartIndex, Length));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Substring(''%d'', ''%d'')', [StartIndex, Length]);
 {$ENDIF}
@@ -415,7 +392,7 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TStringPredicateFactory.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TStringMethodFactory.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
@@ -473,64 +450,12 @@ end;
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.WhereNot(
   Predicate: TPredicate<String>): T;
 begin
-  Result := Where(TPredicateFactory<String>.InvertPredicate(Predicate));
+  Result := Where(TStringMethodFactory.InvertPredicate(Predicate));
 
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}
 end;
 
-{ TStringPredicateFactory }
-
-class function TStringPredicateFactory.CaseCorrect(IgnoreCase: Boolean;
-  const Value: String): string;
-begin
-  if IgnoreCase then
-    Result := UpperCase(Value)
-  else
-    Result := Value;
-end;
-
-class function TStringPredicateFactory.Contains(const Value: string;
-  IgnoreCase: Boolean): TPredicate<String>;
-begin
-  Result := function (CurrentValue : String) : Boolean
-            begin
-                Result := CaseCorrect(IgnoreCase,
-                                      CurrentValue).Contains(CaseCorrect(IgnoreCase,
-                                                                         Value));
-            end;
-end;
-
-class function TStringPredicateFactory.EndsWith(const Value: string;
-  IgnoreCase: Boolean): TPredicate<String>;
-begin
-  Result := function (CurrentValue : String) : Boolean
-            begin
-                Result := CaseCorrect(IgnoreCase,
-                                      CurrentValue).EndsWith(CaseCorrect(IgnoreCase,
-                                                                         Value));
-            end;
-end;
-
-class function TStringPredicateFactory.Matches(const Value: string;
-  IgnoreCase: Boolean): TPredicate<String>;
-begin
-  Result := function (CurrentValue : String) : Boolean
-            begin
-              Result := CurrentValue.Compare(CurrentValue, Value, IgnoreCase) = 0;
-            end;
-end;
-
-class function TStringPredicateFactory.StartsWith(
-  const Value: string; IgnoreCase : Boolean): TPredicate<String>;
-begin
-  Result := function (CurrentValue : String) : Boolean
-            begin
-                Result := CaseCorrect(IgnoreCase,
-                                      CurrentValue).StartsWith(CaseCorrect(IgnoreCase,
-                                                                           Value));
-            end;
-end;
 
 end.

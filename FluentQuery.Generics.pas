@@ -125,7 +125,7 @@ type
 
 implementation
 
-{ Query }
+uses FluentQuery.Core.MethodFactories;
 
 class function GenericQuery<T>.Select: IUnboundQueryEnumerator<T>;
 begin
@@ -197,12 +197,12 @@ end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Predicate: TPredicate<T>;
 begin
-  Result := TPredicateFactory<T>.QuerySingleValue(FQuery);
+  Result := TMethodFactory<T>.QuerySingleValue(FQuery);
 end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Skip(Count: Integer): TReturnType;
 begin
-  Result := SkipWhile(TPredicateFactory<T>.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TMethodFactory<T>.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -229,7 +229,7 @@ end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Take(Count: Integer): TReturnType;
 begin
-  Result := TakeWhile(TPredicateFactory<T>.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TMethodFactory<T>.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
@@ -290,7 +290,7 @@ end;
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := Where(TPredicateFactory<T>.InvertPredicate(Predicate));
+  Result := Where(TMethodFactory<T>.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

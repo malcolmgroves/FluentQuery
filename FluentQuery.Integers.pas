@@ -120,6 +120,8 @@ type
 
 implementation
 
+uses FluentQuery.Integers.MethodFactories;
+
 type
   TIntegerQueryEnumerator = class(TBaseQueryEnumerator<Integer>,
                                  IBoundIntegerQueryEnumerator,
@@ -279,15 +281,8 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Equals(
   const Value: Integer): T;
-var
-  LEqualsPredicate : TPredicate<Integer>;
 begin
-  LEqualsPredicate := function (CurrentValue : Integer) : Boolean
-                      begin
-                        Result := CurrentValue = Value;
-                      end;
-
-  Result := Where(LEqualsPredicate);
+  Result := Where(TIntegerMethodFactory.Equals(Value));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Equals(%d)', [Value]);
 {$ENDIF}
@@ -333,15 +328,8 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.GreaterThan(
   const Value: Integer): T;
-var
-  LPredicate : TPredicate<Integer>;
 begin
-  LPredicate := function (CurrentValue : Integer) : Boolean
-                      begin
-                        Result := CurrentValue > Value;
-                      end;
-
-  Result := Where(LPredicate);
+  Result := WhereNot(TIntegerMethodFactory.LessThanOrEquals(Value));
 {$IFDEF DEBUG}
   Result.OperationName := Format('GreaterThan(%d)', [Value]);
 {$ENDIF}
@@ -349,15 +337,8 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.GreaterThanOrEquals(
   const Value: Integer): T;
-var
-  LPredicate : TPredicate<Integer>;
 begin
-  LPredicate := function (CurrentValue : Integer) : Boolean
-                      begin
-                        Result := CurrentValue >= Value;
-                      end;
-
-  Result := Where(LPredicate);
+  Result := Where(TIntegerMethodFactory.GreaterThanOrEquals(Value));
 {$IFDEF DEBUG}
   Result.OperationName := Format('GreaterThanOrEquals(%d)', [Value]);
 {$ENDIF}
@@ -366,15 +347,8 @@ end;
 
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Even: T;
-var
-  LPredicate : TPredicate<Integer>;
 begin
-  LPredicate := function (CurrentValue : Integer) : Boolean
-                      begin
-                        Result := CurrentValue mod 2 = 0;
-                      end;
-
-  Result := Where(LPredicate);
+  Result := Where(TIntegerMethodFactory.Even());
 {$IFDEF DEBUG}
   Result.OperationName := 'Even';
 {$ENDIF}
@@ -398,30 +372,16 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.NotEquals(
   const Value: Integer): T;
-var
-  LPredicate : TPredicate<Integer>;
 begin
-  LPredicate := function (CurrentValue : Integer) : Boolean
-                      begin
-                        Result := CurrentValue <> Value;
-                      end;
-
-  Result := Where(LPredicate);
+  Result := WhereNot(TIntegerMethodFactory.Equals(Value));
 {$IFDEF DEBUG}
   Result.OperationName := Format('NotEquals(%d)', [Value]);
 {$ENDIF}
 end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Odd: T;
-var
-  LPredicate : TPredicate<Integer>;
 begin
-  LPredicate := function (CurrentValue : Integer) : Boolean
-                      begin
-                        Result := CurrentValue mod 2 = 1;
-                      end;
-
-  Result := Where(LPredicate);
+  Result := WhereNot(TIntegerMethodFactory.Even());
 {$IFDEF DEBUG}
   Result.OperationName := 'Odd';
 {$ENDIF}
@@ -429,7 +389,7 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Positive: T;
 begin
-  Result := GreaterThan(0);
+  Result := GreaterThanOrEquals(1);
 {$IFDEF DEBUG}
   Result.OperationName := 'Positive';
 {$ENDIF}
@@ -446,15 +406,8 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.LessThan(
   const Value: Integer): T;
-var
-  LPredicate : TPredicate<Integer>;
 begin
-  LPredicate := function (CurrentValue : Integer) : Boolean
-                      begin
-                        Result := CurrentValue < Value;
-                      end;
-
-  Result := Where(LPredicate);
+  Result := WhereNot(TIntegerMethodFactory.GreaterThanOrEquals(Value));
 {$IFDEF DEBUG}
   Result.OperationName := Format('LessThan(%d)', [Value]);
 {$ENDIF}
@@ -462,15 +415,8 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.LessThanOrEquals(
   const Value: Integer): T;
-var
-  LPredicate : TPredicate<Integer>;
 begin
-  LPredicate := function (CurrentValue : Integer) : Boolean
-                      begin
-                        Result := CurrentValue <= Value;
-                      end;
-
-  Result := Where(LPredicate);
+  Result := Where(TIntegerMethodFactory.LessThanOrEquals(Value));
 {$IFDEF DEBUG}
   Result.OperationName := Format('LessThanOrEquals(%d)', [Value]);
 {$ENDIF}
@@ -519,12 +465,12 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Predicate: TPredicate<Integer>;
 begin
-  Result := TPredicateFactory<Integer>.QuerySingleValue(FQuery);
+  Result := TIntegerMethodFactory.QuerySingleValue(FQuery);
 end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TPredicateFactory<Integer>.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TIntegerMethodFactory.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -533,7 +479,7 @@ end;
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.SkipUntil(
   Predicate: TPredicate<Integer>): T;
 begin
-  Result := SkipWhile(TPredicateFactory<Integer>.InvertPredicate(Predicate));
+  Result := SkipWhile(TIntegerMethodFactory.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'SkipUntil(Predicate)';
 {$ENDIF}
@@ -542,7 +488,7 @@ end;
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.SkipUntil(
   UnboundQuery: IUnboundIntegerQueryEnumerator): T;
 begin
-  Result := SkipWhile(TPredicateFactory<Integer>.InvertPredicate(UnboundQuery.Predicate));
+  Result := SkipWhile(TIntegerMethodFactory.InvertPredicate(UnboundQuery.Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipUntil(%s)', [UnboundQuery.OperationPath]);
 {$ENDIF}
@@ -589,7 +535,7 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TPredicateFactory<Integer>.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TIntegerMethodFactory.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
@@ -618,10 +564,10 @@ function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.TakeBetween(
 begin
   Result := TIntegerQueryEnumerator.Create(
               TTakeWhileEnumerationStrategy<Integer>.Create(
-                TPredicateFactory<Integer>.InvertPredicate(EndPredicate)),
+                TIntegerMethodFactory.InvertPredicate(EndPredicate)),
               TIntegerQueryEnumerator.Create(
                 TSkipWhileEnumerationStrategy<Integer>.Create(
-                  TPredicateFactory<Integer>.InvertPredicate(StartPredicate)),
+                  TIntegerMethodFactory.InvertPredicate(StartPredicate)),
                 IBaseQueryEnumerator<Integer>(FQuery)));
 {$IFDEF DEBUG}
   Result.OperationName := 'TakeBetween(StartPredicate, EndPredicate)';
@@ -631,7 +577,7 @@ end;
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.TakeUntil(
   Predicate: TPredicate<Integer>): T;
 begin
-  Result := TakeWhile(TPredicateFactory<Integer>.InvertPredicate(Predicate));
+  Result := TakeWhile(TIntegerMethodFactory.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'TakeUntil(Predicate)';
 {$ENDIF}
@@ -640,7 +586,7 @@ end;
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.TakeUntil(
   UnboundQuery: IUnboundIntegerQueryEnumerator): T;
 begin
-  Result := TakeWhile(TPredicateFactory<Integer>.InvertPredicate(UnboundQuery.Predicate));
+  Result := TakeWhile(TIntegerMethodFactory.InvertPredicate(UnboundQuery.Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := Format('TakeUntil(%s)', [UnboundQuery.OperationPath]);
 {$ENDIF}
@@ -708,7 +654,7 @@ end;
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.WhereNot(
   Predicate: TPredicate<Integer>): T;
 begin
-  Result := Where(TPredicateFactory<Integer>.InvertPredicate(Predicate));
+  Result := Where(TIntegerMethodFactory.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

@@ -75,15 +75,6 @@ type
   end;
 
 
-
-  TPredicateFactory<T> = class
-  public
-    class function LessThanOrEqualTo(Count : Integer) : TPredicate<T>;
-    class function QuerySingleValue(UnboundQuery : IBaseQueryEnumerator<T>) : TPredicate<T>;
-    class function InvertPredicate(Predicate : TPredicate<T>) : TPredicate<T>;
-  end;
-
-
 implementation
 uses
   FluentQuery.Core.Enumerators;
@@ -219,39 +210,6 @@ begin
   end;
 end;
 
-{ TEnumerationPredicates<T> }
-
-class function TPredicateFactory<T>.InvertPredicate(
-  Predicate: TPredicate<T>): TPredicate<T>;
-begin
-  Result := function (CurrentValue : T) : Boolean
-            begin
-              Result := not Predicate(CurrentValue);
-            end;
-end;
-
-class function TPredicateFactory<T>.LessThanOrEqualTo(
-  Count: Integer): TPredicate<T>;
-var
-  LCount : Integer;
-begin
-  LCOunt := 0;
-  Result := function (Value : T) : boolean
-            begin
-              Inc(LCount);
-              Result := LCount <= Count;
-            end;
-end;
-
-class function TPredicateFactory<T>.QuerySingleValue(
-  UnboundQuery: IBaseQueryEnumerator<T>): TPredicate<T>;
-begin
-  Result := function (CurrentValue : T) : Boolean
-            begin
-              UnboundQuery.SetSourceData(TSingleValueAdapter<T>.Create(CurrentValue));
-              Result := UnboundQuery.MoveNext;
-            end;
-end;
 
 { TWhereNotEnumerationStrategy<T> }
 

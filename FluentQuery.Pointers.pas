@@ -77,6 +77,8 @@ type
 
 implementation
 
+uses FluentQuery.Pointers.MethodFactories;
+
 type
   TPointerQueryEnumerator = class(TBaseQueryEnumerator<Pointer>,
                                   IBoundPointerQueryEnumerator,
@@ -202,15 +204,8 @@ end;
 {$ENDIF}
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.IsAssigned: T;
-var
-  LIsAssigned : TPredicate<Pointer>;
 begin
-  LIsAssigned := function (Value : Pointer): boolean
-                 begin
-                   Result := Assigned(Value);
-                 end;
-
-  Result := Where(LIsAssigned);
+  Result := Where(TPointerMethodFactory.IsAssigned());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsAssigned';
 {$ENDIF}
@@ -229,12 +224,12 @@ end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Predicate: TPredicate<Pointer>;
 begin
-  Result := TPredicateFactory<Pointer>.QuerySingleValue(FQuery);
+  Result := TPointerMethodFactory.QuerySingleValue(FQuery);
 end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TPredicateFactory<Pointer>.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TPointerMethodFactory.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -261,7 +256,7 @@ end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TPredicateFactory<Pointer>.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TPointerMethodFactory.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
@@ -308,7 +303,7 @@ end;
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.WhereNot(
   Predicate: TPredicate<Pointer>): T;
 begin
-  Result := Where(TPredicateFactory<Pointer>.InvertPredicate(Predicate));
+  Result := Where(TPointerMethodFactory.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

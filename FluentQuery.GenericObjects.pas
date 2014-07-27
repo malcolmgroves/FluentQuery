@@ -36,7 +36,7 @@ type
     function GetEnumerator: IBoundObjectQueryEnumerator<T>;
     // query operations
     function HasProperty(const Name : string; PropertyType : TTypeKind) : IBoundObjectQueryEnumerator<T>;
-    function IsA(AType : TClass) : IBoundObjectQueryEnumerator<T>;
+    function IsA(AClass : TClass) : IBoundObjectQueryEnumerator<T>;
     function IsAssigned : IBoundObjectQueryEnumerator<T>;
     function Map(Transformer : TProc<T>) : IBoundObjectQueryEnumerator<T>;
     function Skip(Count : Integer): IBoundObjectQueryEnumerator<T>;
@@ -58,7 +58,7 @@ type
     function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>;
     // query operations
     function HasProperty(const Name : string; PropertyType : TTypeKind) : IUnboundObjectQueryEnumerator<T>;
-    function IsA(AType : TClass) : IUnboundObjectQueryEnumerator<T>;
+    function IsA(AClass : TClass) : IUnboundObjectQueryEnumerator<T>;
     function IsAssigned : IUnboundObjectQueryEnumerator<T>;
     function Map(Transformer : TProc<T>) : IUnboundObjectQueryEnumerator<T>;
     function Skip(Count : Integer): IUnboundObjectQueryEnumerator<T>;
@@ -82,7 +82,6 @@ type
       TObjectQueryEnumeratorImpl<TReturnType : IBaseQueryEnumerator<T>> = class
       private
         FQuery : TObjectQueryEnumerator<T>;
-        class function InPlaceTransformer(TransformProc : TProc<T>) : TFunc<T, T>;
       public
         constructor Create(Query : TObjectQueryEnumerator<T>); virtual;
         function GetEnumerator: TReturnType;
@@ -101,7 +100,7 @@ type
         // Derivative Operations
 //        function HasProperty(const Name : string) : TReturnType; overload;
         function HasProperty(const Name : string; PropertyType : TTypeKind) : TReturnType; overload;
-        function IsA(AType : TClass) : TReturnType;
+        function IsA(AClass : TClass) : TReturnType;
         function IsAssigned : TReturnType;
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundObjectQueryEnumerator<T>) : TReturnType; overload;
@@ -137,19 +136,14 @@ type
 
 implementation
 
+uses FluentQuery.GenericObjects.MethodFactories;
+
 { TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType> }
 
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.IsA(
-  AType: TClass): TReturnType;
-var
-  LIsType : TPredicate<T>;
+  AClass: TClass): TReturnType;
 begin
-  LIsType := function (Value : T): boolean
-             begin
-               Result := Value is AType;
-             end;
-
-  Result := Where(LIsType);
+  Result := Where(TGenericObjectMethodFactory<T>.IsA(AClass));
 {$IFDEF DEBUG}
   Result.OperationName := 'IsAssigned';
 {$ENDIF}
@@ -202,48 +196,16 @@ end;
 
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.HasProperty(
   const Name: string; PropertyType: TTypeKind): TReturnType;
-var
-  LPropCheckPredicate : TPredicate<T>;
 begin
-  LPropCheckPredicate :=  function (Value : T) : boolean
-                          var
-                            LRTTIContext : TRTTIContext;
-                            LClassType : TRTTIType;
-                            LProperty : TRTTIProperty;
-                          begin
-                            Result := False;
-                            LRTTIContext := TRttiContext.Create;
-                            LClassType := LRTTIContext.GetType(Value.ClassInfo);
-                            LProperty := LClassType.GetProperty(Name);
-                            if Assigned(LProperty) then
-                              Result := LProperty.PropertyType.TypeKind = PropertyType;
-                          end;
-
-  Result := Where(LPropCheckPredicate);
+  Result := Where(TGenericObjectMethodFactory<T>.PropertyNamedOfType(Name, PropertyType));
 {$IFDEF DEBUG}
   Result.OperationName := 'HasProperty(Name, PropertyType)';
 {$ENDIF}
 end;
 
-class function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.InPlaceTransformer(TransformProc : TProc<T>): TFunc<T, T>;
-begin
-  Result := function (Value : T) : T
-                         begin
-                           TransformProc(Value);
-                           Result := Value;
-                         end;
-end;
-
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.IsAssigned: TReturnType;
-var
-  LIsAssigned : TPredicate<T>;
 begin
-  LIsAssigned := function (Value : T): boolean
-                 begin
-                   Result := Assigned(Value);
-                 end;
-
-  Result := Where(LIsAssigned);
+  Result := Where(TGenericObjectMethodFactory<T>.IsAssigned());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsAssigned';
 {$ENDIF}
@@ -252,8 +214,10 @@ end;
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Map(
   Transformer: TProc<T>): TReturnType;
 begin
-  Result := TObjectQueryEnumerator<T>.Create(TIsomorphicTransformEnumerationStrategy<T>.Create(InPlaceTransformer(Transformer)),
-                                          IBaseQueryEnumerator<T>(FQuery));
+  Result := TObjectQueryEnumerator<T>.Create(
+              TIsomorphicTransformEnumerationStrategy<T>.Create(
+                TGenericObjectMethodFactory<T>.InPlaceTransformer(Transformer)),
+              IBaseQueryEnumerator<T>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'Map(Transformer)';
 {$ENDIF}
@@ -261,7 +225,7 @@ end;
 
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Predicate: TPredicate<T>;
 begin
-  Result := TPredicateFactory<T>.QuerySingleValue(FQuery);
+  Result := TGenericObjectMethodFactory<T>.QuerySingleValue(FQuery);
 end;
 
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.SkipWhile(
@@ -329,7 +293,7 @@ end;
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := Where(TPredicateFactory<T>.InvertPredicate(Predicate));
+  Result := Where(TGenericObjectMethodFactory<T>.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}
@@ -347,7 +311,7 @@ end;
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Skip(
   Count: Integer): TReturnType;
 begin
-  Result := SkipWhile(TPredicateFactory<T>.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TGenericObjectMethodFactory<T>.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -356,7 +320,7 @@ end;
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Take(
   Count: Integer): TReturnType;
 begin
-  Result := TakeWhile(TPredicateFactory<T>.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TGenericObjectMethodFactory<T>.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}

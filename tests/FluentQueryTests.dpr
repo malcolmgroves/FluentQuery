@@ -30,7 +30,15 @@ uses
   FluentQuery.Strings.Tests in 'FluentQuery.Strings.Tests.pas',
   FluentQuery.Strings in '..\FluentQuery.Strings.pas',
   FluentQuery.GenericObjects in '..\FluentQuery.GenericObjects.pas',
-  FluentQuery.Generics.Tests in 'FluentQuery.Generics.Tests.pas';
+  FluentQuery.Generics.Tests in 'FluentQuery.Generics.Tests.pas',
+  FluentQuery.Components in '..\FluentQuery.Components.pas',
+  FluentQuery.Components.Test in 'FluentQuery.Components.Test.pas',
+  FluentQuery.Core.MethodFactories in '..\FluentQuery.Core.MethodFactories.pas',
+  FluentQuery.Chars.MethodFactories in '..\FluentQuery.Chars.MethodFactories.pas',
+  FluentQuery.Strings.MethodFactories in '..\FluentQuery.Strings.MethodFactories.pas',
+  FluentQuery.GenericObjects.MethodFactories in '..\FluentQuery.GenericObjects.MethodFactories.pas',
+  FluentQuery.Pointers.MethodFactories in '..\FluentQuery.Pointers.MethodFactories.pas',
+  FluentQuery.Integers.MethodFactories in '..\FluentQuery.Integers.MethodFactories.pas';
 
 {$R *.RES}
 

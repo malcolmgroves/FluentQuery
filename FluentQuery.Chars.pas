@@ -51,6 +51,7 @@ type
     function Map(Transformer : TFunc<Char, Char>) : IBoundCharQueryEnumerator;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQueryEnumerator;
     function NotEquals(const Value : Char) : IBoundCharQueryEnumerator;
+    function NotMatches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQueryEnumerator;
     function Skip(Count : Integer): IBoundCharQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<Char>) : IBoundCharQueryEnumerator; overload;
     function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : IBoundCharQueryEnumerator; overload;
@@ -89,6 +90,7 @@ type
     function Map(Transformer : TFunc<Char, Char>) : IUnboundCharQueryEnumerator;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQueryEnumerator;
     function NotEquals(const Value : Char) : IUnboundCharQueryEnumerator;
+    function NotMatches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQueryEnumerator;
     function Skip(Count : Integer): IUnboundCharQueryEnumerator;
     function SkipWhile(Predicate : TPredicate<Char>) : IUnboundCharQueryEnumerator; overload;
     function SkipWhile(UnboundQuery : IUnboundCharQueryEnumerator) : IUnboundCharQueryEnumerator; overload;
@@ -109,8 +111,8 @@ type
 
 
 implementation
-uses
-  System.Character;
+
+uses System.Character, FluentQuery.Chars.MethodFactories;
 
 type
   TCharQueryEnumerator = class(TBaseQueryEnumerator<Char>,
@@ -147,6 +149,7 @@ type
         function WhereNot(UnboundQuery : IUnboundCharQueryEnumerator) : T; overload;
         function WhereNot(Predicate : TPredicate<Char>) : T; overload;
         function Matches(const Value : Char; IgnoreCase : Boolean = True) : T;
+        function NotMatches(const Value : Char; IgnoreCase : Boolean = True) : T;
         function IsControl: T;
         function IsDigit: T;
         function IsHighSurrogate: T;
@@ -264,232 +267,120 @@ end;
 {$ENDIF}
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsControl: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsControl;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsControl());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsControl';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsDigit: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsDigit;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsDigit());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsDigit';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsHighSurrogate: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsHighSurrogate;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsHighSurrogate());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsHighSurrogate';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsInArray(const SomeChars: array of Char): T;
-var
-  LMatchesPredicate : TPredicate<Char>;
-  LSomeChars : array of Char;
-  I : Integer;
 begin
-  // was getting an "unable to capture symbol" error when capturing SomeChars directly.
-  SetLength(LSomeChars, Length(SomeChars));
-  for I := Low(SomeChars) to High(SomeChars) do
-    LSomeChars[i] := SomeChars[i];
-
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsInArray(LSomeChars);
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsInArray(SomeChars));
 {$IFDEF DEBUG}
   Result.OperationName := 'IsInArray(SomeChars)';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsLetter: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsLetter;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsLetter());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLetter';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsLetterOrDigit: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsLetterOrDigit;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsLetterOrDigit());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLetterOrDigit';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsLower: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsLower;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsLower());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLower';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsLowSurrogate: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsLowSurrogate;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsLowSurrogate());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLowSurrogate';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsNumber: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsNumber;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsNumber());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsNumber';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsPunctuation: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsPunctuation;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsPunctuation());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsPunctuation';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsSeparator: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsSeparator;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsSeparator());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsSeperator';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsSurrogate: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsSurrogate;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsSurrogate());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsSurrogate';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsSymbol: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsSymbol;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsSymbol());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsSymbol';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsUpper: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsUpper;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsUpper());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsUpper';
 {$ENDIF}
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.IsWhiteSpace: T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                           Result := CurrentValue.IsWhiteSpace;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.IsWhiteSpace());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsWhitespace';
 {$ENDIF}
@@ -508,18 +399,8 @@ end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Matches(const Value: Char;
   IgnoreCase: Boolean): T;
-var
-  LMatchesPredicate : TPredicate<Char>;
 begin
-  LMatchesPredicate := function (CurrentValue : Char) : Boolean
-                       begin
-                         if IgnoreCase then
-                           Result := CurrentValue.ToUpper = Value.ToUpper
-                         else
-                           Result := CurrentValue = Value;
-                       end;
-
-  Result := Where(LMatchesPredicate);
+  Result := Where(TCharPredicateFactory.Matches(Value, IgnoreCase));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Matches(''%s'', %s', [Value, IgnoreCase.ToString]);
 {$ENDIF}
@@ -527,28 +408,30 @@ end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.NotEquals(
   const Value: Char): T;
-var
-  LPredicate : TPredicate<Char>;
 begin
-  LPredicate := function (CurrentValue : Char) : Boolean
-                begin
-                  Result := CurrentValue <> Value;
-                end;
-
-  Result := Where(LPredicate);
+  Result := NotMatches(Value, False);
 {$IFDEF DEBUG}
   Result.OperationName := Format('NotEquals(''%s'')', [Value]);
 {$ENDIF}
 end;
 
+function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.NotMatches(
+  const Value: Char; IgnoreCase: Boolean): T;
+begin
+  Result := WhereNot(TCharPredicateFactory.Matches(Value, IgnoreCase));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('NotMatches(''%s'', %s', [Value, IgnoreCase.ToString]);
+{$ENDIF}
+end;
+
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Predicate: TPredicate<Char>;
 begin
-  Result := TPredicateFactory<Char>.QuerySingleValue(FQuery);
+  Result := TCharPredicateFactory.QuerySingleValue(FQuery);
 end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TPredicateFactory<Char>.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TCharPredicateFactory.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -575,7 +458,7 @@ end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TPredicateFactory<Char>.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TCharPredicateFactory.LessThanOrEqualTo(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
@@ -625,7 +508,7 @@ end;
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.WhereNot(
   Predicate: TPredicate<Char>): T;
 begin
-  Result := Where(TPredicateFactory<Char>.InvertPredicate(Predicate));
+  Result := Where(TCharPredicateFactory.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}
