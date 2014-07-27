@@ -36,12 +36,15 @@ type
     procedure TestVisual;
     procedure TestNonVisual;
     procedure TestNonExistant;
+    procedure TestTagEquals;
+    procedure TestTagEqualsTagNotFound;
+    procedure TestHasPropertyColor;
   end;
 
 
 
 implementation
-uses System.Classes, VCL.StdCtrls, Vcl.ExtCtrls;
+uses System.Classes, VCL.StdCtrls, Vcl.ExtCtrls, System.TypInfo;
 
 { TestTQueryComponent }
 
@@ -85,6 +88,23 @@ begin
   CheckEquals(4, LPassCount);
 end;
 
+procedure TestTQueryComponent.TestHasPropertyColor;
+var
+  LPassCount : Integer;
+  LComponent : TComponent;
+begin
+  LPassCount := 0;
+  for LComponent in ComponentQuery<TComponent>
+                      .Select
+                      .From(FTestForm)
+                      .HasProperty('Color', tkInteger) do
+  begin
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
+    Inc(LPassCount);
+  end;
+  CheckEquals(6, LPassCount);
+end;
+
 procedure TestTQueryComponent.TestNonExistant;
 var
   LPassCount : Integer;
@@ -107,10 +127,44 @@ begin
   LPassCount := 0;
   for LComponent in ComponentQuery<TComponent>.Select.From(FTestForm) do
   begin
-    LComponent.Tag := 0; // suppress warnings about not using LPerson
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
     Inc(LPassCount);
   end;
   CheckEquals(FTestForm.ComponentCount, LPassCount);
+end;
+
+procedure TestTQueryComponent.TestTagEquals;
+var
+  LPassCount : Integer;
+  LComponent : TComponent;
+begin
+  LPassCount := 0;
+  for LComponent in ComponentQuery<TComponent>
+                      .Select
+                      .From(FTestForm)
+                      .TagEquals(1) do
+  begin
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
+    Inc(LPassCount);
+  end;
+  CheckEquals(4, LPassCount);
+end;
+
+procedure TestTQueryComponent.TestTagEqualsTagNotFound;
+var
+  LPassCount : Integer;
+  LComponent : TComponent;
+begin
+  LPassCount := 0;
+  for LComponent in ComponentQuery<TComponent>
+                      .Select
+                      .From(FTestForm)
+                      .TagEquals(32) do
+  begin
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
+    Inc(LPassCount);
+  end;
+  CheckEquals(0, LPassCount);
 end;
 
 initialization

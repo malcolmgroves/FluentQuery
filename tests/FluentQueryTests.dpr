@@ -39,7 +39,8 @@ uses
   FluentQuery.GenericObjects.MethodFactories in '..\FluentQuery.GenericObjects.MethodFactories.pas',
   FluentQuery.Pointers.MethodFactories in '..\FluentQuery.Pointers.MethodFactories.pas',
   FluentQuery.Integers.MethodFactories in '..\FluentQuery.Integers.MethodFactories.pas',
-  FluentQuery.Components.Test.Form in 'FluentQuery.Components.Test.Form.pas' {FQComponentTestForm};
+  FluentQuery.Components.Test.Form in 'FluentQuery.Components.Test.Form.pas' {FQComponentTestForm},
+  FluentQuery.Components.MethodFactories in '..\FluentQuery.Components.MethodFactories.pas';
 
 {$R *.RES}
 

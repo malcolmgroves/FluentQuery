@@ -28,6 +28,7 @@ object FQComponentTestForm: TFQComponentTestForm
       Caption = 'Panel2'
       TabOrder = 0
       object Edit3: TEdit
+        Tag = 1
         Left = 24
         Top = 16
         Width = 121
@@ -45,6 +46,7 @@ object FQComponentTestForm: TFQComponentTestForm
       end
     end
     object Edit1: TEdit
+      Tag = 1
       Left = 24
       Top = 24
       Width = 121
@@ -53,6 +55,7 @@ object FQComponentTestForm: TFQComponentTestForm
       Text = 'Edit1'
     end
     object Edit2: TEdit
+      Tag = 2
       Left = 24
       Top = 51
       Width = 121
@@ -61,6 +64,7 @@ object FQComponentTestForm: TFQComponentTestForm
       Text = 'Edit2'
     end
     object Button2: TButton
+      Tag = 1
       Left = 24
       Top = 88
       Width = 75
@@ -78,6 +82,7 @@ object FQComponentTestForm: TFQComponentTestForm
     Text = 'Edit4'
   end
   object Timer1: TTimer
+    Tag = 1
     Enabled = False
     Left = 32
     Top = 48

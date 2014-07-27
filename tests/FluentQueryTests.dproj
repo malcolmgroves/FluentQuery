@@ -109,6 +109,7 @@
             <Form>FQComponentTestForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="..\FluentQuery.Components.MethodFactories.pas"/>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
         <None Include="ModelSupport_FluentQueryTests\default.txvpck"/>
         <None Include="ModelSupport_FluentQueryTests\FluentQueryTests\default.txvpck"/>
