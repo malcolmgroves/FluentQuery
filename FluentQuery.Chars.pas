@@ -431,7 +431,7 @@ end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TCharPredicateFactory.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TCharPredicateFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -458,7 +458,7 @@ end;
 
 function TCharQueryEnumerator.TCharQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TCharPredicateFactory.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TCharPredicateFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}

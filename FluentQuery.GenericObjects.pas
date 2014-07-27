@@ -311,7 +311,7 @@ end;
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Skip(
   Count: Integer): TReturnType;
 begin
-  Result := SkipWhile(TGenericObjectMethodFactory<T>.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TGenericObjectMethodFactory<T>.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -320,7 +320,7 @@ end;
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.Take(
   Count: Integer): TReturnType;
 begin
-  Result := TakeWhile(TGenericObjectMethodFactory<T>.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TGenericObjectMethodFactory<T>.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}

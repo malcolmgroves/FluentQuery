@@ -202,7 +202,7 @@ end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Skip(Count: Integer): TReturnType;
 begin
-  Result := SkipWhile(TMethodFactory<T>.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TMethodFactory<T>.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -229,7 +229,7 @@ end;
 
 function TQueryEnumerator<T>.TQueryEnumeratorImpl<TReturnType>.Take(Count: Integer): TReturnType;
 begin
-  Result := TakeWhile(TMethodFactory<T>.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TMethodFactory<T>.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}

@@ -26,7 +26,7 @@ uses
 type
   TMethodFactory<T> = class
   public
-    class function LessThanOrEqualTo(Count : Integer) : TPredicate<T>;
+    class function UpToNumberOfTimes(Count : Integer) : TPredicate<T>;
     class function QuerySingleValue(UnboundQuery : IBaseQueryEnumerator<T>) : TPredicate<T>;
     class function InvertPredicate(Predicate : TPredicate<T>) : TPredicate<T>;
     class function InPlaceTransformer(TransformProc : TProc<T>) : TFunc<T, T>;
@@ -57,7 +57,7 @@ begin
             end;
 end;
 
-class function TMethodFactory<T>.LessThanOrEqualTo(
+class function TMethodFactory<T>.UpToNumberOfTimes(
   Count: Integer): TPredicate<T>;
 var
   LCount : Integer;

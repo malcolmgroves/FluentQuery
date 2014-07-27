@@ -337,7 +337,7 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TStringMethodFactory.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TStringMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -392,7 +392,7 @@ end;
 
 function TStringQueryEnumerator.TStringQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TStringMethodFactory.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TStringMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}

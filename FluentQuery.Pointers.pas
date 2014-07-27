@@ -229,7 +229,7 @@ end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TPointerMethodFactory.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TPointerMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -256,7 +256,7 @@ end;
 
 function TPointerQueryEnumerator.TPointerQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TPointerMethodFactory.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TPointerMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}

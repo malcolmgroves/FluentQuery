@@ -470,7 +470,7 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TIntegerMethodFactory.LessThanOrEqualTo(Count));
+  Result := SkipWhile(TIntegerMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -535,7 +535,7 @@ end;
 
 function TIntegerQueryEnumerator.TIntegerQueryEnumeratorImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TIntegerMethodFactory.LessThanOrEqualTo(Count));
+  Result := TakeWhile(TIntegerMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
