@@ -2,7 +2,7 @@
     <PropertyGroup>
         <ProjectGuid>{63CCEDE9-87C1-452B-BC2F-D92D5F0D1433}</ProjectGuid>
         <ProjectVersion>16.0</ProjectVersion>
-        <FrameworkType>None</FrameworkType>
+        <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -105,6 +105,10 @@
         <DCCReference Include="..\FluentQuery.GenericObjects.MethodFactories.pas"/>
         <DCCReference Include="..\FluentQuery.Pointers.MethodFactories.pas"/>
         <DCCReference Include="..\FluentQuery.Integers.MethodFactories.pas"/>
+        <DCCReference Include="FluentQuery.Components.Test.Form.pas">
+            <Form>FQComponentTestForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
         <None Include="ModelSupport_FluentQueryTests\default.txvpck"/>
         <None Include="ModelSupport_FluentQueryTests\FluentQueryTests\default.txvpck"/>

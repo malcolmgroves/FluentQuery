@@ -55,7 +55,8 @@ type
 
   IUnboundObjectQueryEnumerator<T : class> = interface(IBaseQueryEnumerator<T>)
     function GetEnumerator: IUnboundObjectQueryEnumerator<T>;
-    function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>;
+    function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>; overload;
+    function From(MinimalEnumerator : IMinimalEnumerator<T>) : IBoundObjectQueryEnumerator<T>; overload;
     // query operations
     function HasProperty(const Name : string; PropertyType : TTypeKind) : IUnboundObjectQueryEnumerator<T>;
     function IsA(AClass : TClass) : IUnboundObjectQueryEnumerator<T>;
@@ -91,7 +92,8 @@ type
         property OperationName : string read GetOperationName;
         property OperationPath : string read GetOperationPath;
 {$ENDIF}
-        function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>;
+        function From(Container : TEnumerable<T>) : IBoundObjectQueryEnumerator<T>; overload;
+        function From(MinimalEnumerator : IMinimalEnumerator<T>) : IBoundObjectQueryEnumerator<T>; overload;
         // Primitive Operations
         function Map(Transformer : TProc<T>) : TReturnType;
         function SkipWhile(Predicate : TPredicate<T>) : TReturnType; overload;
@@ -145,7 +147,7 @@ function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.IsA(
 begin
   Result := Where(TGenericObjectMethodFactory<T>.IsA(AClass));
 {$IFDEF DEBUG}
-  Result.OperationName := 'IsAssigned';
+  Result.OperationName := 'IsA';
 {$ENDIF}
 end;
 
@@ -164,14 +166,23 @@ begin
 end;
 
 function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.From(
+  MinimalEnumerator: IMinimalEnumerator<T>): IBoundObjectQueryEnumerator<T>;
+begin
+  Result := TObjectQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create,
+                                       IBaseQueryEnumerator<T>(FQuery),
+                                       MinimalEnumerator);
+{$IFDEF DEBUG}
+  Result.OperationName := 'From(MinimalEnumerator)';
+{$ENDIF}
+end;
+
+function TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType>.From(
   Container: TEnumerable<T>): IBoundObjectQueryEnumerator<T>;
 var
   EnumeratorWrapper : IMinimalEnumerator<T>;
 begin
   EnumeratorWrapper := TGenericEnumeratorAdapter<T>.Create(Container.GetEnumerator) as IMinimalEnumerator<T>;
-  Result := TObjectQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create,
-                                       IBaseQueryEnumerator<T>(FQuery),
-                                       EnumeratorWrapper);
+  Result := From(EnumeratorWrapper);
 {$IFDEF DEBUG}
   Result.OperationName := Format('From(%s)', [Container.ToString]);
 {$ENDIF}

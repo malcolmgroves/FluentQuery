@@ -117,6 +117,17 @@ type
     property Current: Pointer read GetCurrent;
   end;
 
+  TComponentEnumeratorAdapter = class(TinterfacedObject, IMinimalEnumerator<TComponent>)
+    FEnumerator : TComponentEnumerator;
+    function GetCurrent: TComponent;
+    function MoveNext: Boolean;
+  public
+    constructor Create(Enumerator : TComponentEnumerator); virtual;
+    destructor Destroy; override;
+    property Current: TComponent read GetCurrent;
+  end;
+
+
   TIntegerRangeEnumerator = class(TInterfacedObject, IMinimalEnumerator<Integer>)
   private
     FFinish : Integer;
@@ -384,6 +395,30 @@ begin
 end;
 
 function TSuperTypeEnumeratorAdapter<TSuperType, TSubType>.MoveNext: Boolean;
+begin
+  Result := FEnumerator.MoveNext;
+end;
+
+{ TComponentEnumeratorAdapter }
+
+constructor TComponentEnumeratorAdapter.Create(
+  Enumerator: TComponentEnumerator);
+begin
+  FEnumerator := Enumerator;
+end;
+
+destructor TComponentEnumeratorAdapter.Destroy;
+begin
+  FEnumerator.Free;
+  inherited;
+end;
+
+function TComponentEnumeratorAdapter.GetCurrent: TComponent;
+begin
+  Result := FEnumerator.Current;
+end;
+
+function TComponentEnumeratorAdapter.MoveNext: Boolean;
 begin
   Result := FEnumerator.MoveNext;
 end;
