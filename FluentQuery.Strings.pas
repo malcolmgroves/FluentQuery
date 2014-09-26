@@ -93,6 +93,11 @@ type
   function Query : IUnboundStringQueryEnumerator;
   function StringQuery : IUnboundStringQueryEnumerator;
 
+const
+  CaseSensitive = False;
+  CaseInsensitive = True;
+
+
 implementation
 
 uses FluentQuery.Strings.MethodFactories;

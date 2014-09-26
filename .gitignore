@@ -45,3 +45,5 @@ OpenDocument/OSX32/Debug/OpenDocument
 OpenDocument/OSX32
 
 tests/Win32/Debug/dunit.ini
+
+tests/FluentQueryTests.stat
