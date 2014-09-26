@@ -30,12 +30,55 @@ type
     class function IsA(AClass : TClass): TPredicate<T>;
     class function IsAssigned: TPredicate<T>;
     class function PropertyNamedOfType(const Name: string; PropertyType: TTypeKind): TPredicate<T>;
+    class function IntegerPropertyNamedWithValue(const Name: string; Value: Integer): TPredicate<T>;
+    class function StringPropertyNamedWithValue(const Name: string; const Value: string; IgnoreCase : Boolean = True): TPredicate<T>;
+    class function BooleanPropertyNamedWithValue(const Name: string; const Value: Boolean): TPredicate<T>;
   end;
 
 
 implementation
 
+
 { TGenericObjectPredicateFactory<T> }
+
+class function TGenericObjectMethodFactory<T>.BooleanPropertyNamedWithValue(
+  const Name: string; const Value: Boolean): TPredicate<T>;
+begin
+  Result := function (ComponentValue : T) : boolean
+            var
+              LRTTIContext : TRTTIContext;
+              LClassType : TRTTIType;
+              LProperty : TRTTIProperty;
+            begin
+              Result := False;
+              LRTTIContext := TRttiContext.Create;
+              LClassType := LRTTIContext.GetType(ComponentValue.ClassInfo);
+              LProperty := LClassType.GetProperty(Name);
+              if Assigned(LProperty) then
+                if LProperty.PropertyType is TRttiEnumerationType then
+                  if TRttiEnumerationType(LProperty.PropertyType).UnderlyingType.Handle = System.TypeInfo(Boolean) then
+                    Result := LProperty.GetValue(TObject(ComponentValue)).AsBoolean = Value;
+            end;
+end;
+
+class function TGenericObjectMethodFactory<T>.IntegerPropertyNamedWithValue(
+  const Name: string; Value: Integer): TPredicate<T>;
+begin
+  Result := function (ComponentValue : T) : boolean
+            var
+              LRTTIContext : TRTTIContext;
+              LClassType : TRTTIType;
+              LProperty : TRTTIProperty;
+            begin
+              Result := False;
+              LRTTIContext := TRttiContext.Create;
+              LClassType := LRTTIContext.GetType(ComponentValue.ClassInfo);
+              LProperty := LClassType.GetProperty(Name);
+              if Assigned(LProperty) then
+                if LProperty.PropertyType.TypeKind = tkInteger then
+                  Result := LProperty.GetValue(TObject(ComponentValue)).AsOrdinal = Value;
+            end;
+end;
 
 class function TGenericObjectMethodFactory<T>.IsA(
   AClass: TClass): TPredicate<T>;
@@ -70,6 +113,31 @@ begin
                if Assigned(LProperty) then
                  Result := LProperty.PropertyType.TypeKind = PropertyType;
              end;
+end;
+
+class function TGenericObjectMethodFactory<T>.StringPropertyNamedWithValue(
+  const Name, Value: string; IgnoreCase: Boolean): TPredicate<T>;
+begin
+  Result := function (ComponentValue : T) : boolean
+            var
+              LRTTIContext : TRTTIContext;
+              LClassType : TRTTIType;
+              LProperty : TRTTIProperty;
+              LPropValue : string;
+            begin
+              Result := False;
+              LRTTIContext := TRttiContext.Create;
+              LClassType := LRTTIContext.GetType(ComponentValue.ClassInfo);
+              LProperty := LClassType.GetProperty(Name);
+              if Assigned(LProperty) then
+                if LProperty.PropertyType.TypeKind = tkUString then
+                begin
+                    LPropValue := LProperty.GetValue(TObject(ComponentValue)).AsString;
+                    Result := Value.Compare(LPropValue,
+                                            Value,
+                                            IgnoreCase) = 0;
+                end;
+            end;
 end;
 
 end.

@@ -39,12 +39,15 @@ type
     procedure TestTagEquals;
     procedure TestTagEqualsTagNotFound;
     procedure TestHasPropertyColor;
+    procedure TestHasTagEquals1;
+    procedure TestHasCaptionEqualsHello;
+    procedure TestIsAWinControlHasEnabledFalse;
   end;
 
 
 
 implementation
-uses System.Classes, VCL.StdCtrls, Vcl.ExtCtrls, System.TypInfo;
+uses System.Classes, VCL.StdCtrls, Vcl.ExtCtrls, System.TypInfo, VCL.Controls;
 
 { TestTQueryComponent }
 
@@ -103,6 +106,58 @@ begin
     Inc(LPassCount);
   end;
   CheckEquals(6, LPassCount);
+end;
+
+procedure TestTQueryComponent.TestHasTagEquals1;
+var
+  LPassCount : Integer;
+  LComponent : TComponent;
+begin
+  LPassCount := 0;
+  for LComponent in ComponentQuery<TComponent>
+                      .Select
+                      .From(FTestForm)
+                      .IntegerProperty('Tag', 1) do
+  begin
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
+    Inc(LPassCount);
+  end;
+  CheckEquals(4, LPassCount);
+end;
+
+procedure TestTQueryComponent.TestIsAWinControlHasEnabledFalse;
+var
+  LPassCount : Integer;
+  LComponent : TComponent;
+begin
+  LPassCount := 0;
+  for LComponent in ComponentQuery<TComponent>
+                      .Select
+                      .From(FTestForm)
+                      .IsA(TWinControl)
+                      .BooleanProperty('Enabled', False) do
+  begin
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
+    Inc(LPassCount);
+  end;
+  CheckEquals(2, LPassCount);
+end;
+
+procedure TestTQueryComponent.TestHasCaptionEqualsHello;
+var
+  LPassCount : Integer;
+  LComponent : TComponent;
+begin
+  LPassCount := 0;
+  for LComponent in ComponentQuery<TComponent>
+                      .Select
+                      .From(FTestForm)
+                      .StringProperty('Caption', 'HeLLo') do
+  begin
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
+    Inc(LPassCount);
+  end;
+  CheckEquals(2, LPassCount);
 end;
 
 procedure TestTQueryComponent.TestNonExistant;
