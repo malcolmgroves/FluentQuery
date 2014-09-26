@@ -7,7 +7,9 @@ uses
   FluentQuery.Core.EnumerationStrategies,
   FluentQuery.Core.Enumerators,
   System.Classes,
-  System.TypInfo;
+  System.TypInfo,
+  FluentQuery.Integers,
+  FluentQuery.Strings;
 
 type
   IUnboundComponentQueryEnumerator<T : TComponent> = interface;
@@ -21,8 +23,10 @@ type
     function TakeWhile(Predicate : TPredicate<T>): IBoundComponentQueryEnumerator<T>; overload;
     function Where(Predicate : TPredicate<T>) : IBoundComponentQueryEnumerator<T>;
     function HasProperty(const Name : string; PropertyType : TTypeKind) : IBoundComponentQueryEnumerator<T>;
-    function IntegerProperty(const Name : string; const Value : Integer) : IBoundComponentQueryEnumerator<T>;
-    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IBoundComponentQueryEnumerator<T>;
+    function IntegerProperty(const Name : string; const Value : Integer) : IBoundComponentQueryEnumerator<T>; overload;
+    function IntegerProperty(const Name : string; Query : IUnboundIntegerQueryEnumerator) : IBoundComponentQueryEnumerator<T>; overload;
+    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IBoundComponentQueryEnumerator<T>; overload;
+    function StringProperty(const Name : string; Query : IUnboundStringQueryEnumerator) : IBoundComponentQueryEnumerator<T>; overload;
     function BooleanProperty(const Name : string; const Value : Boolean) : IBoundComponentQueryEnumerator<T>;
     function Skip(Count : Integer): IBoundComponentQueryEnumerator<T>;
     function SkipWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : IBoundComponentQueryEnumerator<T>; overload;
@@ -45,8 +49,10 @@ type
     function TakeWhile(Predicate : TPredicate<T>): IUnboundComponentQueryEnumerator<T>; overload;
     function Where(Predicate : TPredicate<T>) : IUnboundComponentQueryEnumerator<T>;
     function HasProperty(const Name : string; PropertyType : TTypeKind) : IUnboundComponentQueryEnumerator<T>;
-    function IntegerProperty(const Name : string; const Value : Integer) : IUnboundComponentQueryEnumerator<T>;
-    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IUnboundComponentQueryEnumerator<T>;
+    function IntegerProperty(const Name : string; const Value : Integer) : IUnboundComponentQueryEnumerator<T>; overload;
+    function IntegerProperty(const Name : string; Query : IUnboundIntegerQueryEnumerator) : IUnboundComponentQueryEnumerator<T>; overload;
+    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IUnboundComponentQueryEnumerator<T>; overload;
+    function StringProperty(const Name : string; Query : IUnboundStringQueryEnumerator) : IUnboundComponentQueryEnumerator<T>; overload;
     function BooleanProperty(const Name : string; const Value : Boolean) : IUnboundComponentQueryEnumerator<T>;
     function Skip(Count : Integer): IUnboundComponentQueryEnumerator<T>;
     function SkipWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : IUnboundComponentQueryEnumerator<T>; overload;
@@ -84,8 +90,10 @@ type
         function Where(Predicate : TPredicate<T>) : TReturnType;
         // Derivative Operations
         function HasProperty(const Name : string; PropertyType : TTypeKind) : TReturnType;
-        function IntegerProperty(const Name : string; const Value : Integer) : TReturnType;
-        function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : TReturnType;
+        function IntegerProperty(const Name : string; const Value : Integer) : TReturnType; overload;
+        function IntegerProperty(const Name : string; Query : IUnboundIntegerQueryEnumerator) : TReturnType; overload;
+        function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : TReturnType; overload;
+        function StringProperty(const Name : string; Query : IUnboundStringQueryEnumerator) : TReturnType; overload;
         function BooleanProperty(const Name : string; const Value : Boolean) : TReturnType;
         function IsA(AClass : TClass) : TReturnType;
         function Skip(Count : Integer): TReturnType;
@@ -123,7 +131,8 @@ type
 
 implementation
 uses
-  FluentQuery.Components.MethodFactories, FluentQuery.GenericObjects;
+  FluentQuery.Components.MethodFactories, FluentQuery.GenericObjects, FluentQuery.Integers.MethodFactories,
+  FluentQuery.Strings.MethodFactories;
 
 { TComponentQueryEnumerator<T> }
 
@@ -214,9 +223,18 @@ end;
 function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.IntegerProperty(
   const Name: string; const Value: Integer): TReturnType;
 begin
-  Result := Where(TComponentMethodFactory<T>.IntegerPropertyNamedWithValue(Name, Value));
+  Result := Where(TComponentMethodFactory<T>.IntegerPropertyNamedWithValue(Name, TIntegerMethodFactory.Equals(Value)));
 {$IFDEF DEBUG}
   Result.OperationName := 'IntegerProperty(Name, Value)';
+{$ENDIF}
+end;
+
+function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.IntegerProperty(
+  const Name: string; Query: IUnboundIntegerQueryEnumerator): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.IntegerPropertyNamedWithValue(Name, Query.Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := 'IntegerProperty(Name, ' + Query.OperationPath + ')';
 {$ENDIF}
 end;
 
@@ -256,9 +274,20 @@ begin
 end;
 
 function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.StringProperty(
+  const Name: string; Query: IUnboundStringQueryEnumerator): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue(Name,
+                                                                          Query.Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := 'StringProperty(Name, Value)';
+{$ENDIF}
+end;
+
+function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.StringProperty(
   const Name, Value: String; IgnoreCase : Boolean): TReturnType;
 begin
-  Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue(Name, Value, IgnoreCase));
+  Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue(Name,
+                                                                          TStringMethodFactory.Matches(Value, IgnoreCase)));
 {$IFDEF DEBUG}
   Result.OperationName := 'StringProperty(Name, Value)';
 {$ENDIF}

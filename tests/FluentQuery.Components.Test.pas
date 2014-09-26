@@ -40,14 +40,17 @@ type
     procedure TestTagEqualsTagNotFound;
     procedure TestHasPropertyColor;
     procedure TestHasTagEquals1;
+    procedure TestHasTagGreaterThanZero;
     procedure TestHasCaptionEqualsHello;
+    procedure TestHasCaptionStartingWithHel;
     procedure TestIsAWinControlHasEnabledFalse;
   end;
 
 
 
 implementation
-uses System.Classes, VCL.StdCtrls, Vcl.ExtCtrls, System.TypInfo, VCL.Controls;
+uses System.Classes, VCL.StdCtrls, Vcl.ExtCtrls, System.TypInfo, VCL.Controls,
+     FluentQuery.Integers, FluentQuery.Strings;
 
 { TestTQueryComponent }
 
@@ -125,6 +128,23 @@ begin
   CheckEquals(4, LPassCount);
 end;
 
+procedure TestTQueryComponent.TestHasTagGreaterThanZero;
+var
+  LPassCount : Integer;
+  LComponent : TComponent;
+begin
+  LPassCount := 0;
+  for LComponent in ComponentQuery<TComponent>
+                      .Select
+                      .From(FTestForm)
+                      .IntegerProperty('Tag', IntegerQuery.GreaterThan(0)) do
+  begin
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
+    Inc(LPassCount);
+  end;
+  CheckEquals(5, LPassCount);
+end;
+
 procedure TestTQueryComponent.TestIsAWinControlHasEnabledFalse;
 var
   LPassCount : Integer;
@@ -153,6 +173,23 @@ begin
                       .Select
                       .From(FTestForm)
                       .StringProperty('Caption', 'HeLLo') do
+  begin
+    LComponent.Tag := 0; // suppress warnings about not using LComponent
+    Inc(LPassCount);
+  end;
+  CheckEquals(2, LPassCount);
+end;
+
+procedure TestTQueryComponent.TestHasCaptionStartingWithHel;
+var
+  LPassCount : Integer;
+  LComponent : TComponent;
+begin
+  LPassCount := 0;
+  for LComponent in ComponentQuery<TComponent>
+                      .Select
+                      .From(FTestForm)
+                      .StringProperty('Caption', StringQuery.StartsWith('HEL')) do
   begin
     LComponent.Tag := 0; // suppress warnings about not using LComponent
     Inc(LPassCount);

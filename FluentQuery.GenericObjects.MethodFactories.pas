@@ -21,7 +21,8 @@ unit FluentQuery.GenericObjects.MethodFactories;
 
 interface
 uses
-  FluentQuery.Core.MethodFactories, System.SysUtils, System.TypInfo, System.Rtti;
+  FluentQuery.Core.MethodFactories, System.SysUtils, System.TypInfo, System.Rtti,
+  FluentQuery.Integers;
 
 type
   TGenericObjectMethodFactory<T : class> = class(TMethodFactory<T>)
@@ -30,8 +31,8 @@ type
     class function IsA(AClass : TClass): TPredicate<T>;
     class function IsAssigned: TPredicate<T>;
     class function PropertyNamedOfType(const Name: string; PropertyType: TTypeKind): TPredicate<T>;
-    class function IntegerPropertyNamedWithValue(const Name: string; Value: Integer): TPredicate<T>;
-    class function StringPropertyNamedWithValue(const Name: string; const Value: string; IgnoreCase : Boolean = True): TPredicate<T>;
+    class function IntegerPropertyNamedWithValue(const Name: string; Predicate: TPredicate<Integer>): TPredicate<T>;
+    class function StringPropertyNamedWithValue(const Name: string; Predicate : TPredicate<string>): TPredicate<T>;
     class function BooleanPropertyNamedWithValue(const Name: string; const Value: Boolean): TPredicate<T>;
   end;
 
@@ -61,8 +62,9 @@ begin
             end;
 end;
 
+
 class function TGenericObjectMethodFactory<T>.IntegerPropertyNamedWithValue(
-  const Name: string; Value: Integer): TPredicate<T>;
+  const Name: string; Predicate: TPredicate<Integer>): TPredicate<T>;
 begin
   Result := function (ComponentValue : T) : boolean
             var
@@ -76,7 +78,9 @@ begin
               LProperty := LClassType.GetProperty(Name);
               if Assigned(LProperty) then
                 if LProperty.PropertyType.TypeKind = tkInteger then
-                  Result := LProperty.GetValue(TObject(ComponentValue)).AsOrdinal = Value;
+                begin
+                  Result := Predicate(LProperty.GetValue(TObject(ComponentValue)).AsOrdinal);
+                end;
             end;
 end;
 
@@ -116,7 +120,7 @@ begin
 end;
 
 class function TGenericObjectMethodFactory<T>.StringPropertyNamedWithValue(
-  const Name, Value: string; IgnoreCase: Boolean): TPredicate<T>;
+  const Name : string; Predicate : TPredicate<string>): TPredicate<T>;
 begin
   Result := function (ComponentValue : T) : boolean
             var
@@ -133,9 +137,7 @@ begin
                 if LProperty.PropertyType.TypeKind = tkUString then
                 begin
                     LPropValue := LProperty.GetValue(TObject(ComponentValue)).AsString;
-                    Result := Value.Compare(LPropValue,
-                                            Value,
-                                            IgnoreCase) = 0;
+                    Result := Predicate(LPropValue);
                 end;
             end;
 end;
