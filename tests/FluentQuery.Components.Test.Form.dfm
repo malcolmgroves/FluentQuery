@@ -18,7 +18,7 @@ object FQComponentTestForm: TFQComponentTestForm
     Top = 96
     Width = 305
     Height = 273
-    Caption = 'Panel1'
+    Caption = 'Hello'
     TabOrder = 0
     object Panel2: TPanel
       Left = 24
@@ -41,7 +41,8 @@ object FQComponentTestForm: TFQComponentTestForm
         Top = 64
         Width = 75
         Height = 25
-        Caption = 'Button1'
+        Caption = 'Hello'
+        Enabled = False
         TabOrder = 1
       end
     end
@@ -60,6 +61,7 @@ object FQComponentTestForm: TFQComponentTestForm
       Top = 51
       Width = 121
       Height = 21
+      Enabled = False
       TabOrder = 2
       Text = 'Edit2'
     end
@@ -79,7 +81,7 @@ object FQComponentTestForm: TFQComponentTestForm
     Width = 121
     Height = 21
     TabOrder = 1
-    Text = 'Edit4'
+    Text = 'Hello'
   end
   object Timer1: TTimer
     Tag = 1

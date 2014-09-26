@@ -21,6 +21,9 @@ type
     function TakeWhile(Predicate : TPredicate<T>): IBoundComponentQueryEnumerator<T>; overload;
     function Where(Predicate : TPredicate<T>) : IBoundComponentQueryEnumerator<T>;
     function HasProperty(const Name : string; PropertyType : TTypeKind) : IBoundComponentQueryEnumerator<T>;
+    function IntegerProperty(const Name : string; const Value : Integer) : IBoundComponentQueryEnumerator<T>;
+    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IBoundComponentQueryEnumerator<T>;
+    function BooleanProperty(const Name : string; const Value : Boolean) : IBoundComponentQueryEnumerator<T>;
     function Skip(Count : Integer): IBoundComponentQueryEnumerator<T>;
     function SkipWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : IBoundComponentQueryEnumerator<T>; overload;
     function TagEquals(const TagValue : NativeInt) : IBoundComponentQueryEnumerator<T>;
@@ -42,6 +45,9 @@ type
     function TakeWhile(Predicate : TPredicate<T>): IUnboundComponentQueryEnumerator<T>; overload;
     function Where(Predicate : TPredicate<T>) : IUnboundComponentQueryEnumerator<T>;
     function HasProperty(const Name : string; PropertyType : TTypeKind) : IUnboundComponentQueryEnumerator<T>;
+    function IntegerProperty(const Name : string; const Value : Integer) : IUnboundComponentQueryEnumerator<T>;
+    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IUnboundComponentQueryEnumerator<T>;
+    function BooleanProperty(const Name : string; const Value : Boolean) : IUnboundComponentQueryEnumerator<T>;
     function Skip(Count : Integer): IUnboundComponentQueryEnumerator<T>;
     function SkipWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : IUnboundComponentQueryEnumerator<T>; overload;
     function TagEquals(const TagValue : NativeInt) : IUnboundComponentQueryEnumerator<T>;
@@ -78,6 +84,9 @@ type
         function Where(Predicate : TPredicate<T>) : TReturnType;
         // Derivative Operations
         function HasProperty(const Name : string; PropertyType : TTypeKind) : TReturnType;
+        function IntegerProperty(const Name : string; const Value : Integer) : TReturnType;
+        function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : TReturnType;
+        function BooleanProperty(const Name : string; const Value : Boolean) : TReturnType;
         function IsA(AClass : TClass) : TReturnType;
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : TReturnType; overload;
@@ -136,6 +145,15 @@ end;
 
 { TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType> }
 
+function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.BooleanProperty(
+  const Name: string; const Value: Boolean): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.BooleanPropertyNamedWithValue(Name, Value));
+{$IFDEF DEBUG}
+  Result.OperationName := 'BooleanProperty(Name, Value)';
+{$ENDIF}
+end;
+
 constructor TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.Create(
   Query: TComponentQueryEnumerator<T>);
 begin
@@ -165,7 +183,6 @@ begin
 {$IFDEF DEBUG}
   Result.OperationName := Format('From(%s)', [Owner.Name]);
 {$ENDIF}
-
 end;
 
 function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.GetEnumerator: TReturnType;
@@ -193,6 +210,15 @@ begin
 end;
 
 {$ENDIF}
+
+function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.IntegerProperty(
+  const Name: string; const Value: Integer): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.IntegerPropertyNamedWithValue(Name, Value));
+{$IFDEF DEBUG}
+  Result.OperationName := 'IntegerProperty(Name, Value)';
+{$ENDIF}
+end;
 
 function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.IsA(
   AClass: TClass): TReturnType;
@@ -226,6 +252,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.StringProperty(
+  const Name, Value: String; IgnoreCase : Boolean): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue(Name, Value, IgnoreCase));
+{$IFDEF DEBUG}
+  Result.OperationName := 'StringProperty(Name, Value)';
 {$ENDIF}
 end;
 
