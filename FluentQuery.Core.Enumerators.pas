@@ -27,9 +27,9 @@ uses
   FluentQuery.Core.EnumerationStrategies;
 
 type
-  TBaseQueryEnumerator<T> = class(TInterfacedObject, IBaseQueryEnumerator<T>)
+  TBaseQuery<T> = class(TInterfacedObject, IBaseQuery<T>)
   protected
-    FUpstreamQuery : IBaseQueryEnumerator<T>;
+    FUpstreamQuery : IBaseQuery<T>;
     FEnumerationStrategy : TEnumerationStrategy<T>;
     FSourceData : IMinimalEnumerator<T>;
 {$IFDEF DEBUG}
@@ -40,10 +40,10 @@ type
     function MoveNext: Boolean; virtual;
   public
     constructor Create(EnumerationStrategy : TEnumerationStrategy<T>;
-                       UpstreamQuery : IBaseQueryEnumerator<T> = nil;
+                       UpstreamQuery : IBaseQuery<T> = nil;
                        SourceData : IMinimalEnumerator<T> = nil); virtual;
     destructor Destroy; override;
-    procedure SetUpstreamQuery(UpstreamQuery : IBaseQueryEnumerator<T>);
+    procedure SetUpstreamQuery(UpstreamQuery : IBaseQuery<T>);
 {$IFDEF DEBUG}
     function GetOperationName : String; virtual;
     procedure SetOperationName(const Name : String); virtual;
@@ -265,9 +265,9 @@ end;
 { TBaseQueryEnumerator<T> }
 
 
-constructor TBaseQueryEnumerator<T>.Create(
+constructor TBaseQuery<T>.Create(
   EnumerationStrategy: TEnumerationStrategy<T>;
-  UpstreamQuery: IBaseQueryEnumerator<T>;
+  UpstreamQuery: IBaseQuery<T>;
   SourceData: IMinimalEnumerator<T>);
 begin
   SetUpstreamQuery(UpstreamQuery);
@@ -275,13 +275,13 @@ begin
   FEnumerationStrategy := EnumerationStrategy;
 end;
 
-destructor TBaseQueryEnumerator<T>.Destroy;
+destructor TBaseQuery<T>.Destroy;
 begin
   FEnumerationStrategy.Free;
   inherited;
 end;
 
-function TBaseQueryEnumerator<T>.GetCurrent: T;
+function TBaseQuery<T>.GetCurrent: T;
 begin
   if Assigned(FUpstreamQuery) then
     Result := FEnumerationStrategy.GetCurrent(FUpstreamQuery)
@@ -290,17 +290,17 @@ begin
 end;
 
 {$IFDEF DEBUG}
-function TBaseQueryEnumerator<T>.GetOperationName: String;
+function TBaseQuery<T>.GetOperationName: String;
 begin
   Result := FOperationName;
 end;
 
-procedure TBaseQueryEnumerator<T>.SetOperationName(const Name: String);
+procedure TBaseQuery<T>.SetOperationName(const Name: String);
 begin
   FOperationName := Name;
 end;
 
-function TBaseQueryEnumerator<T>.GetOperationPath: String;
+function TBaseQuery<T>.GetOperationPath: String;
 begin
   if Assigned(FUpstreamQuery) then
     Result := FUpstreamQuery.GetOperationPath + '.' + GetOperationName
@@ -309,7 +309,7 @@ begin
 end;
 {$ENDIF}
 
-function TBaseQueryEnumerator<T>.MoveNext: Boolean;
+function TBaseQuery<T>.MoveNext: Boolean;
 begin
   if Assigned(FUpstreamQuery) then
     Result := FEnumerationStrategy.MoveNext(FUpstreamQuery)
@@ -317,7 +317,7 @@ begin
     Result := FEnumerationStrategy.MoveNext(FSourceData);
 end;
 
-procedure TBaseQueryEnumerator<T>.SetSourceData(
+procedure TBaseQuery<T>.SetSourceData(
   SourceData: IMinimalEnumerator<T>);
 begin
   if Assigned(SourceData) then
@@ -329,8 +329,8 @@ begin
   end;
 end;
 
-procedure TBaseQueryEnumerator<T>.SetUpstreamQuery(
-  UpstreamQuery: IBaseQueryEnumerator<T>);
+procedure TBaseQuery<T>.SetUpstreamQuery(
+  UpstreamQuery: IBaseQuery<T>);
 begin
   FUpstreamQuery := UpstreamQuery;
 end;

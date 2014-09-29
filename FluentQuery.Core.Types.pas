@@ -30,7 +30,7 @@ type
     property Current: T read GetCurrent;
   end;
 
-  IBaseQueryEnumerator<T> = interface(IMinimalEnumerator<T>)
+  IBaseQuery<T> = interface(IMinimalEnumerator<T>)
 {$IFDEF DEBUG}
     function GetOperationName : String;
     procedure SetOperationName(const OperationName : string);
@@ -38,7 +38,7 @@ type
     property OperationName : string read GetOperationName write SetOperationName;
     property OperationPath : string read GetOperationPath;
 {$ENDIF}
-    procedure SetUpstreamQuery(UpstreamQuery : IBaseQueryEnumerator<T>);
+    procedure SetUpstreamQuery(UpstreamQuery : IBaseQuery<T>);
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>);
   end;
 
