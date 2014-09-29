@@ -27,7 +27,7 @@ type
   TMethodFactory<T> = class
   public
     class function UpToNumberOfTimes(Count : Integer) : TPredicate<T>;
-    class function QuerySingleValue(UnboundQuery : IBaseQueryEnumerator<T>) : TPredicate<T>;
+    class function QuerySingleValue(UnboundQuery : IBaseQuery<T>) : TPredicate<T>;
     class function InvertPredicate(Predicate : TPredicate<T>) : TPredicate<T>;
     class function InPlaceTransformer(TransformProc : TProc<T>) : TFunc<T, T>;
   end;
@@ -71,7 +71,7 @@ begin
 end;
 
 class function TMethodFactory<T>.QuerySingleValue(
-  UnboundQuery: IBaseQueryEnumerator<T>): TPredicate<T>;
+  UnboundQuery: IBaseQuery<T>): TPredicate<T>;
 begin
   Result := function (CurrentValue : T) : Boolean
             begin

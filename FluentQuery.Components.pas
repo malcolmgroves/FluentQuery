@@ -12,69 +12,69 @@ uses
   FluentQuery.Strings;
 
 type
-  IUnboundComponentQueryEnumerator<T : TComponent> = interface;
+  IUnboundComponentQuery<T : TComponent> = interface;
 
-  IBoundComponentQueryEnumerator<T : TComponent> = interface(IBaseQueryEnumerator<T>)
-    function GetEnumerator: IBoundComponentQueryEnumerator<T>;
+  IBoundComponentQuery<T : TComponent> = interface(IBaseQuery<T>)
+    function GetEnumerator: IBoundComponentQuery<T>;
     // query operations
-    function IsA(AClass : TClass) : IBoundComponentQueryEnumerator<T>;
-    function Map(Transformer : TProc<T>) : IBoundComponentQueryEnumerator<T>;
-    function SkipWhile(Predicate : TPredicate<T>) : IBoundComponentQueryEnumerator<T>; overload;
-    function TakeWhile(Predicate : TPredicate<T>): IBoundComponentQueryEnumerator<T>; overload;
-    function Where(Predicate : TPredicate<T>) : IBoundComponentQueryEnumerator<T>;
-    function HasProperty(const Name : string; PropertyType : TTypeKind) : IBoundComponentQueryEnumerator<T>;
-    function IntegerProperty(const Name : string; const Value : Integer) : IBoundComponentQueryEnumerator<T>; overload;
-    function IntegerProperty(const Name : string; Query : IUnboundIntegerQueryEnumerator) : IBoundComponentQueryEnumerator<T>; overload;
-    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IBoundComponentQueryEnumerator<T>; overload;
-    function StringProperty(const Name : string; Query : IUnboundStringQueryEnumerator) : IBoundComponentQueryEnumerator<T>; overload;
-    function BooleanProperty(const Name : string; const Value : Boolean) : IBoundComponentQueryEnumerator<T>;
-    function Skip(Count : Integer): IBoundComponentQueryEnumerator<T>;
-    function SkipWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : IBoundComponentQueryEnumerator<T>; overload;
-    function TagEquals(const TagValue : NativeInt) : IBoundComponentQueryEnumerator<T>;
-    function Take(Count : Integer): IBoundComponentQueryEnumerator<T>;
-    function TakeWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>): IBoundComponentQueryEnumerator<T>; overload;
-    function WhereNot(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : IBoundComponentQueryEnumerator<T>; overload;
-    function WhereNot(Predicate : TPredicate<T>) : IBoundComponentQueryEnumerator<T>; overload;
+    function IsA(AClass : TClass) : IBoundComponentQuery<T>;
+    function Map(Transformer : TProc<T>) : IBoundComponentQuery<T>;
+    function SkipWhile(Predicate : TPredicate<T>) : IBoundComponentQuery<T>; overload;
+    function TakeWhile(Predicate : TPredicate<T>): IBoundComponentQuery<T>; overload;
+    function Where(Predicate : TPredicate<T>) : IBoundComponentQuery<T>;
+    function HasProperty(const Name : string; PropertyType : TTypeKind) : IBoundComponentQuery<T>;
+    function IntegerProperty(const Name : string; const Value : Integer) : IBoundComponentQuery<T>; overload;
+    function IntegerProperty(const Name : string; Query : IUnboundIntegerQuery) : IBoundComponentQuery<T>; overload;
+    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IBoundComponentQuery<T>; overload;
+    function StringProperty(const Name : string; Query : IUnboundStringQuery) : IBoundComponentQuery<T>; overload;
+    function BooleanProperty(const Name : string; const Value : Boolean) : IBoundComponentQuery<T>;
+    function Skip(Count : Integer): IBoundComponentQuery<T>;
+    function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : IBoundComponentQuery<T>; overload;
+    function TagEquals(const TagValue : NativeInt) : IBoundComponentQuery<T>;
+    function Take(Count : Integer): IBoundComponentQuery<T>;
+    function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): IBoundComponentQuery<T>; overload;
+    function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : IBoundComponentQuery<T>; overload;
+    function WhereNot(Predicate : TPredicate<T>) : IBoundComponentQuery<T>; overload;
     // terminating operations
     function First : T;
   end;
 
-  IUnboundComponentQueryEnumerator<T : TComponent> = interface(IBaseQueryEnumerator<T>)
-    function GetEnumerator: IUnboundComponentQueryEnumerator<T>;
-    function From(Owner : TComponent) : IBoundComponentQueryEnumerator<T>;
+  IUnboundComponentQuery<T : TComponent> = interface(IBaseQuery<T>)
+    function GetEnumerator: IUnboundComponentQuery<T>;
+    function From(Owner : TComponent) : IBoundComponentQuery<T>;
     // query operations
-    function IsA(AClass : TClass) : IUnboundComponentQueryEnumerator<T>;
-    function Map(Transformer : TProc<T>) : IUnboundComponentQueryEnumerator<T>;
-    function SkipWhile(Predicate : TPredicate<T>) : IUnboundComponentQueryEnumerator<T>; overload;
-    function TakeWhile(Predicate : TPredicate<T>): IUnboundComponentQueryEnumerator<T>; overload;
-    function Where(Predicate : TPredicate<T>) : IUnboundComponentQueryEnumerator<T>;
-    function HasProperty(const Name : string; PropertyType : TTypeKind) : IUnboundComponentQueryEnumerator<T>;
-    function IntegerProperty(const Name : string; const Value : Integer) : IUnboundComponentQueryEnumerator<T>; overload;
-    function IntegerProperty(const Name : string; Query : IUnboundIntegerQueryEnumerator) : IUnboundComponentQueryEnumerator<T>; overload;
-    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IUnboundComponentQueryEnumerator<T>; overload;
-    function StringProperty(const Name : string; Query : IUnboundStringQueryEnumerator) : IUnboundComponentQueryEnumerator<T>; overload;
-    function BooleanProperty(const Name : string; const Value : Boolean) : IUnboundComponentQueryEnumerator<T>;
-    function Skip(Count : Integer): IUnboundComponentQueryEnumerator<T>;
-    function SkipWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : IUnboundComponentQueryEnumerator<T>; overload;
-    function TagEquals(const TagValue : NativeInt) : IUnboundComponentQueryEnumerator<T>;
-    function Take(Count : Integer): IUnboundComponentQueryEnumerator<T>;
-    function TakeWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>): IUnboundComponentQueryEnumerator<T>; overload;
-    function WhereNot(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : IUnboundComponentQueryEnumerator<T>; overload;
-    function WhereNot(Predicate : TPredicate<T>) : IUnboundComponentQueryEnumerator<T>; overload;
+    function IsA(AClass : TClass) : IUnboundComponentQuery<T>;
+    function Map(Transformer : TProc<T>) : IUnboundComponentQuery<T>;
+    function SkipWhile(Predicate : TPredicate<T>) : IUnboundComponentQuery<T>; overload;
+    function TakeWhile(Predicate : TPredicate<T>): IUnboundComponentQuery<T>; overload;
+    function Where(Predicate : TPredicate<T>) : IUnboundComponentQuery<T>;
+    function HasProperty(const Name : string; PropertyType : TTypeKind) : IUnboundComponentQuery<T>;
+    function IntegerProperty(const Name : string; const Value : Integer) : IUnboundComponentQuery<T>; overload;
+    function IntegerProperty(const Name : string; Query : IUnboundIntegerQuery) : IUnboundComponentQuery<T>; overload;
+    function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IUnboundComponentQuery<T>; overload;
+    function StringProperty(const Name : string; Query : IUnboundStringQuery) : IUnboundComponentQuery<T>; overload;
+    function BooleanProperty(const Name : string; const Value : Boolean) : IUnboundComponentQuery<T>;
+    function Skip(Count : Integer): IUnboundComponentQuery<T>;
+    function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : IUnboundComponentQuery<T>; overload;
+    function TagEquals(const TagValue : NativeInt) : IUnboundComponentQuery<T>;
+    function Take(Count : Integer): IUnboundComponentQuery<T>;
+    function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): IUnboundComponentQuery<T>; overload;
+    function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : IUnboundComponentQuery<T>; overload;
+    function WhereNot(Predicate : TPredicate<T>) : IUnboundComponentQuery<T>; overload;
     // terminating operations
     function Predicate : TPredicate<T>;
   end;
 
-  TComponentQueryEnumerator<T : TComponent> = class(TBaseQueryEnumerator<T>,
-                              IBoundComponentQueryEnumerator<T>,
-                              IUnboundComponentQueryEnumerator<T>)
+  TComponentQuery<T : TComponent> = class(TBaseQuery<T>,
+                              IBoundComponentQuery<T>,
+                              IUnboundComponentQuery<T>)
   protected
     type
-      TComponentQueryEnumeratorImpl<TReturnType : IBaseQueryEnumerator<T>> = class
+      TComponentQueryImpl<TReturnType : IBaseQuery<T>> = class
       private
-        FQuery : TComponentQueryEnumerator<T>;
+        FQuery : TComponentQuery<T>;
       public
-        constructor Create(Query : TComponentQueryEnumerator<T>); virtual;
+        constructor Create(Query : TComponentQuery<T>); virtual;
         function GetEnumerator: TReturnType;
 {$IFDEF DEBUG}
         function GetOperationName : String;
@@ -82,7 +82,7 @@ type
         property OperationName : string read GetOperationName;
         property OperationPath : string read GetOperationPath;
 {$ENDIF}
-        function From(Owner : TComponent) : IBoundComponentQueryEnumerator<T>;
+        function From(Owner : TComponent) : IBoundComponentQuery<T>;
         // Primitive Operations
         function Map(Transformer : TProc<T>) : TReturnType;
         function SkipWhile(Predicate : TPredicate<T>) : TReturnType; overload;
@@ -91,39 +91,39 @@ type
         // Derivative Operations
         function HasProperty(const Name : string; PropertyType : TTypeKind) : TReturnType;
         function IntegerProperty(const Name : string; const Value : Integer) : TReturnType; overload;
-        function IntegerProperty(const Name : string; Query : IUnboundIntegerQueryEnumerator) : TReturnType; overload;
+        function IntegerProperty(const Name : string; Query : IUnboundIntegerQuery) : TReturnType; overload;
         function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : TReturnType; overload;
-        function StringProperty(const Name : string; Query : IUnboundStringQueryEnumerator) : TReturnType; overload;
+        function StringProperty(const Name : string; Query : IUnboundStringQuery) : TReturnType; overload;
         function BooleanProperty(const Name : string; const Value : Boolean) : TReturnType;
         function IsA(AClass : TClass) : TReturnType;
         function Skip(Count : Integer): TReturnType;
-        function SkipWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : TReturnType; overload;
+        function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : TReturnType; overload;
         function TagEquals(const TagValue : NativeInt) : TReturnType;
         function Take(Count : Integer): TReturnType;
-        function TakeWhile(UnboundQuery : IUnboundComponentQueryEnumerator<T>): TReturnType; overload;
-        function WhereNot(UnboundQuery : IUnboundComponentQueryEnumerator<T>) : TReturnType; overload;
+        function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): TReturnType; overload;
+        function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
         // Terminating Operations
         function Predicate : TPredicate<T>;
         function First : T;
       end;
   protected
-    FBoundQueryEnumerator : TComponentQueryEnumeratorImpl<IBoundComponentQueryEnumerator<T>>;
-    FUnboundQueryEnumerator : TComponentQueryEnumeratorImpl<IUnboundComponentQueryEnumerator<T>>;
+    FBoundQuery : TComponentQueryImpl<IBoundComponentQuery<T>>;
+    FUnboundQuery : TComponentQueryImpl<IUnboundComponentQuery<T>>;
   public
     constructor Create(EnumerationStrategy : TEnumerationStrategy<T>;
-                       UpstreamQuery : IBaseQueryEnumerator<T> = nil;
+                       UpstreamQuery : IBaseQuery<T> = nil;
                        SourceData : IMinimalEnumerator<T> = nil); override;
     destructor Destroy; override;
-    property BoundQueryEnumerator : TComponentQueryEnumeratorImpl<IBoundComponentQueryEnumerator<T>>
-                                       read FBoundQueryEnumerator implements IBoundComponentQueryEnumerator<T>;
-    property UnboundQueryEnumerator : TComponentQueryEnumeratorImpl<IUnboundComponentQueryEnumerator<T>>
-                                       read FUnboundQueryEnumerator implements IUnboundComponentQueryEnumerator<T>;
+    property BoundQuery : TComponentQueryImpl<IBoundComponentQuery<T>>
+                                       read FBoundQuery implements IBoundComponentQuery<T>;
+    property UnboundQuery : TComponentQueryImpl<IUnboundComponentQuery<T>>
+                                       read FUnboundQuery implements IUnboundComponentQuery<T>;
   end;
 
   ComponentQuery<T : TComponent> = class
   public
-    class function Select : IUnboundComponentQueryEnumerator<T>;
+    class function Select : IUnboundComponentQuery<T>;
   end;
 
 
@@ -136,25 +136,25 @@ uses
 
 { TComponentQueryEnumerator<T> }
 
-constructor TComponentQueryEnumerator<T>.Create(
+constructor TComponentQuery<T>.Create(
   EnumerationStrategy: TEnumerationStrategy<T>;
-  UpstreamQuery: IBaseQueryEnumerator<T>; SourceData: IMinimalEnumerator<T>);
+  UpstreamQuery: IBaseQuery<T>; SourceData: IMinimalEnumerator<T>);
 begin
   inherited Create(EnumerationStrategy, UpstreamQuery, SourceData);
-  FBoundQueryEnumerator := TComponentQueryEnumeratorImpl<IBoundComponentQueryEnumerator<T>>.Create(self);
-  FUnboundQueryEnumerator := TComponentQueryEnumeratorImpl<IUnboundComponentQueryEnumerator<T>>.Create(self);
+  FBoundQuery := TComponentQueryImpl<IBoundComponentQuery<T>>.Create(self);
+  FUnboundQuery := TComponentQueryImpl<IUnboundComponentQuery<T>>.Create(self);
 end;
 
-destructor TComponentQueryEnumerator<T>.Destroy;
+destructor TComponentQuery<T>.Destroy;
 begin
-  FBoundQueryEnumerator.Free;
-  FUnboundQueryEnumerator.Free;
+  FBoundQuery.Free;
+  FUnboundQuery.Free;
   inherited;
 end;
 
 { TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType> }
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.BooleanProperty(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.BooleanProperty(
   const Name: string; const Value: Boolean): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.BooleanPropertyNamedWithValue(Name, Value));
@@ -163,13 +163,13 @@ begin
 {$ENDIF}
 end;
 
-constructor TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.Create(
-  Query: TComponentQueryEnumerator<T>);
+constructor TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Create(
+  Query: TComponentQuery<T>);
 begin
   FQuery := Query;
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.First: T;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.First: T;
 begin
   if FQuery.MoveNext then
     Result := FQuery.GetCurrent
@@ -177,8 +177,8 @@ begin
     raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.From(
-  Owner: TComponent): IBoundComponentQueryEnumerator<T>;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.From(
+  Owner: TComponent): IBoundComponentQuery<T>;
 var
   LEnumeratorWrapper : IMinimalEnumerator<TComponent>;
   LSuperTypeAdapter : TSuperTypeEnumeratorAdapter<TComponent, T>;
@@ -186,30 +186,30 @@ begin
   LEnumeratorWrapper := TComponentEnumeratorAdapter.Create(Owner.GetEnumerator) as IMinimalEnumerator<TComponent>;
   LSuperTypeAdapter := TSuperTypeEnumeratorAdapter<TComponent, T>.Create(
                          ObjectQuery<TComponent>.Select.From(LEnumeratorWrapper).IsA(T));
-  Result := TComponentQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create,
-                                       IBaseQueryEnumerator<T>(FQuery),
+  Result := TComponentQuery<T>.Create(TEnumerationStrategy<T>.Create,
+                                       IBaseQuery<T>(FQuery),
                                        LSuperTypeAdapter);
 {$IFDEF DEBUG}
   Result.OperationName := Format('From(%s)', [Owner.Name]);
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.GetEnumerator: TReturnType;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.GetEnumerator: TReturnType;
 begin
   Result := FQuery;
 end;
 
 {$IFDEF DEBUG}
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.GetOperationName: String;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.GetOperationName: String;
 begin
   Result := FQuery.OperationName;
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.GetOperationPath: String;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.HasProperty(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.HasProperty(
   const Name: string; PropertyType: TTypeKind): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.PropertyNamedOfType(Name, PropertyType));
@@ -220,7 +220,7 @@ end;
 
 {$ENDIF}
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.IntegerProperty(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.IntegerProperty(
   const Name: string; const Value: Integer): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.IntegerPropertyNamedWithValue(Name, TIntegerMethodFactory.Equals(Value)));
@@ -229,8 +229,8 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.IntegerProperty(
-  const Name: string; Query: IUnboundIntegerQueryEnumerator): TReturnType;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.IntegerProperty(
+  const Name: string; Query: IUnboundIntegerQuery): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.IntegerPropertyNamedWithValue(Name, Query.Predicate));
 {$IFDEF DEBUG}
@@ -238,7 +238,7 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.IsA(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.IsA(
   AClass: TClass): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.IsA(AClass));
@@ -247,25 +247,25 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.Map(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Map(
   Transformer: TProc<T>): TReturnType;
 begin
-  Result := TComponentQueryEnumerator<T>.Create(
+  Result := TComponentQuery<T>.Create(
               TIsomorphicTransformEnumerationStrategy<T>.Create(
                 TComponentMethodFactory<T>.InPlaceTransformer(Transformer)),
-              IBaseQueryEnumerator<T>(FQuery));
+              IBaseQuery<T>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'Map(Transformer)';
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.Predicate: TPredicate<T>;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Predicate: TPredicate<T>;
 begin
   Result := TComponentMethodFactory<T>.QuerySingleValue(FQuery);
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.SkipWhile(
-  UnboundQuery: IUnboundComponentQueryEnumerator<T>): TReturnType;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.SkipWhile(
+  UnboundQuery: IUnboundComponentQuery<T>): TReturnType;
 begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
@@ -273,8 +273,8 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.StringProperty(
-  const Name: string; Query: IUnboundStringQueryEnumerator): TReturnType;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.StringProperty(
+  const Name: string; Query: IUnboundStringQuery): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue(Name,
                                                                           Query.Predicate));
@@ -283,7 +283,7 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.StringProperty(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.StringProperty(
   const Name, Value: String; IgnoreCase : Boolean): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue(Name,
@@ -293,37 +293,37 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.SkipWhile(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.SkipWhile(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := TComponentQueryEnumerator<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(Predicate),
-                                       IBaseQueryEnumerator<T>(FQuery));
+  Result := TComponentQuery<T>.Create(TSkipWhileEnumerationStrategy<T>.Create(Predicate),
+                                       IBaseQuery<T>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'SkipWhile(Predicate)';
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.TakeWhile(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.TakeWhile(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := TComponentQueryEnumerator<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(Predicate),
-                                       IBaseQueryEnumerator<T>(FQuery));
+  Result := TComponentQuery<T>.Create(TTakeWhileEnumerationStrategy<T>.Create(Predicate),
+                                       IBaseQuery<T>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'TakeWhile(Predicate)';
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.Where(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Where(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := TComponentQueryEnumerator<T>.Create(TWhereEnumerationStrategy<T>.Create(Predicate),
-                                             IBaseQueryEnumerator<T>(FQuery));
+  Result := TComponentQuery<T>.Create(TWhereEnumerationStrategy<T>.Create(Predicate),
+                                             IBaseQuery<T>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'Where(Predicate)';
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.Skip(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Skip(
   Count: Integer): TReturnType;
 begin
   Result := SkipWhile(TComponentMethodFactory<T>.UpToNumberOfTimes(Count));
@@ -332,7 +332,7 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.TagEquals(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.TagEquals(
   const TagValue: NativeInt): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.TagEquals(TagValue));
@@ -341,7 +341,7 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.Take(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Take(
   Count: Integer): TReturnType;
 begin
   Result := TakeWhile(TComponentMethodFactory<T>.UpToNumberOfTimes(Count));
@@ -350,8 +350,8 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.TakeWhile(
-  UnboundQuery: IUnboundComponentQueryEnumerator<T>): TReturnType;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.TakeWhile(
+  UnboundQuery: IUnboundComponentQuery<T>): TReturnType;
 begin
   Result := TakeWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
@@ -359,8 +359,8 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.WhereNot(
-  UnboundQuery: IUnboundComponentQueryEnumerator<T>): TReturnType;
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.WhereNot(
+  UnboundQuery: IUnboundComponentQuery<T>): TReturnType;
 begin
   Result := WhereNot(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
@@ -368,7 +368,7 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType>.WhereNot(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<T>): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.InvertPredicate(Predicate));
@@ -379,9 +379,9 @@ end;
 
 { ComponentQuery<T> }
 
-class function ComponentQuery<T>.Select: IUnboundComponentQueryEnumerator<T>;
+class function ComponentQuery<T>.Select: IUnboundComponentQuery<T>;
 begin
-  Result := TComponentQueryEnumerator<T>.Create(TEnumerationStrategy<T>.Create);
+  Result := TComponentQuery<T>.Create(TEnumerationStrategy<T>.Create);
 {$IFDEF DEBUG}
   Result.OperationName := 'ComponentQuery.Select<T>';
 {$ENDIF}
