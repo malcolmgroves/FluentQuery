@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{63CCEDE9-87C1-452B-BC2F-D92D5F0D1433}</ProjectGuid>
-        <ProjectVersion>16.0</ProjectVersion>
+        <ProjectVersion>16.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
@@ -110,6 +110,8 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\FluentQuery.Components.MethodFactories.pas"/>
+        <DCCReference Include="..\FluentQuery.Files.pas"/>
+        <DCCReference Include="FLuentQuery.Files.Test.pas"/>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
         <None Include="ModelSupport_FluentQueryTests\default.txvpck"/>
         <None Include="ModelSupport_FluentQueryTests\FluentQueryTests\default.txvpck"/>
@@ -348,6 +350,12 @@
                     </Platform>
                     <Platform Name="Win32">
                         <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage426">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-small</RemoteDir>
+                        <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSEntitlements"/>
