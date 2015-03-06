@@ -29,58 +29,64 @@ uses
   IOUtils;
 
 type
-  { TODO : HasAttribute, whihc is used by IsHidden, IsDirectory etc }
   { TODO : FromRoot(Drive) }
-  { TODO : Make this a FileSystemQuery, and add a DriveQuery as well }
-  { TODO : Extend namematches to check if file or directory. if directory, match on the name of the leaf directory }
+  { TODO : add a DriveQuery as well }
 
-  IUnboundFileQuery = interface;
+  IUnboundFileSystemQuery = interface;
 
-  IBoundFileQuery = interface(IBaseQuery<String>)
-    function GetEnumerator: IBoundFileQuery;
+  IBoundFileSystemQuery = interface(IBaseQuery<String>)
+    function GetEnumerator: IBoundFileSystemQuery;
     // query operations
-    function Map(Transformer : TFunc<String, String>) : IBoundFileQuery;
-    function Skip(Count : Integer): IBoundFileQuery;
-    function SkipWhile(Predicate : TPredicate<String>) : IBoundFileQuery; overload;
-    function SkipWhile(UnboundQuery : IUnboundFileQuery) : IBoundFileQuery; overload;
-    function Take(Count : Integer): IBoundFileQuery;
-    function TakeWhile(Predicate : TPredicate<String>): IBoundFileQuery; overload;
-    function TakeWhile(UnboundQuery : IUnboundFileQuery): IBoundFileQuery; overload;
-    function Where(Predicate : TPredicate<String>) : IBoundFileQuery;
-    function WhereNot(UnboundQuery : IUnboundFileQuery) : IBoundFileQuery; overload;
-    function WhereNot(Predicate : TPredicate<String>) : IBoundFileQuery; overload;
+    function Map(Transformer : TFunc<String, String>) : IBoundFileSystemQuery;
+    function Skip(Count : Integer): IBoundFileSystemQuery;
+    function SkipWhile(Predicate : TPredicate<String>) : IBoundFileSystemQuery; overload;
+    function SkipWhile(UnboundQuery : IUnboundFileSystemQuery) : IBoundFileSystemQuery; overload;
+    function Take(Count : Integer): IBoundFileSystemQuery;
+    function TakeWhile(Predicate : TPredicate<String>): IBoundFileSystemQuery; overload;
+    function TakeWhile(UnboundQuery : IUnboundFileSystemQuery): IBoundFileSystemQuery; overload;
+    function Where(Predicate : TPredicate<String>) : IBoundFileSystemQuery;
+    function WhereNot(UnboundQuery : IUnboundFileSystemQuery) : IBoundFileSystemQuery; overload;
+    function WhereNot(Predicate : TPredicate<String>) : IBoundFileSystemQuery; overload;
     // type-specific operations
-    function NameMatches(const Mask : String) : IBoundFileQuery;
-    function Files : IBoundFileQuery;
-    function Directories : IBoundFileQuery;
+    function NameMatches(const Mask : String) : IBoundFileSystemQuery;
+    function Files : IBoundFileSystemQuery;
+    function Directories : IBoundFileSystemQuery;
+    function Hidden : IBoundFileSystemQuery;
+    function NotHidden : IBoundFileSystemQuery;
+    function ReadOnly : IBoundFileSystemQuery;
+    function NotReadOnly : IBoundFileSystemQuery;
     // terminating operations
     function First : String;
   end;
 
-  IUnboundFileQuery = interface(IBaseQuery<String>)
-    function GetEnumerator: IUnboundFileQuery;
-    function From(const Directory : string) : IBoundFileQuery;
+  IUnboundFileSystemQuery = interface(IBaseQuery<String>)
+    function GetEnumerator: IUnboundFileSystemQuery;
+    function From(const Directory : string) : IBoundFileSystemQuery;
     // query operations
-    function Map(Transformer : TFunc<String, String>) : IUnboundFileQuery;
-    function Skip(Count : Integer): IUnboundFileQuery;
-    function SkipWhile(Predicate : TPredicate<String>) : IUnboundFileQuery; overload;
-    function SkipWhile(UnboundQuery : IUnboundFileQuery) : IUnboundFileQuery; overload;
-    function Take(Count : Integer): IUnboundFileQuery;
-    function TakeWhile(Predicate : TPredicate<String>): IUnboundFileQuery; overload;
-    function TakeWhile(UnboundQuery : IUnboundFileQuery): IUnboundFileQuery; overload;
-    function Where(Predicate : TPredicate<String>) : IUnboundFileQuery;
-    function WhereNot(UnboundQuery : IUnboundFileQuery) : IUnboundFileQuery; overload;
-    function WhereNot(Predicate : TPredicate<String>) : IUnboundFileQuery; overload;
+    function Map(Transformer : TFunc<String, String>) : IUnboundFileSystemQuery;
+    function Skip(Count : Integer): IUnboundFileSystemQuery;
+    function SkipWhile(Predicate : TPredicate<String>) : IUnboundFileSystemQuery; overload;
+    function SkipWhile(UnboundQuery : IUnboundFileSystemQuery) : IUnboundFileSystemQuery; overload;
+    function Take(Count : Integer): IUnboundFileSystemQuery;
+    function TakeWhile(Predicate : TPredicate<String>): IUnboundFileSystemQuery; overload;
+    function TakeWhile(UnboundQuery : IUnboundFileSystemQuery): IUnboundFileSystemQuery; overload;
+    function Where(Predicate : TPredicate<String>) : IUnboundFileSystemQuery;
+    function WhereNot(UnboundQuery : IUnboundFileSystemQuery) : IUnboundFileSystemQuery; overload;
+    function WhereNot(Predicate : TPredicate<String>) : IUnboundFileSystemQuery; overload;
     // type-specific operations
-    function NameMatches(const Mask : String) : IUnboundFileQuery;
-    function Files : IUnboundFileQuery;
-    function Directories : IUnboundFileQuery;
+    function NameMatches(const Mask : String) : IUnboundFileSystemQuery;
+    function Files : IUnboundFileSystemQuery;
+    function Hidden : IUnboundFileSystemQuery;
+    function NotHidden : IUnboundFileSystemQuery;
+    function ReadOnly : IUnboundFileSystemQuery;
+    function NotReadOnly : IUnboundFileSystemQuery;
+    function Directories : IUnboundFileSystemQuery;
     // terminating operations
     function Predicate : TPredicate<String>;
   end;
 
 
-function FileQuery : IUnboundFileQuery;
+function FileSystemQuery : IUnboundFileSystemQuery;
 
 
 implementation
@@ -88,18 +94,18 @@ implementation
 uses  FluentQuery.Strings.MethodFactories;
 
 type
-  TFileQuery = class(TBaseQuery<String>, IBoundFileQuery, IUnboundFileQuery)
+  TFileSystemQuery = class(TBaseQuery<String>, IBoundFileSystemQuery, IUnboundFileSystemQuery)
   protected
     type
       TQueryImpl<TReturnType : IBaseQuery<String>> = class
       private
-        FQuery : TFileQuery;
+        FQuery : TFileSystemQuery;
         function HasAttribute(const Path : string; Attributes : TFileAttributes): boolean;
       protected
         function GetDirectory : string;
         procedure SetDirectory(const Path : string);
       public
-        constructor Create(Query : TFileQuery); virtual;
+        constructor Create(Query : TFileSystemQuery); virtual;
         function GetEnumerator: TReturnType;
 {$IFDEF DEBUG}
         function GetOperationName : String;
@@ -107,7 +113,7 @@ type
         property OperationName : string read GetOperationName;
         property OperationPath : string read GetOperationPath;
 {$ENDIF}
-        function From(const Directory : string) : IBoundFileQuery;
+        function From(const Directory : string) : IBoundFileSystemQuery;
         // Primitive Operations
         function Map(Transformer : TFunc<String, String>) : TReturnType;
         function SkipWhile(Predicate : TPredicate<String>) : TReturnType; overload;
@@ -115,30 +121,34 @@ type
         function Where(Predicate : TPredicate<String>) : TReturnType;
         // Derivative Operations
         function Skip(Count : Integer): TReturnType;
-        function SkipWhile(UnboundQuery : IUnboundFileQuery) : TReturnType; overload;
+        function SkipWhile(UnboundQuery : IUnboundFileSystemQuery) : TReturnType; overload;
         function Take(Count : Integer): TReturnType;
-        function TakeWhile(UnboundQuery : IUnboundFileQuery): TReturnType; overload;
-        function WhereNot(UnboundQuery : IUnboundFileQuery) : TReturnType; overload;
+        function TakeWhile(UnboundQuery : IUnboundFileSystemQuery): TReturnType; overload;
+        function WhereNot(UnboundQuery : IUnboundFileSystemQuery) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<String>) : TReturnType; overload;
         function NameMatches(const Mask : String) : TReturnType;
         function Files : TReturnType;
+        function Hidden : TReturnType;
+        function NotHidden : TReturnType;
+        function ReadOnly : TReturnType;
+        function NotReadOnly : TReturnType;
         function Directories : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<String>;
         function First : String;
       end;
   protected
-    FBoundQuery : TQueryImpl<IBoundFileQuery>;
-    FUnboundQuery : TQueryImpl<IUnboundFileQuery>;
+    FBoundQuery : TQueryImpl<IBoundFileSystemQuery>;
+    FUnboundQuery : TQueryImpl<IUnboundFileSystemQuery>;
   public
     constructor Create(EnumerationStrategy : TEnumerationStrategy<String>;
                        UpstreamQuery : IBaseQuery<String> = nil;
                        SourceData : IMinimalEnumerator<String> = nil); override;
     destructor Destroy; override;
-    property BoundQuery : TQueryImpl<IBoundFileQuery>
-                                       read FBoundQuery implements IBoundFileQuery;
-    property UnboundQuery : TQueryImpl<IUnboundFileQuery>
-                                       read FUnboundQuery implements IUnboundFileQuery;
+    property BoundQuery : TQueryImpl<IBoundFileSystemQuery>
+                                       read FBoundQuery implements IBoundFileSystemQuery;
+    property UnboundQuery : TQueryImpl<IUnboundFileSystemQuery>
+                                       read FUnboundQuery implements IUnboundFileSystemQuery;
   end;
 
   TFilesEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<String>)
@@ -155,19 +165,15 @@ type
     property Current: String read GetCurrent;
   end;
 
-  TFileMethodFactory = class(TStringMethodFactory)
-  public
-    class function NameMatches(const Mask : string) : TPredicate<String>;
-  end;
 
 
 const
   DirValue = 'Directory';
 
 
-function FileQuery : IUnboundFileQuery;
+function FileSystemQuery : IUnboundFileSystemQuery;
 begin
-  Result := TFileQuery.Create(TEnumerationStrategy<String>.Create);
+  Result := TFileSystemQuery.Create(TEnumerationStrategy<String>.Create);
 {$IFDEF DEBUG}
   Result.OperationName := 'FileQuery';
 {$ENDIF}
@@ -175,19 +181,19 @@ end;
 
 { TQueryEnumerator<String> }
 
-constructor TFileQuery.TQueryImpl<TReturnType>.Create(
-  Query: TFileQuery);
+constructor TFileSystemQuery.TQueryImpl<TReturnType>.Create(
+  Query: TFileSystemQuery);
 begin
   FQuery := Query;
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.Directories: TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.Directories: TReturnType;
 var
   LIsDir : TPredicate<string>;
 begin
   LIsDir := function(Value : string) : Boolean
              begin
-               Result := HasAttribute(GetDirectory + PathDelim +  Value, [TFileAttribute.faDirectory]);
+               Result := HasAttribute(Value, [TFileAttribute.faDirectory]);
              end;
   Result := Where(LIsDir);
 {$IFDEF DEBUG}
@@ -195,13 +201,13 @@ begin
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.Files: TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.Files: TReturnType;
 var
   LIsFile : TPredicate<string>;
 begin
   LIsFile := function(Value : string) : Boolean
              begin
-               Result := not HasAttribute(GetDirectory + PathDelim +  Value, [TFileAttribute.faDirectory]);
+               Result := not HasAttribute(Value, [TFileAttribute.faDirectory]);
              end;
   Result := Where(LIsFile);
 {$IFDEF DEBUG}
@@ -209,7 +215,7 @@ begin
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.First: String;
+function TFileSystemQuery.TQueryImpl<TReturnType>.First: String;
 begin
   if FQuery.MoveNext then
     Result := FQuery.GetCurrent
@@ -217,7 +223,7 @@ begin
     raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.From(const Directory : String): IBoundFileQuery;
+function TFileSystemQuery.TQueryImpl<TReturnType>.From(const Directory : String): IBoundFileSystemQuery;
 var
   EnumeratorWrapper : IMinimalEnumerator<String>;
   LSearchRec : TSearchRec;
@@ -230,9 +236,10 @@ begin
                      begin
                         Result := (Value = '.') OR (Value = '..');
                      end;
+
   LFileAttrs := faReadOnly + faHIdden + faSysFile + faNormal + faTemporary + faCompressed + faEncrypted + faDirectory;
   EnumeratorWrapper := TFilesEnumeratorAdapter.Create(Directory + PathDelim + '*', LFileAttrs) as IMinimalEnumerator<String>;
-  Result := TFileQuery.Create(TWhereNotEnumerationStrategy<String>.Create(LSkipDotEntries),
+  Result := TFileSystemQuery.Create(TWhereNotEnumerationStrategy<String>.Create(LSkipDotEntries),
                                        IBaseQuery<String>(FQuery),
                                        EnumeratorWrapper);
 
@@ -241,41 +248,55 @@ begin
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.GetDirectory: string;
+function TFileSystemQuery.TQueryImpl<TReturnType>.GetDirectory: string;
 begin
   Result := FQuery.GetValue(DirValue);
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.GetEnumerator: TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.GetEnumerator: TReturnType;
 begin
   Result := FQuery;
 end;
 
 {$IFDEF DEBUG}
-function TFileQuery.TQueryImpl<TReturnType>.GetOperationName: String;
+function TFileSystemQuery.TQueryImpl<TReturnType>.GetOperationName: String;
 begin
   Result := FQuery.OperationName;
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.GetOperationPath: String;
+function TFileSystemQuery.TQueryImpl<TReturnType>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
-function TFileQuery.TQueryImpl<TReturnType>.HasAttribute(const Path: string;
+function TFileSystemQuery.TQueryImpl<TReturnType>.HasAttribute(const Path: string;
   Attributes: TFileAttributes): boolean;
 var
   LFileAttributes : TFileAttributes;
 begin
-  LFileAttributes := TPath.GetAttributes(Path);
+  LFileAttributes := TPath.GetAttributes(GetDirectory + PathDelim + Path);
   Result := LFileAttributes * Attributes <> [];
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.Hidden: TReturnType;
+var
+  LIsHIdden : TPredicate<string>;
+begin
+  LIsHIdden := function(Value : string) : Boolean
+               begin
+                 Result := HasAttribute(Value, [TFileAttribute.faHidden]);
+               end;
+  Result := Where(LIsHIdden);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Hidden';
+{$ENDIF}
 end;
 
 {$ENDIF}
 
-function TFileQuery.TQueryImpl<TReturnType>.Map(
+function TFileSystemQuery.TQueryImpl<TReturnType>.Map(
   Transformer: TFunc<String, String>): TReturnType;
 begin
-  Result := TFileQuery.Create(TIsomorphicTransformEnumerationStrategy<String>.Create(Transformer),
+  Result := TFileSystemQuery.Create(TIsomorphicTransformEnumerationStrategy<String>.Create(Transformer),
                                           IBaseQuery<String>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'Map(Transformer)';
@@ -283,34 +304,83 @@ begin
 end;
 
 
-function TFileQuery.TQueryImpl<TReturnType>.NameMatches(const Mask: String): TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.NameMatches(const Mask: String): TReturnType;
+var
+  LMatches : TPredicate<string>;
 begin
-  Result := Where(TFileMEthodFactory.NameMatches(Mask));
+  LMatches := function (CurrentValue : String) : Boolean
+              begin
+                Result := TPath.MatchesPattern(CurrentValue, Mask, False);
+              end;
+
+  Result := Where(LMatches);
 {$IFDEF DEBUG}
   Result.OperationName := Format('NameMatches(''%s'')', [Mask]);
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.Predicate: TPredicate<String>;
+function TFileSystemQuery.TQueryImpl<TReturnType>.NotHidden: TReturnType;
+var
+  LNotHIdden : TPredicate<string>;
 begin
-  Result := TFileMethodFactory.QuerySingleValue(FQuery);
+  LNotHIdden := function(Value : string) : Boolean
+                 begin
+                   Result := not HasAttribute(Value, [TFileAttribute.faHidden]);
+                 end;
+  Result := Where(LNotHIdden);
+{$IFDEF DEBUG}
+  Result.OperationName := 'NotHidden';
+{$ENDIF}
 end;
 
-procedure TFileQuery.TQueryImpl<TReturnType>.SetDirectory(const Path: string);
+function TFileSystemQuery.TQueryImpl<TReturnType>.NotReadOnly: TReturnType;
+var
+  LIsHIdden : TPredicate<string>;
+begin
+  LIsHIdden := function(Value : string) : Boolean
+               begin
+                 Result := not HasAttribute(Value, [TFileAttribute.faReadOnly]);
+               end;
+  Result := Where(LIsHIdden);
+{$IFDEF DEBUG}
+  Result.OperationName := 'ReadOnly';
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.Predicate: TPredicate<String>;
+begin
+  Result := TStringMethodFactory.QuerySingleValue(FQuery);
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.ReadOnly: TReturnType;
+var
+  LIsHIdden : TPredicate<string>;
+begin
+  LIsHIdden := function(Value : string) : Boolean
+               begin
+                 Result := HasAttribute(Value, [TFileAttribute.faReadOnly]);
+               end;
+  Result := Where(LIsHIdden);
+{$IFDEF DEBUG}
+  Result.OperationName := 'ReadOnly';
+{$ENDIF}
+end;
+
+procedure TFileSystemQuery.TQueryImpl<TReturnType>.SetDirectory(const Path: string);
 begin
   FQuery.SetValue(DirValue, Path);
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.Skip(Count: Integer): TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.Skip(Count: Integer): TReturnType;
 begin
-  Result := SkipWhile(TFileMethodFactory.UpToNumberOfTimes(Count));
+  Result := SkipWhile(TStringMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.SkipWhile(
-  UnboundQuery: IUnboundFileQuery): TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.SkipWhile(
+  UnboundQuery: IUnboundFileSystemQuery): TReturnType;
 begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
@@ -318,26 +388,26 @@ begin
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.SkipWhile(
+function TFileSystemQuery.TQueryImpl<TReturnType>.SkipWhile(
   Predicate: TPredicate<String>): TReturnType;
 begin
-  Result := TFileQuery.Create(TSkipWhileEnumerationStrategy<String>.Create(Predicate),
+  Result := TFileSystemQuery.Create(TSkipWhileEnumerationStrategy<String>.Create(Predicate),
                                        IBaseQuery<String>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'SkipWhile(Predicate)';
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.Take(Count: Integer): TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.Take(Count: Integer): TReturnType;
 begin
-  Result := TakeWhile(TFileMethodFactory.UpToNumberOfTimes(Count));
+  Result := TakeWhile(TStringMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.TakeWhile(
-  UnboundQuery: IUnboundFileQuery): TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.TakeWhile(
+  UnboundQuery: IUnboundFileSystemQuery): TReturnType;
 begin
   Result := TakeWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
@@ -345,10 +415,10 @@ begin
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.TakeWhile(
+function TFileSystemQuery.TQueryImpl<TReturnType>.TakeWhile(
   Predicate: TPredicate<String>): TReturnType;
 begin
-  Result := TFileQuery.Create(TTakeWhileEnumerationStrategy<String>.Create(Predicate),
+  Result := TFileSystemQuery.Create(TTakeWhileEnumerationStrategy<String>.Create(Predicate),
                                        IBaseQuery<String>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'TakeWhile(Predicate)';
@@ -356,10 +426,10 @@ begin
 end;
 
 
-function TFileQuery.TQueryImpl<TReturnType>.Where(
+function TFileSystemQuery.TQueryImpl<TReturnType>.Where(
   Predicate: TPredicate<String>): TReturnType;
 begin
-  Result := TFileQuery.Create(TWhereEnumerationStrategy<String>.Create(Predicate),
+  Result := TFileSystemQuery.Create(TWhereEnumerationStrategy<String>.Create(Predicate),
                                        IBaseQuery<String>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'Where(Predicate)';
@@ -367,8 +437,8 @@ begin
 end;
 
 
-function TFileQuery.TQueryImpl<TReturnType>.WhereNot(
-  UnboundQuery: IUnboundFileQuery): TReturnType;
+function TFileSystemQuery.TQueryImpl<TReturnType>.WhereNot(
+  UnboundQuery: IUnboundFileSystemQuery): TReturnType;
 begin
   Result := WhereNot(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
@@ -376,10 +446,10 @@ begin
 {$ENDIF}
 end;
 
-function TFileQuery.TQueryImpl<TReturnType>.WhereNot(
+function TFileSystemQuery.TQueryImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<String>): TReturnType;
 begin
-  Result := Where(TFileMethodFactory.InvertPredicate(Predicate));
+  Result := Where(TStringMethodFactory.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}
@@ -387,16 +457,16 @@ end;
 
 { TQueryEnumerator<String> }
 
-constructor TFileQuery.Create(
+constructor TFileSystemQuery.Create(
   EnumerationStrategy: TEnumerationStrategy<String>;
   UpstreamQuery: IBaseQuery<String>; SourceData: IMinimalEnumerator<String>);
 begin
   inherited Create(EnumerationStrategy, UpstreamQuery, SourceData);
-  FBoundQuery := TQueryImpl<IBoundFileQuery>.Create(self);
-  FUnboundQuery := TQueryImpl<IUnboundFileQuery>.Create(self);
+  FBoundQuery := TQueryImpl<IBoundFileSystemQuery>.Create(self);
+  FUnboundQuery := TQueryImpl<IUnboundFileSystemQuery>.Create(self);
 end;
 
-destructor TFileQuery.Destroy;
+destructor TFileSystemQuery.Destroy;
 begin
   FBoundQuery.Free;
   FUnboundQuery.Free;
@@ -436,14 +506,7 @@ begin
     Result := FindNext(FSearchRec) = 0;
 end;
 
-{ TFileMethodFactory }
 
-class function TFileMethodFactory.NameMatches(const Mask: string): TPredicate<String>;
-begin
-  Result := function (CurrentValue : String) : Boolean
-            begin
-              Result := TPath.MatchesPattern(TPath.GetFilename(CurrentValue), Mask, False);
-            end;
-end;
+{ TFileMethodFactory }
 
 end.

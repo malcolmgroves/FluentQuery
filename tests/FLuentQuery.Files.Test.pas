@@ -46,6 +46,10 @@ type
   published
     procedure TestPassThrough;
     procedure TestPassThroughFiles;
+    procedure TestPassThroughHiddenFiles;
+    procedure TestPassThroughNotHiddenFiles;
+    procedure TestPassThroughReadOnlyFiles;
+    procedure TestPassThroughNotReadOnlyFiles;
     procedure TestPassThroughDirectories;
     procedure TestTakeLowerThanCount;
     procedure TestTakeEqualCount;
@@ -74,6 +78,7 @@ type
     procedure TestFirst;
     procedure TestNameMatchesAll;
     procedure TestNameMatchesSome;
+    procedure TestNameMatchesDir;
     procedure TestNameMatchesNone;
   end;
 
@@ -94,7 +99,9 @@ begin
   TFile.WriteAllText(FTestDirectory + PathDelim + '4filename.txt', '');
   TFile.WriteAllText(FTestDirectory + PathDelim + '5filename.txt', '');
   TFile.WriteAllText(FTestDirectory + PathDelim + '6filename.txt', '');
+  TFile.SetAttributes(FTestDirectory + PathDelim + '6filename.txt', [TFileAttribute.faHidden]);
   TFile.WriteAllText(FTestDirectory + PathDelim + '7filename.txt', '');
+  TFile.SetAttributes(FTestDirectory + PathDelim + '7filename.txt', [TFileAttribute.faReadOnly]);
   TFile.WriteAllText(FTestDirectory + PathDelim + '8filename.txt', '');
   TFile.WriteAllText(FTestDirectory + PathDelim + '9filename.txt', '');
 
@@ -152,7 +159,7 @@ var
   I : string;
 begin
   LPassCount := 0;
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Take(FTotalCount) do
   begin
@@ -170,7 +177,7 @@ var
   I : string;
 begin
   LPassCount := 0;
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Take(FTotalCount + 1) do
   begin
@@ -189,7 +196,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Take(FTotalCount - 1) do
   begin
@@ -208,7 +215,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Take(1) do
   begin
@@ -227,7 +234,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .Take(5)
              .Where(FFirstLetterEven) do
@@ -247,7 +254,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .TakeWhile(FFirstLetterFourOrLess) do
   begin
@@ -266,7 +273,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .TakeWhile(FFalsePredicate) do
   begin
@@ -284,7 +291,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .TakeWhile(FTruePredicate) do
   begin
@@ -302,7 +309,7 @@ var
   I : string;
 begin
   LPassCount := 0;
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Take(0) do
   begin
@@ -318,7 +325,7 @@ var
   I : String;
   LFilename : string;
 begin
-  I := FileQuery
+  I := FileSystemQuery
         .From(FTestDirectory)
         .Skip(2)
         .First;
@@ -335,13 +342,28 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .NameMatches('*') do
     Inc(LPassCount);
 
   CheckEquals(FTotalCount, LPassCount);
   CheckNotEquals(0, LPassCount);
+end;
+
+procedure TestFileQuery.TestNameMatchesDir;
+var
+  LPassCount : Integer;
+  I : string;
+begin
+  LPassCount := 0;
+
+  for I in FileSystemQuery
+             .From(FTestDirectory)
+             .NameMatches('child*') do
+    Inc(LPassCount);
+
+  CheckEquals(1, LPassCount);
 end;
 
 procedure TestFileQuery.TestNameMatchesNone;
@@ -351,7 +373,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .NameMatches('*.blah') do
     Inc(LPassCount);
@@ -366,7 +388,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .NameMatches('1*.*') do
     Inc(LPassCount);
@@ -381,7 +403,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .WhereNot(FFirstLetterEven) do
   begin
@@ -404,9 +426,9 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
-             .WhereNot(FileQuery.Where(FFirstLetterEven)) do
+             .WhereNot(FileSystemQuery.Where(FFirstLetterEven)) do
   begin
     try
       Check(StrToInt(TPath.GetFilename(I).Substring(0, 1)) mod 2 <> 0,
@@ -426,7 +448,7 @@ var
   LFile : string;
 begin
   LPassCount := 0;
-  for LFile in FileQuery
+  for LFile in FileSystemQuery
                 .From(FTestDirectory) do
   begin
     Inc(LPassCount);
@@ -442,7 +464,7 @@ var
   LFile : string;
 begin
   LPassCount := 0;
-  for LFile in FileQuery
+  for LFile in FileSystemQuery
                 .From(FTestDirectory)
                 .Directories do
   begin
@@ -458,7 +480,7 @@ var
   LFile : string;
 begin
   LPassCount := 0;
-  for LFile in FileQuery
+  for LFile in FileSystemQuery
                 .From(FTestDirectory)
                 .Files do
   begin
@@ -469,6 +491,76 @@ begin
   CheckNotEquals(0, LPasscount);
 end;
 
+procedure TestFileQuery.TestPassThroughHiddenFiles;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .From(FTestDirectory)
+                .Files
+                .Hidden do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(1, LPassCount);
+end;
+
+procedure TestFileQuery.TestPassThroughNotHiddenFiles;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .From(FTestDirectory)
+                .Files
+                .NotHidden do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FFileCount - 1, LPassCount);
+  CheckNotEquals(0, LPasscount);
+end;
+
+procedure TestFileQuery.TestPassThroughNotReadOnlyFiles;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .From(FTestDirectory)
+                .Files
+                .NotReadOnly do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FFileCount - 1, LPassCount);
+  CheckNotEquals(0, LPasscount);
+end;
+
+procedure TestFileQuery.TestPassThroughReadOnlyFiles;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .From(FTestDirectory)
+                .Files
+                .ReadOnly do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(1, LPassCount);
+end;
+
 procedure TestFileQuery.TestSkipEqualCount;
 var
   LPassCount : Integer;
@@ -476,7 +568,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Skip(FTotalCount) do
   begin
@@ -495,7 +587,7 @@ begin
   LPassCount := 0;
   LSkipCount := FTotalCount + 2;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Skip(LSkipCount) do
   begin
@@ -514,7 +606,7 @@ begin
   LPassCount := 0;
   LSkipCount := FTotalCount - 2;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Skip(LSkipCount) do
   begin
@@ -532,7 +624,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .Skip(5)
              .Where(FFirstLetterEven) do
@@ -551,7 +643,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .SkipWhile(FFirstLetterFourOrLess) do
   begin
@@ -569,7 +661,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .SkipWhile(FFalsePredicate) do
   begin
@@ -588,7 +680,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .SkipWhile(FTruePredicate) do
   begin
@@ -606,7 +698,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Skip(0) do
   begin
@@ -624,7 +716,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Where(FFirstLetterEven) do
   begin
@@ -642,7 +734,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Where(FTruePredicate) do
   begin
@@ -660,7 +752,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .Where(FFirstLetterEven)
              .Take(3) do
@@ -679,7 +771,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
             .From(FTestDirectory)
             .Where(FFalsePredicate) do
   begin
@@ -697,7 +789,7 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery
+  for I in FileSystemQuery
              .From(FTestDirectory)
              .Where(FFirstLetterEven)
              .Skip(3) do
