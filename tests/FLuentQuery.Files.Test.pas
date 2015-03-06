@@ -45,12 +45,13 @@ type
     procedure TearDown; override;
   published
     procedure TestPassThrough;
-    procedure TestPassThroughFiles;
-    procedure TestPassThroughHiddenFiles;
-    procedure TestPassThroughNotHiddenFiles;
-    procedure TestPassThroughReadOnlyFiles;
-    procedure TestPassThroughNotReadOnlyFiles;
-    procedure TestPassThroughDirectories;
+    procedure TestFiles;
+    procedure TestHiddenFiles;
+    procedure TestNotHiddenFiles;
+    procedure TestNotHiddenNotReadOnlyFiles;
+    procedure TestReadOnlyFiles;
+    procedure TestNotReadOnlyFiles;
+    procedure TestDirectories;
     procedure TestTakeLowerThanCount;
     procedure TestTakeEqualCount;
     procedure TestTakeGreaterThanCount;
@@ -458,7 +459,7 @@ begin
   CheckNotEquals(0, LPasscount);
 end;
 
-procedure TestFileQuery.TestPassThroughDirectories;
+procedure TestFileQuery.TestDirectories;
 var
   LPassCount : Integer;
   LFile : string;
@@ -474,7 +475,7 @@ begin
   CheckEquals(FDirCount, LPassCount);
 end;
 
-procedure TestFileQuery.TestPassThroughFiles;
+procedure TestFileQuery.TestFiles;
 var
   LPassCount : Integer;
   LFile : string;
@@ -491,7 +492,7 @@ begin
   CheckNotEquals(0, LPasscount);
 end;
 
-procedure TestFileQuery.TestPassThroughHiddenFiles;
+procedure TestFileQuery.TestHiddenFiles;
 var
   LPassCount : Integer;
   LFile : string;
@@ -508,7 +509,7 @@ begin
   CheckEquals(1, LPassCount);
 end;
 
-procedure TestFileQuery.TestPassThroughNotHiddenFiles;
+procedure TestFileQuery.TestNotHiddenFiles;
 var
   LPassCount : Integer;
   LFile : string;
@@ -526,7 +527,26 @@ begin
   CheckNotEquals(0, LPasscount);
 end;
 
-procedure TestFileQuery.TestPassThroughNotReadOnlyFiles;
+procedure TestFileQuery.TestNotHiddenNotReadOnlyFiles;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .From(FTestDirectory)
+                .Files
+                .NotHidden
+                .NotReadOnly do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FFileCount - 2, LPassCount);
+  CheckNotEquals(0, LPasscount);
+end;
+
+procedure TestFileQuery.TestNotReadOnlyFiles;
 var
   LPassCount : Integer;
   LFile : string;
@@ -544,7 +564,7 @@ begin
   CheckNotEquals(0, LPasscount);
 end;
 
-procedure TestFileQuery.TestPassThroughReadOnlyFiles;
+procedure TestFileQuery.TestReadOnlyFiles;
 var
   LPassCount : Integer;
   LFile : string;

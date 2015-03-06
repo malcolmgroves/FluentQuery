@@ -55,6 +55,8 @@ type
     function NotHidden : IBoundFileSystemQuery;
     function ReadOnly : IBoundFileSystemQuery;
     function NotReadOnly : IBoundFileSystemQuery;
+    function System : IBoundFileSystemQuery;
+    function NotSystem : IBoundFileSystemQuery;
     // terminating operations
     function First : String;
   end;
@@ -81,6 +83,8 @@ type
     function ReadOnly : IUnboundFileSystemQuery;
     function NotReadOnly : IUnboundFileSystemQuery;
     function Directories : IUnboundFileSystemQuery;
+    function System : IUnboundFileSystemQuery;
+    function NotSystem : IUnboundFileSystemQuery;
     // terminating operations
     function Predicate : TPredicate<String>;
   end;
@@ -100,7 +104,7 @@ type
       TQueryImpl<TReturnType : IBaseQuery<String>> = class
       private
         FQuery : TFileSystemQuery;
-        function HasAttribute(const Path : string; Attributes : TFileAttributes): boolean;
+        function HasAttributePredicate(Attributes : TFileAttributes): TPredicate<String>;
       protected
         function GetDirectory : string;
         procedure SetDirectory(const Path : string);
@@ -133,6 +137,8 @@ type
         function ReadOnly : TReturnType;
         function NotReadOnly : TReturnType;
         function Directories : TReturnType;
+        function System : TReturnType;
+        function NotSystem : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<String>;
         function First : String;
@@ -188,28 +194,16 @@ begin
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Directories: TReturnType;
-var
-  LIsDir : TPredicate<string>;
 begin
-  LIsDir := function(Value : string) : Boolean
-             begin
-               Result := HasAttribute(Value, [TFileAttribute.faDirectory]);
-             end;
-  Result := Where(LIsDir);
+  Result := Where(HasAttributePredicate([TFileAttribute.faDirectory]));
 {$IFDEF DEBUG}
   Result.OperationName := 'Directories';
 {$ENDIF}
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Files: TReturnType;
-var
-  LIsFile : TPredicate<string>;
 begin
-  LIsFile := function(Value : string) : Boolean
-             begin
-               Result := not HasAttribute(Value, [TFileAttribute.faDirectory]);
-             end;
-  Result := Where(LIsFile);
+  Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faDirectory])));
 {$IFDEF DEBUG}
   Result.OperationName := 'Files';
 {$ENDIF}
@@ -268,24 +262,23 @@ function TFileSystemQuery.TQueryImpl<TReturnType>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
-function TFileSystemQuery.TQueryImpl<TReturnType>.HasAttribute(const Path: string;
-  Attributes: TFileAttributes): boolean;
+function TFileSystemQuery.TQueryImpl<TReturnType>.HasAttributePredicate(Attributes: TFileAttributes): TPredicate<String>;
 var
-  LFileAttributes : TFileAttributes;
+  LFullPath : string;
 begin
-  LFileAttributes := TPath.GetAttributes(GetDirectory + PathDelim + Path);
-  Result := LFileAttributes * Attributes <> [];
+  LFullPath := GetDirectory + PathDelim;
+  Result := function (Value : string) : boolean
+            var
+              LFileAttributes : TFileAttributes;
+            begin
+              LFileAttributes := TPath.GetAttributes(LFullPath + Value);
+              Result := LFileAttributes * Attributes <> [];
+            end;
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Hidden: TReturnType;
-var
-  LIsHIdden : TPredicate<string>;
 begin
-  LIsHIdden := function(Value : string) : Boolean
-               begin
-                 Result := HasAttribute(Value, [TFileAttribute.faHidden]);
-               end;
-  Result := Where(LIsHIdden);
+  Result := Where(HasAttributePredicate([TFileAttribute.faHidden]));
 {$IFDEF DEBUG}
   Result.OperationName := 'Hidden';
 {$ENDIF}
@@ -320,30 +313,26 @@ begin
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotHidden: TReturnType;
-var
-  LNotHIdden : TPredicate<string>;
 begin
-  LNotHIdden := function(Value : string) : Boolean
-                 begin
-                   Result := not HasAttribute(Value, [TFileAttribute.faHidden]);
-                 end;
-  Result := Where(LNotHIdden);
+  Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faHidden])));
 {$IFDEF DEBUG}
   Result.OperationName := 'NotHidden';
 {$ENDIF}
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotReadOnly: TReturnType;
-var
-  LIsHIdden : TPredicate<string>;
 begin
-  LIsHIdden := function(Value : string) : Boolean
-               begin
-                 Result := not HasAttribute(Value, [TFileAttribute.faReadOnly]);
-               end;
-  Result := Where(LIsHIdden);
+  Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faReadOnly])));
 {$IFDEF DEBUG}
   Result.OperationName := 'ReadOnly';
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.NotSystem: TReturnType;
+begin
+  Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faSystem])));
+{$IFDEF DEBUG}
+  Result.OperationName := 'NotSystem';
 {$ENDIF}
 end;
 
@@ -353,14 +342,8 @@ begin
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.ReadOnly: TReturnType;
-var
-  LIsHIdden : TPredicate<string>;
 begin
-  LIsHIdden := function(Value : string) : Boolean
-               begin
-                 Result := HasAttribute(Value, [TFileAttribute.faReadOnly]);
-               end;
-  Result := Where(LIsHIdden);
+  Result := Where(HasAttributePredicate([TFileAttribute.faReadOnly]));
 {$IFDEF DEBUG}
   Result.OperationName := 'ReadOnly';
 {$ENDIF}
@@ -385,6 +368,14 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.System: TReturnType;
+begin
+  Result := Where(HasAttributePredicate([TFileAttribute.faSystem]));
+{$IFDEF DEBUG}
+  Result.OperationName := 'NotSystem';
 {$ENDIF}
 end;
 
