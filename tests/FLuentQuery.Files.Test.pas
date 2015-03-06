@@ -34,6 +34,8 @@ type
   strict private
     FTestDirectory : string;
     FFileCount : Integer;
+    FDirCount : Integer;
+    FTotalCount : Integer;
     FFirstLetterEven : TPredicate<string>;
     FFirstLetterFourOrLess : TPredicate<string>;
     FTruePredicate : TPredicate<string>;
@@ -43,6 +45,8 @@ type
     procedure TearDown; override;
   published
     procedure TestPassThrough;
+    procedure TestPassThroughFiles;
+    procedure TestPassThroughDirectories;
     procedure TestTakeLowerThanCount;
     procedure TestTakeEqualCount;
     procedure TestTakeGreaterThanCount;
@@ -78,7 +82,6 @@ var
 
 implementation
 
-
 procedure TestFileQuery.SetUp;
 begin
   FTestDirectory := TPath.GetTempPath + TPath.GetGUIDFilename; ;
@@ -95,21 +98,36 @@ begin
   TFile.WriteAllText(FTestDirectory + PathDelim + '8filename.txt', '');
   TFile.WriteAllText(FTestDirectory + PathDelim + '9filename.txt', '');
 
+  // subdirectory
+  TDirectory.CreateDirectory(FTestDirectory + PathDelim + 'childdir');
+
   FFileCount := Length(TDirectory.GetFiles(FTestDirectory));
+  FDirCount := Length(TDirectory.GetDirectories(FTestDirectory));
+  FTotalCount := FFileCount + FDirCount;
 
   FFirstLetterEven := function (Value : string) : Boolean
                   var
                     LFilename : string;
                   begin
                     LFilename := TPath.GetFilename(Value);
-                    Result := StrToInt(LFilename.Substring(0, 1)) mod 2 = 0;
+                    try
+                      Result := StrToInt(LFilename.Substring(0, 1)) mod 2 = 0;
+                    except
+                      on E : EConvertError do
+                        Result := False;
+                    end;
                   end;
   FFirstLetterFourOrLess := function (Value : string) : Boolean
                   var
                     LFilename : string;
                   begin
                     LFilename := TPath.GetFilename(Value);
-                    Result := StrToInt(LFilename.Substring(0, 1)) <= 4;
+                    try
+                      Result := StrToInt(LFilename.Substring(0, 1)) <= 4;
+                    except
+                      on E : EConvertError do
+                        Result := False;
+                    end;
                  end;
   FTruePredicate := function (Value : string) : Boolean
                     begin
@@ -136,13 +154,13 @@ begin
   LPassCount := 0;
   for I in FileQuery
             .From(FTestDirectory)
-            .Take(FFileCount) do
+            .Take(FTotalCount) do
   begin
     Inc(LPassCount);
     DummyFile := i;   // just to suppress warning about not using I
   end;
 
-  CheckEquals(FFileCount, LPassCount);
+  CheckEquals(FTotalCount, LPassCount);
   CheckNotEquals(0, LPasscount);
 end;
 
@@ -154,13 +172,13 @@ begin
   LPassCount := 0;
   for I in FileQuery
             .From(FTestDirectory)
-            .Take(FFileCount + 1) do
+            .Take(FTotalCount + 1) do
   begin
     Inc(LPassCount);
     DummyFile := i;   // just to suppress warning about not using I
   end;
 
-  CheckEquals(FFileCount,  LPassCount);
+  CheckEquals(FTotalCount,  LPassCount);
   CheckNotEquals(0, LPasscount);
 end;
 
@@ -173,13 +191,13 @@ begin
 
   for I in FileQuery
             .From(FTestDirectory)
-            .Take(FFileCOunt - 1) do
+            .Take(FTotalCount - 1) do
   begin
     Inc(LPassCount);
     DummyFile := i;   // just to suppress warning about not using I
   end;
 
-  CheckEquals(FFileCOunt - 1, LPassCount);
+  CheckEquals(FTotalCount - 1, LPassCount);
   CheckNotEquals(0, LPasscount);
 end;
 
@@ -274,7 +292,7 @@ begin
     DummyFile := i;   // just to suppress warning about not using I
   end;
 
-  CheckEquals(FFileCount, LPassCount);
+  CheckEquals(FTotalCount, LPassCount);
   CheckNotEquals(0, LPasscount);
 end;
 
@@ -322,7 +340,7 @@ begin
              .NameMatches('*') do
     Inc(LPassCount);
 
-  CheckEquals(FFileCount, LPassCount);
+  CheckEquals(FTotalCount, LPassCount);
   CheckNotEquals(0, LPassCount);
 end;
 
@@ -367,9 +385,14 @@ begin
              .From(FTestDirectory)
              .WhereNot(FFirstLetterEven) do
   begin
-    Inc(LPassCount);
-    Check(StrToInt(TPath.GetFilename(I).Substring(0, 1)) mod 2 <> 0,
-          'Should enumerate odd numbered items, but enumerated ' + I);
+    try
+      Check(StrToInt(TPath.GetFilename(I).Substring(0, 1)) mod 2 <> 0,
+            'Should enumerate odd numbered items, but enumerated ' + I);
+      Inc(LPassCount);
+    except
+      on E : EConvertError do
+        DummyFile := '';
+    end;        
   end;
   CheckEquals(6, LPassCount);
 end;
@@ -385,9 +408,14 @@ begin
              .From(FTestDirectory)
              .WhereNot(FileQuery.Where(FFirstLetterEven)) do
   begin
-    Inc(LPassCount);
-    Check(StrToInt(TPath.GetFilename(I).Substring(0, 1)) mod 2 <> 0,
+    try
+      Check(StrToInt(TPath.GetFilename(I).Substring(0, 1)) mod 2 <> 0,
           'Should enumerate odd numbered items, but enumerated ' + I);
+      Inc(LPassCount);
+    except 
+      on E : EConvertError do
+        DummyFile := '';
+    end;      
   end;
   CheckEquals(6, LPassCount);
 end;
@@ -398,7 +426,41 @@ var
   LFile : string;
 begin
   LPassCount := 0;
-  for LFile in FileQuery.From(FTestDirectory) do
+  for LFile in FileQuery
+                .From(FTestDirectory) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FTotalCount, LPassCount);
+  CheckNotEquals(0, LPasscount);
+end;
+
+procedure TestFileQuery.TestPassThroughDirectories;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileQuery
+                .From(FTestDirectory)
+                .Directories do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FDirCount, LPassCount);
+end;
+
+procedure TestFileQuery.TestPassThroughFiles;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileQuery
+                .From(FTestDirectory)
+                .Files do
   begin
     Inc(LPassCount);
     DummyFile := LFile;   // just to suppress warning about not using File
@@ -416,7 +478,7 @@ begin
 
   for I in FileQuery
             .From(FTestDirectory)
-            .Skip(FFileCount) do
+            .Skip(FTotalCount) do
   begin
     Inc(LPassCount);
     DummyFile := i;   // just to suppress warning about not using I
@@ -431,7 +493,7 @@ var
   I : string;
 begin
   LPassCount := 0;
-  LSkipCount := FFileCount + 2;
+  LSkipCount := FTotalCount + 2;
 
   for I in FileQuery
             .From(FTestDirectory)
@@ -450,7 +512,7 @@ var
   I : string;
 begin
   LPassCount := 0;
-  LSkipCount := FFileCount - 2;
+  LSkipCount := FTotalCount - 2;
 
   for I in FileQuery
             .From(FTestDirectory)
@@ -497,7 +559,7 @@ begin
     DummyFile := i;   // just to suppress warning about not using I
   end;
 
-  CheckEquals(5, LPassCount);
+  CheckEquals(6, LPassCount);
 end;
 
 procedure TestFileQuery.TestSkipWhileFalse;
@@ -515,7 +577,7 @@ begin
     DummyFile := i;   // just to suppress warning about not using I
   end;
 
-  CheckEquals(FFileCOunt, LPassCount);
+  CheckEquals(FTotalCount, LPassCount);
   CheckNotEquals(0, LPassCount);
 end;
 
@@ -552,7 +614,7 @@ begin
     DummyFile := i;   // just to suppress warning about not using I
   end;
 
-  CheckEquals(FFileCount, LPassCount);
+  CheckEquals(FTotalCount, LPassCount);
 end;
 
 procedure TestFileQuery.TestWhereEven;
@@ -580,13 +642,15 @@ var
 begin
   LPassCount := 0;
 
-  for I in FileQuery.From(FTestDirectory).Where(FTruePredicate) do
+  for I in FileQuery
+            .From(FTestDirectory)
+            .Where(FTruePredicate) do
   begin
     Inc(LPassCount);
     DummyFile := i;   // just to suppress warning about not using I
   end;
 
-  CheckEquals(10, LPassCount);
+  CheckEquals(FTotalCount, LPassCount);
 end;
 
 procedure TestFileQuery.TestWhereTake;

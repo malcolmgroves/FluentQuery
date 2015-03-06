@@ -32,6 +32,7 @@ type
   { TODO : HasAttribute, whihc is used by IsHidden, IsDirectory etc }
   { TODO : FromRoot(Drive) }
   { TODO : Make this a FileSystemQuery, and add a DriveQuery as well }
+  { TODO : Extend namematches to check if file or directory. if directory, match on the name of the leaf directory }
 
   IUnboundFileQuery = interface;
 
@@ -50,6 +51,8 @@ type
     function WhereNot(Predicate : TPredicate<String>) : IBoundFileQuery; overload;
     // type-specific operations
     function NameMatches(const Mask : String) : IBoundFileQuery;
+    function Files : IBoundFileQuery;
+    function Directories : IBoundFileQuery;
     // terminating operations
     function First : String;
   end;
@@ -70,6 +73,8 @@ type
     function WhereNot(Predicate : TPredicate<String>) : IUnboundFileQuery; overload;
     // type-specific operations
     function NameMatches(const Mask : String) : IUnboundFileQuery;
+    function Files : IUnboundFileQuery;
+    function Directories : IUnboundFileQuery;
     // terminating operations
     function Predicate : TPredicate<String>;
   end;
@@ -89,6 +94,10 @@ type
       TQueryImpl<TReturnType : IBaseQuery<String>> = class
       private
         FQuery : TFileQuery;
+        function HasAttribute(const Path : string; Attributes : TFileAttributes): boolean;
+      protected
+        function GetDirectory : string;
+        procedure SetDirectory(const Path : string);
       public
         constructor Create(Query : TFileQuery); virtual;
         function GetEnumerator: TReturnType;
@@ -112,6 +121,8 @@ type
         function WhereNot(UnboundQuery : IUnboundFileQuery) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<String>) : TReturnType; overload;
         function NameMatches(const Mask : String) : TReturnType;
+        function Files : TReturnType;
+        function Directories : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<String>;
         function First : String;
@@ -150,6 +161,8 @@ type
   end;
 
 
+const
+  DirValue = 'Directory';
 
 
 function FileQuery : IUnboundFileQuery;
@@ -168,6 +181,34 @@ begin
   FQuery := Query;
 end;
 
+function TFileQuery.TQueryImpl<TReturnType>.Directories: TReturnType;
+var
+  LIsDir : TPredicate<string>;
+begin
+  LIsDir := function(Value : string) : Boolean
+             begin
+               Result := HasAttribute(GetDirectory + PathDelim +  Value, [TFileAttribute.faDirectory]);
+             end;
+  Result := Where(LIsDir);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Directories';
+{$ENDIF}
+end;
+
+function TFileQuery.TQueryImpl<TReturnType>.Files: TReturnType;
+var
+  LIsFile : TPredicate<string>;
+begin
+  LIsFile := function(Value : string) : Boolean
+             begin
+               Result := not HasAttribute(GetDirectory + PathDelim +  Value, [TFileAttribute.faDirectory]);
+             end;
+  Result := Where(LIsFile);
+{$IFDEF DEBUG}
+  Result.OperationName := 'Files';
+{$ENDIF}
+end;
+
 function TFileQuery.TQueryImpl<TReturnType>.First: String;
 begin
   if FQuery.MoveNext then
@@ -181,15 +222,28 @@ var
   EnumeratorWrapper : IMinimalEnumerator<String>;
   LSearchRec : TSearchRec;
   LFileAttrs : Integer;
+  LSkipDotEntries : TPredicate<string>;
 begin
-  LFileAttrs := faReadOnly + faHIdden + faSysFile + faNormal + faTemporary + faCompressed + faEncrypted;
+  SetDirectory(Directory);
+
+  LSkipDotEntries := function(Value : string): boolean
+                     begin
+                        Result := (Value = '.') OR (Value = '..');
+                     end;
+  LFileAttrs := faReadOnly + faHIdden + faSysFile + faNormal + faTemporary + faCompressed + faEncrypted + faDirectory;
   EnumeratorWrapper := TFilesEnumeratorAdapter.Create(Directory + PathDelim + '*', LFileAttrs) as IMinimalEnumerator<String>;
-  Result := TFileQuery.Create(TEnumerationStrategy<String>.Create,
+  Result := TFileQuery.Create(TWhereNotEnumerationStrategy<String>.Create(LSkipDotEntries),
                                        IBaseQuery<String>(FQuery),
                                        EnumeratorWrapper);
+
 {$IFDEF DEBUG}
   Result.OperationName := Format('From(%s)', [Directory]);
 {$ENDIF}
+end;
+
+function TFileQuery.TQueryImpl<TReturnType>.GetDirectory: string;
+begin
+  Result := FQuery.GetValue(DirValue);
 end;
 
 function TFileQuery.TQueryImpl<TReturnType>.GetEnumerator: TReturnType;
@@ -207,6 +261,15 @@ function TFileQuery.TQueryImpl<TReturnType>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
+function TFileQuery.TQueryImpl<TReturnType>.HasAttribute(const Path: string;
+  Attributes: TFileAttributes): boolean;
+var
+  LFileAttributes : TFileAttributes;
+begin
+  LFileAttributes := TPath.GetAttributes(Path);
+  Result := LFileAttributes * Attributes <> [];
+end;
+
 {$ENDIF}
 
 function TFileQuery.TQueryImpl<TReturnType>.Map(
@@ -231,6 +294,11 @@ end;
 function TFileQuery.TQueryImpl<TReturnType>.Predicate: TPredicate<String>;
 begin
   Result := TFileMethodFactory.QuerySingleValue(FQuery);
+end;
+
+procedure TFileQuery.TQueryImpl<TReturnType>.SetDirectory(const Path: string);
+begin
+  FQuery.SetValue(DirValue, Path);
 end;
 
 function TFileQuery.TQueryImpl<TReturnType>.Skip(Count: Integer): TReturnType;

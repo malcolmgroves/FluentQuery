@@ -40,6 +40,8 @@ type
 {$ENDIF}
     procedure SetUpstreamQuery(UpstreamQuery : IBaseQuery<T>);
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>);
+    procedure SetValue(const Name, Value : string);
+    function GetValue(const Name : string) : string;
   end;
 
   EFluentQueryException = class(Exception);
