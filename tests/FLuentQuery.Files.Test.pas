@@ -79,6 +79,7 @@ type
     procedure TestFirst;
     procedure TestNameMatchesAll;
     procedure TestNameMatchesSome;
+    procedure TestFilesNameMatchesStringQuery;
     procedure TestNameMatchesDir;
     procedure TestNameMatchesNone;
   end;
@@ -87,6 +88,8 @@ var
   DummyFile : string; // used to suppress warnings about not using loop variables in tests
 
 implementation
+uses
+  FluentQuery.Strings;
 
 procedure TestFileQuery.SetUp;
 begin
@@ -490,6 +493,21 @@ begin
   end;
   CheckEquals(FFileCount, LPassCount);
   CheckNotEquals(0, LPasscount);
+end;
+
+procedure TestFileQuery.TestFilesNameMatchesStringQuery;
+var
+  LPassCount : Integer;
+  I : string;
+begin
+  LPassCount := 0;
+
+  for I in FileSystemQuery
+             .From(FTestDirectory)
+             .NameMatches(StringQuery.StartsWith('10')) do
+    Inc(LPassCount);
+
+  CheckEquals(1, LPassCount);
 end;
 
 procedure TestFileQuery.TestHiddenFiles;

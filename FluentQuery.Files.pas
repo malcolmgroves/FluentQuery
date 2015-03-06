@@ -26,6 +26,7 @@ uses
   System.Generics.Collections,
   FluentQuery.Core.EnumerationStrategies,
   FluentQuery.Core.Enumerators,
+  FluentQuery.Strings,
   IOUtils;
 
 type
@@ -48,7 +49,8 @@ type
     function WhereNot(UnboundQuery : IUnboundFileSystemQuery) : IBoundFileSystemQuery; overload;
     function WhereNot(Predicate : TPredicate<String>) : IBoundFileSystemQuery; overload;
     // type-specific operations
-    function NameMatches(const Mask : String) : IBoundFileSystemQuery;
+    function NameMatches(const Mask : String) : IBoundFileSystemQuery; overload;
+    function NameMatches(StringQuery : IUnboundStringQuery) : IBoundFileSystemQuery; overload;
     function Files : IBoundFileSystemQuery;
     function Directories : IBoundFileSystemQuery;
     function Hidden : IBoundFileSystemQuery;
@@ -76,7 +78,8 @@ type
     function WhereNot(UnboundQuery : IUnboundFileSystemQuery) : IUnboundFileSystemQuery; overload;
     function WhereNot(Predicate : TPredicate<String>) : IUnboundFileSystemQuery; overload;
     // type-specific operations
-    function NameMatches(const Mask : String) : IUnboundFileSystemQuery;
+    function NameMatches(const Mask : String) : IUnboundFileSystemQuery; overload;
+    function NameMatches(StringQuery : IUnboundStringQuery) : IUnboundFileSystemQuery; overload;
     function Files : IUnboundFileSystemQuery;
     function Hidden : IUnboundFileSystemQuery;
     function NotHidden : IUnboundFileSystemQuery;
@@ -130,7 +133,8 @@ type
         function TakeWhile(UnboundQuery : IUnboundFileSystemQuery): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundFileSystemQuery) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<String>) : TReturnType; overload;
-        function NameMatches(const Mask : String) : TReturnType;
+        function NameMatches(const Mask : String) : TReturnType; overload;
+        function NameMatches(StringQuery : IUnboundStringQuery) : TReturnType; overload;
         function Files : TReturnType;
         function Hidden : TReturnType;
         function NotHidden : TReturnType;
@@ -309,6 +313,15 @@ begin
   Result := Where(LMatches);
 {$IFDEF DEBUG}
   Result.OperationName := Format('NameMatches(''%s'')', [Mask]);
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.NameMatches(
+  StringQuery: IUnboundStringQuery): TReturnType;
+begin
+  Result := Where(StringQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('NameMatches(''%s'')', [StringQuery.OperationPath]);
 {$ENDIF}
 end;
 
