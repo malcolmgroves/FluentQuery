@@ -78,7 +78,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).NotEquals('y') do
+  for LChar in CharQuery.From(FStringVal).NotEquals('y') do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -100,7 +100,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).TakeWhile(Query.IsLetter) do
+  for LChar in CharQuery.From(FStringVal).TakeWhile(CharQuery.IsLetter) do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -112,7 +112,7 @@ procedure TestTQueryChar.TestCreateStringFromIsUpperSkipTake;
 var
   LResultString : String;
 begin
-  LResultString := Query
+  LResultString := CharQuery
                      .From(FStringVal)
                      .IsUpper
                      .Skip(5)
@@ -129,7 +129,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).Equals('y') do
+  for LChar in CharQuery.From(FStringVal).Equals('y') do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -143,7 +143,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsDigit do
+  for LChar in CharQuery.From(FStringVal).IsDigit do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -157,7 +157,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsInArray(['1', '2', ')', '+', 'a']) do
+  for LChar in CharQuery.From(FStringVal).IsInArray(['1', '2', ')', '+', 'a']) do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -171,7 +171,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsLetter do
+  for LChar in CharQuery.From(FStringVal).IsLetter do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -185,7 +185,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsLetterOrDigit do
+  for LChar in CharQuery.From(FStringVal).IsLetterOrDigit do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -199,7 +199,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsLower do
+  for LChar in CharQuery.From(FStringVal).IsLower do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -213,7 +213,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsNumber do
+  for LChar in CharQuery.From(FStringVal).IsNumber do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -227,7 +227,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsPunctuation do
+  for LChar in CharQuery.From(FStringVal).IsPunctuation do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -241,7 +241,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsSymbol do
+  for LChar in CharQuery.From(FStringVal).IsSymbol do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -255,7 +255,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsUpper do
+  for LChar in CharQuery.From(FStringVal).IsUpper do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -268,7 +268,7 @@ var
   LChar : Char;
   LResultString : String;
 begin
-  for LChar in Query
+  for LChar in CharQuery
                  .From(FStringVal)
                  .IsUpper
                  .Skip(5)
@@ -286,7 +286,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).IsWhiteSpace do
+  for LChar in CharQuery.From(FStringVal).IsWhiteSpace do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -300,7 +300,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).Matches('Y') do
+  for LChar in CharQuery.From(FStringVal).Matches('Y') do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -314,7 +314,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).Matches('y', False) do
+  for LChar in CharQuery.From(FStringVal).Matches('y', False) do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -328,7 +328,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).Matches('z', False) do
+  for LChar in CharQuery.From(FStringVal).Matches('z', False) do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -342,7 +342,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).WhereNot(Query.IsNumber) do
+  for LChar in CharQuery.From(FStringVal).WhereNot(CharQuery.IsNumber) do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -356,7 +356,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal) do
+  for LChar in CharQuery.From(FStringVal) do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -371,7 +371,7 @@ var
   LChar : Char;
 begin
   LPassCount := 0;
-  for LChar in Query.From(FStringVal).SkipWhile(Query.IsLetter) do
+  for LChar in CharQuery.From(FStringVal).SkipWhile(CharQuery.IsLetter) do
   begin
     Inc(LPassCount);
     DummyChar := LChar; // suppress warning about LChar being unused
@@ -399,7 +399,7 @@ begin
 
     PassCount := 0;
 
-    for Value in Query.From(CharList).Where(CharPredicate) do
+    for Value in CharQuery.From(CharList).Where(CharPredicate) do
     begin
       Inc(PassCount);
       DummyChar := Value; // suppress warning about LChar being unused
@@ -415,7 +415,7 @@ procedure TestFluentCharPredicate.TestCharPredicate;
 var
   LCount : Integer;
 begin
-  LCount := AcceptableCount(Query
+  LCount := AcceptableCount(CharQuery
                               .IsUpper
                               .Predicate);
   Check(LCount = 2, 'Predicate from IsUpper should match 2 items');

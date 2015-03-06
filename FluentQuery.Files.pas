@@ -30,8 +30,11 @@ uses
   IOUtils;
 
 type
+  { TODO : FromRecursive }
+  { TODO : add a DriveQuery as well, with operators like IsNetworked, etc }
   { TODO : FromRoot(Drive) }
-  { TODO : add a DriveQuery as well }
+  { TODO : LargerThan, SmallerThan }
+  { TODO : CreatedBefore, CreatedAfter, ModifiedBefore, ModifiedAfter }
 
   IUnboundFileSystemQuery = interface;
 
