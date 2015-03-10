@@ -61,6 +61,7 @@ type
     function NotReadOnly : IBoundFileSystemQuery;
     function System : IBoundFileSystemQuery;
     function NotSystem : IBoundFileSystemQuery;
+    function Extension(const Ext : string) : IBoundFileSystemQuery;
     // terminating operations
     function First : String;
   end;
@@ -91,6 +92,7 @@ type
     function Directories : IUnboundFileSystemQuery;
     function System : IUnboundFileSystemQuery;
     function NotSystem : IUnboundFileSystemQuery;
+    function Extension(const Ext : string) : IUnboundFileSystemQuery;
     // terminating operations
     function Predicate : TPredicate<String>;
   end;
@@ -146,6 +148,7 @@ type
         function Directories : TReturnType;
         function System : TReturnType;
         function NotSystem : TReturnType;
+        function Extension(const AExtension : string) : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<String>;
         function First : String;
@@ -260,6 +263,25 @@ begin
   Result := TFileSystemQuery.Create(TWhereNotEnumerationStrategy<String>.Create(LSkipDotEntries),
                                        IBaseQuery<String>(FQuery),
                                        EnumeratorWrapper);
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.Extension(
+  const AExtension: string): TReturnType;
+var
+  LExtensionMatches : TPredicate<string>;
+begin
+  LExtensionMatches := function (CurrentValue : String) : Boolean
+                       var
+                         LExtension : string;
+                       begin
+                         LExtension := TPath.GetExtension(CurrentValue);
+                         Result := LExtension.Compare(LExtension, AExtension, True) = 0;
+                       end;
+
+  Result := Where(LExtensionMatches);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Extension(''%s'')', [AExtension]);
+{$ENDIF}
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Files: TReturnType;
