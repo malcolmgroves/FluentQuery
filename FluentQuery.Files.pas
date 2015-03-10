@@ -32,7 +32,6 @@ uses
 type
   { TODO : add a DriveQuery as well, with operators like IsNetworked, etc }
   { TODO : FromRoot(Drive) }
-  { TODO : LargerThan, SmallerThan }
   { TODO : CreatedBefore, CreatedAfter, ModifiedBefore, ModifiedAfter }
 
   IUnboundFileSystemQuery = interface;
@@ -61,7 +60,9 @@ type
     function NotReadOnly : IBoundFileSystemQuery;
     function System : IBoundFileSystemQuery;
     function NotSystem : IBoundFileSystemQuery;
-    function Extension(const Ext : string) : IBoundFileSystemQuery;
+    function Extension(const AExtension : string) : IBoundFileSystemQuery;
+    function LargerThan(Bytes : Int64) : IBoundFileSystemQuery;
+    function SmallerThan(Bytes : Int64) : IBoundFileSystemQuery;
     // terminating operations
     function First : String;
   end;
@@ -92,7 +93,9 @@ type
     function Directories : IUnboundFileSystemQuery;
     function System : IUnboundFileSystemQuery;
     function NotSystem : IUnboundFileSystemQuery;
-    function Extension(const Ext : string) : IUnboundFileSystemQuery;
+    function Extension(const AExtension : string) : IUnboundFileSystemQuery;
+    function LargerThan(Bytes : Int64) : IUnboundFileSystemQuery;
+    function SmallerThan(Bytes : Int64) : IUnboundFileSystemQuery;
     // terminating operations
     function Predicate : TPredicate<String>;
   end;
@@ -115,6 +118,7 @@ type
         function HasAttributePredicate(Attributes : TFileAttributes): TPredicate<String>;
         function NameOnlyBeforePredicate(APredicate : TPredicate<string>) : TPredicate<string>;
         function DoFrom(const Directory : string; Recursive : boolean) : IBoundFileSystemQuery;
+        function GetSize(const Path : string) : Int64;
       public
         constructor Create(Query : TFileSystemQuery); virtual;
         function GetEnumerator: TReturnType;
@@ -149,6 +153,8 @@ type
         function System : TReturnType;
         function NotSystem : TReturnType;
         function Extension(const AExtension : string) : TReturnType;
+        function LargerThan(Bytes : Int64) : TReturnType;
+        function SmallerThan(Bytes : Int64) : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<String>;
         function First : String;
@@ -211,8 +217,11 @@ begin
   Result := (LFilename = '.') OR (LFilename = '..');
 end;
 
+
 const
   DirValue = 'Directory';
+  FileAttrs = faReadOnly + faHIdden + faSysFile + faNormal + faTemporary + faCompressed + faEncrypted + faDirectory;
+
 
 
 function FileSystemQuery : IUnboundFileSystemQuery;
@@ -244,7 +253,6 @@ function TFileSystemQuery.TQueryImpl<TReturnType>.DoFrom(
 var
   EnumeratorWrapper : IMinimalEnumerator<String>;
   LSearchRec : TSearchRec;
-  LFileAttrs : Integer;
   LSkipDotEntries : TPredicate<string>;
 begin
   LSkipDotEntries := function(Value : string): boolean
@@ -252,12 +260,10 @@ begin
                         Result := IsDots(Value);
                      end;
 
-  LFileAttrs := faReadOnly + faHIdden + faSysFile + faNormal + faTemporary + faCompressed + faEncrypted + faDirectory;
-
   if Recursive then
-    EnumeratorWrapper := TRecursiveFileSystemEnumerator.Create(Directory, LFileAttrs) as IMinimalEnumerator<string>
+    EnumeratorWrapper := TRecursiveFileSystemEnumerator.Create(Directory, FileAttrs) as IMinimalEnumerator<string>
   else
-    EnumeratorWrapper := TFileSystemEnumerator.Create(Directory, LFileAttrs) as IMinimalEnumerator<String>;
+    EnumeratorWrapper := TFileSystemEnumerator.Create(Directory, FileAttrs) as IMinimalEnumerator<String>;
 
 
   Result := TFileSystemQuery.Create(TWhereNotEnumerationStrategy<String>.Create(LSkipDotEntries),
@@ -332,6 +338,21 @@ function TFileSystemQuery.TQueryImpl<TReturnType>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
+function TFileSystemQuery.TQueryImpl<TReturnType>.GetSize(
+  const Path: string): Int64;
+var
+  LSearchRec : TSearchRec;
+begin
+  try
+    if FindFirst(Path, FileAttrs, LSearchRec) = 0 then
+      Result := LSearchRec.Size
+    else
+      Result := -1;
+  finally
+    FindClose(LSearchRec);
+  end;
+end;
+
 function TFileSystemQuery.TQueryImpl<TReturnType>.HasAttributePredicate(Attributes: TFileAttributes): TPredicate<String>;
 begin
   Result := function (Value : string) : boolean
@@ -348,6 +369,28 @@ begin
   Result := Where(HasAttributePredicate([TFileAttribute.faHidden]));
 {$IFDEF DEBUG}
   Result.OperationName := 'Hidden';
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.LargerThan(
+  Bytes: Int64): TReturnType;
+var
+  LLargerThan : TPredicate<string>;
+begin
+  LLargerThan := function (CurrentValue : String) : Boolean
+                 var
+                   LSize : Int64;
+                 begin
+                   LSize := GetSize(CurrentValue);
+                   if LSize >= 0 then
+                     Result := LSize > Bytes
+                   else
+                     Result := false;
+                 end;
+
+  Result := Where(LLargerThan);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('LargerThan(''%d'')', [Bytes]);
 {$ENDIF}
 end;
 
@@ -448,6 +491,28 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.SmallerThan(
+  Bytes: Int64): TReturnType;
+var
+  LSmallerThan : TPredicate<string>;
+begin
+  LSmallerThan := function (CurrentValue : String) : Boolean
+                  var
+                    LSize : Int64;
+                  begin
+                    LSize := GetSize(CurrentValue);
+                    if LSize >= 0 then
+                      Result := LSize < Bytes
+                    else
+                      Result := false;
+                  end;
+
+  Result := Where(LSmallerThan);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SmallerThan(''%d'')', [Bytes]);
 {$ENDIF}
 end;
 
