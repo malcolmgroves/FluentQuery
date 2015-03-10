@@ -33,9 +33,9 @@ type
   TestFileQuery = class(TTestCase)
   strict private
     FTestDirectory : string;
-    FFileCount : Integer;
+    FFileCount, FRecursiveFileCount : Integer;
     FDirCount : Integer;
-    FTotalCount : Integer;
+    FTotalCount, FTotalRecursiveCount : Integer;
     FFirstLetterEven : TPredicate<string>;
     FFirstLetterFourOrLess : TPredicate<string>;
     FTruePredicate : TPredicate<string>;
@@ -45,7 +45,9 @@ type
     procedure TearDown; override;
   published
     procedure TestPassThrough;
+    procedure TestPassThroughRecursive;
     procedure TestFiles;
+    procedure TestFilesRecursive;
     procedure TestHiddenFiles;
     procedure TestNotHiddenFiles;
     procedure TestNotHiddenNotReadOnlyFiles;
@@ -80,6 +82,7 @@ type
     procedure TestNameMatchesAll;
     procedure TestNameMatchesSome;
     procedure TestFilesNameMatchesStringQuery;
+    procedure TestDirNameMatchesStringQuery;
     procedure TestNameMatchesDir;
     procedure TestNameMatchesNone;
   end;
@@ -92,6 +95,8 @@ uses
   FluentQuery.Strings;
 
 procedure TestFileQuery.SetUp;
+var
+  LChildTestDirectory : string;
 begin
   FTestDirectory := TPath.GetTempPath + TPath.GetGUIDFilename; ;
   TDirectory.CreateDirectory(FTestDirectory);
@@ -110,11 +115,19 @@ begin
   TFile.WriteAllText(FTestDirectory + PathDelim + '9filename.txt', '');
 
   // subdirectory
-  TDirectory.CreateDirectory(FTestDirectory + PathDelim + 'childdir');
+  LChildTestDirectory := FTestDirectory + PathDelim + 'childdir';
+  TDirectory.CreateDirectory(LChildTestDirectory);
+  TFile.WriteAllText(LChildTestDirectory + PathDelim + '1filename.txt', '');
+  TFile.WriteAllText(LChildTestDirectory + PathDelim + '2filename.txt', '');
+  TFile.WriteAllText(LChildTestDirectory + PathDelim + '3filename.txt', '');
+  
 
   FFileCount := Length(TDirectory.GetFiles(FTestDirectory));
+  FRecursiveFileCount := FFileCOunt + Length(TDirectory.GetFiles(LChildTestDirectory));
   FDirCount := Length(TDirectory.GetDirectories(FTestDirectory));
+  
   FTotalCount := FFileCount + FDirCount;
+  FTotalRecursiveCount := FRecursiveFileCount + FDirCOunt;
 
   FFirstLetterEven := function (Value : string) : Boolean
                   var
@@ -462,6 +475,22 @@ begin
   CheckNotEquals(0, LPasscount);
 end;
 
+procedure TestFileQuery.TestPassThroughRecursive;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FTotalRecursiveCount, LPassCount);
+  CheckNotEquals(0, LPasscount);
+end;
+
 procedure TestFileQuery.TestDirectories;
 var
   LPassCount : Integer;
@@ -476,6 +505,22 @@ begin
     DummyFile := LFile;   // just to suppress warning about not using File
   end;
   CheckEquals(FDirCount, LPassCount);
+end;
+
+procedure TestFileQuery.TestDirNameMatchesStringQuery;
+var
+  LPassCount : Integer;
+  I : string;
+begin
+  LPassCount := 0;
+
+  for I in FileSystemQuery
+             .From(FTestDirectory)
+             .Directories
+             .NameMatches(StringQuery.StartsWith('chi')) do
+    Inc(LPassCount);
+
+  CheckEquals(1, LPassCount);
 end;
 
 procedure TestFileQuery.TestFiles;
@@ -504,10 +549,28 @@ begin
 
   for I in FileSystemQuery
              .From(FTestDirectory)
+             .Files
              .NameMatches(StringQuery.StartsWith('10')) do
     Inc(LPassCount);
 
   CheckEquals(1, LPassCount);
+end;
+
+procedure TestFileQuery.TestFilesRecursive;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .Files do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FRecursiveFileCount, LPassCount);
+  CheckNotEquals(0, LPasscount);
 end;
 
 procedure TestFileQuery.TestHiddenFiles;

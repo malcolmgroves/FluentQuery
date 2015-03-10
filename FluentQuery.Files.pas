@@ -30,7 +30,6 @@ uses
   IOUtils;
 
 type
-  { TODO : FromRecursive }
   { TODO : add a DriveQuery as well, with operators like IsNetworked, etc }
   { TODO : FromRoot(Drive) }
   { TODO : LargerThan, SmallerThan }
@@ -69,6 +68,7 @@ type
   IUnboundFileSystemQuery = interface(IBaseQuery<String>)
     function GetEnumerator: IUnboundFileSystemQuery;
     function From(const Directory : string) : IBoundFileSystemQuery;
+    function FromRecursive(const Directory : string) : IBoundFileSystemQuery;
     // query operations
     function Map(Transformer : TFunc<String, String>) : IUnboundFileSystemQuery;
     function Skip(Count : Integer): IUnboundFileSystemQuery;
@@ -111,9 +111,8 @@ type
       private
         FQuery : TFileSystemQuery;
         function HasAttributePredicate(Attributes : TFileAttributes): TPredicate<String>;
-      protected
-        function GetDirectory : string;
-        procedure SetDirectory(const Path : string);
+        function NameOnlyBeforePredicate(APredicate : TPredicate<string>) : TPredicate<string>;
+        function DoFrom(const Directory : string; Recursive : boolean) : IBoundFileSystemQuery;
       public
         constructor Create(Query : TFileSystemQuery); virtual;
         function GetEnumerator: TReturnType;
@@ -124,6 +123,7 @@ type
         property OperationPath : string read GetOperationPath;
 {$ENDIF}
         function From(const Directory : string) : IBoundFileSystemQuery;
+        function FromRecursive(const Directory : string) : IBoundFileSystemQuery;
         // Primitive Operations
         function Map(Transformer : TFunc<String, String>) : TReturnType;
         function SkipWhile(Predicate : TPredicate<String>) : TReturnType; overload;
@@ -164,21 +164,49 @@ type
                                        read FUnboundQuery implements IUnboundFileSystemQuery;
   end;
 
-  TFilesEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<String>)
+  TFileSystemEnumerator = class(TInterfacedObject, IMinimalEnumerator<String>)
   protected
     FPath : string;
     FStarted : boolean;
     FFileAttrs : Integer;
     FSearchRec : TSearchRec;
-    function GetCurrent: String;
-    function MoveNext: Boolean;
+    function GetCurrent: String; virtual;
+    function MoveNext: Boolean; virtual;
+    procedure Setup(const Path : string); virtual;
+    procedure Teardown; virtual;
   public
     constructor Create(const Path : string; FileAttrs : Integer); virtual;
     destructor Destroy; override;
     property Current: String read GetCurrent;
   end;
 
+  TRecursiveFileSystemEnumerator = class(TFileSystemEnumerator, IMinimalEnumerator<string>)
+  private
+    FChildDirs : TStack<string>;
+    FDirHistory : TList<string>;
+    function GetCurrent: String; override;
+    function MoveNext: Boolean; override;
+  public
+    constructor Create(const Path : string; FileAttrs : Integer); override;
+    destructor Destroy; override;
+  end;
 
+
+function IsDir(const Path : string) : boolean;
+var
+  LFileAttributes : TFileAttributes;
+begin
+  LFileAttributes := TPath.GetAttributes(Path);
+  Result := LFileAttributes * [TFileAttribute.faDirectory] <> [];
+end;
+
+function IsDots(const Path : string) : boolean;
+var
+  LFilename : string;
+begin
+  LFilename := TPath.GetFilename(Path);
+  Result := (LFilename = '.') OR (LFilename = '..');
+end;
 
 const
   DirValue = 'Directory';
@@ -208,6 +236,32 @@ begin
 {$ENDIF}
 end;
 
+function TFileSystemQuery.TQueryImpl<TReturnType>.DoFrom(
+  const Directory: string; Recursive: boolean): IBoundFileSystemQuery;
+var
+  EnumeratorWrapper : IMinimalEnumerator<String>;
+  LSearchRec : TSearchRec;
+  LFileAttrs : Integer;
+  LSkipDotEntries : TPredicate<string>;
+begin
+  LSkipDotEntries := function(Value : string): boolean
+                     begin
+                        Result := IsDots(Value);
+                     end;
+
+  LFileAttrs := faReadOnly + faHIdden + faSysFile + faNormal + faTemporary + faCompressed + faEncrypted + faDirectory;
+
+  if Recursive then
+    EnumeratorWrapper := TRecursiveFileSystemEnumerator.Create(Directory, LFileAttrs) as IMinimalEnumerator<string>
+  else
+    EnumeratorWrapper := TFileSystemEnumerator.Create(Directory, LFileAttrs) as IMinimalEnumerator<String>;
+
+
+  Result := TFileSystemQuery.Create(TWhereNotEnumerationStrategy<String>.Create(LSkipDotEntries),
+                                       IBaseQuery<String>(FQuery),
+                                       EnumeratorWrapper);
+end;
+
 function TFileSystemQuery.TQueryImpl<TReturnType>.Files: TReturnType;
 begin
   Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faDirectory])));
@@ -225,33 +279,20 @@ begin
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.From(const Directory : String): IBoundFileSystemQuery;
-var
-  EnumeratorWrapper : IMinimalEnumerator<String>;
-  LSearchRec : TSearchRec;
-  LFileAttrs : Integer;
-  LSkipDotEntries : TPredicate<string>;
 begin
-  SetDirectory(Directory);
-
-  LSkipDotEntries := function(Value : string): boolean
-                     begin
-                        Result := (Value = '.') OR (Value = '..');
-                     end;
-
-  LFileAttrs := faReadOnly + faHIdden + faSysFile + faNormal + faTemporary + faCompressed + faEncrypted + faDirectory;
-  EnumeratorWrapper := TFilesEnumeratorAdapter.Create(Directory + PathDelim + '*', LFileAttrs) as IMinimalEnumerator<String>;
-  Result := TFileSystemQuery.Create(TWhereNotEnumerationStrategy<String>.Create(LSkipDotEntries),
-                                       IBaseQuery<String>(FQuery),
-                                       EnumeratorWrapper);
-
+  Result := DoFrom(Directory, false);
 {$IFDEF DEBUG}
   Result.OperationName := Format('From(%s)', [Directory]);
 {$ENDIF}
 end;
 
-function TFileSystemQuery.TQueryImpl<TReturnType>.GetDirectory: string;
+function TFileSystemQuery.TQueryImpl<TReturnType>.FromRecursive(
+  const Directory: string): IBoundFileSystemQuery;
 begin
-  Result := FQuery.GetValue(DirValue);
+  Result := DoFrom(Directory, true);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('FromRecursive(%s)', [Directory]);
+{$ENDIF}
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.GetEnumerator: TReturnType;
@@ -270,15 +311,12 @@ begin
   Result := FQuery.OperationPath;
 end;
 function TFileSystemQuery.TQueryImpl<TReturnType>.HasAttributePredicate(Attributes: TFileAttributes): TPredicate<String>;
-var
-  LFullPath : string;
 begin
-  LFullPath := GetDirectory + PathDelim;
   Result := function (Value : string) : boolean
             var
               LFileAttributes : TFileAttributes;
             begin
-              LFileAttributes := TPath.GetAttributes(LFullPath + Value);
+              LFileAttributes := TPath.GetAttributes(Value);
               Result := LFileAttributes * Attributes <> [];
             end;
 end;
@@ -313,7 +351,7 @@ begin
                 Result := TPath.MatchesPattern(CurrentValue, Mask, False);
               end;
 
-  Result := Where(LMatches);
+  Result := Where(NameOnlyBeforePredicate(LMatches));
 {$IFDEF DEBUG}
   Result.OperationName := Format('NameMatches(''%s'')', [Mask]);
 {$ENDIF}
@@ -322,10 +360,19 @@ end;
 function TFileSystemQuery.TQueryImpl<TReturnType>.NameMatches(
   StringQuery: IUnboundStringQuery): TReturnType;
 begin
-  Result := Where(StringQuery.Predicate);
+  Result := Where(NameOnlyBeforePredicate(StringQuery.Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := Format('NameMatches(''%s'')', [StringQuery.OperationPath]);
 {$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.NameOnlyBeforePredicate(
+  APredicate: TPredicate<string>): TPredicate<string>;
+begin
+  Result := function (CurrentValue : String) : Boolean
+            begin
+              Result := APredicate(TPath.GetFilename(CurrentValue));
+            end;
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotHidden: TReturnType;
@@ -363,11 +410,6 @@ begin
 {$IFDEF DEBUG}
   Result.OperationName := 'ReadOnly';
 {$ENDIF}
-end;
-
-procedure TFileSystemQuery.TQueryImpl<TReturnType>.SetDirectory(const Path: string);
-begin
-  FQuery.SetValue(DirValue, Path);
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Skip(Count: Integer): TReturnType;
@@ -483,37 +525,96 @@ end;
 
 { TFilesEnumeratorAdapter }
 
-constructor TFilesEnumeratorAdapter.Create(const Path: string; FileAttrs : Integer);
+constructor TFileSystemEnumerator.Create(const Path: string; FileAttrs : Integer);
 begin
-  FStarted := False;
-  FPath := Path;
+  Setup(Path);
   FFileAttrs := FileAttrs;
 end;
 
 
-destructor TFilesEnumeratorAdapter.Destroy;
+destructor TFileSystemEnumerator.Destroy;
 begin
-  FIndCLose(FSearchRec);
+  Teardown;
   inherited;
 end;
 
-function TFilesEnumeratorAdapter.GetCurrent: String;
+function TFileSystemEnumerator.GetCurrent: String;
 begin
-  Result := FSearchRec.Name;
+  Result := FPath + FSearchRec.Name;
 end;
 
-function TFilesEnumeratorAdapter.MoveNext: Boolean;
+function TFileSystemEnumerator.MoveNext: Boolean;
 begin
   if not FStarted then
   begin
     FStarted := True;
-    Result := FindFirst(FPath, FFileAttrs, FSearchRec) = 0;
+    Result := FindFirst(FPath + '*', FFileAttrs, FSearchRec) = 0;
   end
   else
     Result := FindNext(FSearchRec) = 0;
 end;
 
 
-{ TFileMethodFactory }
+procedure TFileSystemEnumerator.Setup(const Path: string);
+begin
+  FStarted := False;
+  FPath := Path + PathDelim;
+end;
+
+procedure TFileSystemEnumerator.Teardown;
+begin
+  FIndCLose(FSearchRec);
+end;
+
+{ TRecursiveFileSystemEnumerator }
+
+constructor TRecursiveFileSystemEnumerator.Create(const Path: string;
+  FileAttrs: Integer);
+begin
+  inherited;
+  FChildDirs := TStack<string>.Create;
+  FDirHistory := TList<string>.Create;
+end;
+
+destructor TRecursiveFileSystemEnumerator.Destroy;
+begin
+  FDirHistory.Free;
+  FChildDirs.Free;
+  inherited;
+end;
+
+function TRecursiveFileSystemEnumerator.GetCurrent: String;
+  function NotDots(const Path : string) : boolean;
+  var
+    LFilename : string;
+  begin
+    LFilename := TPath.GetFilename(Path);
+    Result := not ((LFilename = '.') OR (LFilename = '..'));
+  end;
+begin
+  Result := inherited GetCurrent;
+  if IsDir(Result) and not IsDots(Result) then
+    if not FDirHistory.Contains(Result) then
+    begin
+      FDirHistory.Add(Result);
+      FChildDirs.Push(Result);
+    end;
+end;
+
+function TRecursiveFileSystemEnumerator.MoveNext: Boolean;
+var
+  LNextPath : string;
+begin
+  Result := inherited MoveNext;
+  if not Result then   begin
+    if FChildDirs.Count > 0 then
+    begin
+      LNextPath := FChildDirs.Pop;
+      Teardown;
+      Setup(LNextPath);
+      Result := inherited MoveNext;
+    end;
+  end;
+end;
 
 end.

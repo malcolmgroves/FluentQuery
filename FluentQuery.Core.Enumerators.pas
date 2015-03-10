@@ -37,8 +37,6 @@ type
     FOperationName : String;
 {$ENDIF}
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>); virtual;
-    procedure SetValue(const Name, Value : string);
-    function GetValue(const Name : string) : string;
     function GetCurrent: T; virtual;
     function MoveNext: Boolean; virtual;
   public
@@ -311,19 +309,6 @@ begin
   else
     Result := GetOperationName;
 end;
-function TBaseQuery<T>.GetValue(const Name: string): string;
-begin
-  if Assigned(FUpstreamQuery) then
-    result := FUpstreamQuery.GetValue(Name)
-  else
-  begin
-    if Assigned(FValues) then
-      result := FValues.Values[Name]
-    else
-      result := '';
-  end;
-end;
-
 {$ENDIF}
 
 function TBaseQuery<T>.MoveNext: Boolean;
@@ -350,18 +335,6 @@ procedure TBaseQuery<T>.SetUpstreamQuery(
   UpstreamQuery: IBaseQuery<T>);
 begin
   FUpstreamQuery := UpstreamQuery;
-end;
-
-procedure TBaseQuery<T>.SetValue(const Name, Value: string);
-begin
-  if Assigned(FUpstreamQuery) then
-    FUpstreamQuery.SetValue(Name, Value)
-  else
-  begin
-    if not Assigned(FValues) then
-      FValues := TStringList.Create;
-    FValues.Values[Name] := Value;
-  end;
 end;
 
 { TIntegerRangeEnumerator }
