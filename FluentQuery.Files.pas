@@ -31,8 +31,8 @@ uses
 
 type
   { TODO : add a DriveQuery as well, with operators like IsNetworked, etc }
-  { TODO : FromRoot(Drive) }
-  { TODO : CreatedBefore, CreatedAfter, ModifiedBefore, ModifiedAfter }
+  { TODO : add FileSystemQuery.FromRoot(Drive) }
+  { TODO : Implement Hidden on Posix using . convention }
 
   IUnboundFileSystemQuery = interface;
 
@@ -54,15 +54,23 @@ type
     function NameMatches(StringQuery : IUnboundStringQuery) : IBoundFileSystemQuery; overload;
     function Files : IBoundFileSystemQuery;
     function Directories : IBoundFileSystemQuery;
+{$IFDEF MSWINDOWS}
     function Hidden : IBoundFileSystemQuery;
     function NotHidden : IBoundFileSystemQuery;
     function ReadOnly : IBoundFileSystemQuery;
     function NotReadOnly : IBoundFileSystemQuery;
     function System : IBoundFileSystemQuery;
     function NotSystem : IBoundFileSystemQuery;
+{$ENDIF MSWINDOWS}
     function Extension(const AExtension : string) : IBoundFileSystemQuery;
     function LargerThan(Bytes : Int64) : IBoundFileSystemQuery;
     function SmallerThan(Bytes : Int64) : IBoundFileSystemQuery;
+    function CreatedBefore(DateTime : TDateTime) : IBoundFileSystemQuery;
+    function CreatedAfter(DateTime : TDateTime) : IBoundFileSystemQuery;
+    function ModifiedBefore(DateTime : TDateTime) : IBoundFileSystemQuery;
+    function ModifiedAfter(DateTime : TDateTime) : IBoundFileSystemQuery;
+    function LastAccessedBefore(DateTime : TDateTime) : IBoundFileSystemQuery;
+    function LastAccessedAfter(DateTime : TDateTime) : IBoundFileSystemQuery;
     // terminating operations
     function First : String;
   end;
@@ -86,16 +94,24 @@ type
     function NameMatches(const Mask : String) : IUnboundFileSystemQuery; overload;
     function NameMatches(StringQuery : IUnboundStringQuery) : IUnboundFileSystemQuery; overload;
     function Files : IUnboundFileSystemQuery;
+    function Directories : IUnboundFileSystemQuery;
+{$IFDEF MSWINDOWS}
     function Hidden : IUnboundFileSystemQuery;
     function NotHidden : IUnboundFileSystemQuery;
     function ReadOnly : IUnboundFileSystemQuery;
     function NotReadOnly : IUnboundFileSystemQuery;
-    function Directories : IUnboundFileSystemQuery;
     function System : IUnboundFileSystemQuery;
     function NotSystem : IUnboundFileSystemQuery;
+{$ENDIF MSWINDOWS}
     function Extension(const AExtension : string) : IUnboundFileSystemQuery;
     function LargerThan(Bytes : Int64) : IUnboundFileSystemQuery;
     function SmallerThan(Bytes : Int64) : IUnboundFileSystemQuery;
+    function CreatedBefore(DateTime : TDateTime) : IUnboundFileSystemQuery;
+    function CreatedAfter(DateTime : TDateTime) : IUnboundFileSystemQuery;
+    function ModifiedBefore(DateTime : TDateTime) : IUnboundFileSystemQuery;
+    function ModifiedAfter(DateTime : TDateTime) : IUnboundFileSystemQuery;
+    function LastAccessedBefore(DateTime : TDateTime) : IUnboundFileSystemQuery;
+    function LastAccessedAfter(DateTime : TDateTime) : IUnboundFileSystemQuery;
     // terminating operations
     function Predicate : TPredicate<String>;
   end;
@@ -119,6 +135,9 @@ type
         function NameOnlyBeforePredicate(APredicate : TPredicate<string>) : TPredicate<string>;
         function DoFrom(const Directory : string; Recursive : boolean) : IBoundFileSystemQuery;
         function GetSize(const Path : string) : Int64;
+        function GetCreationTime(const Path : string) : TDateTime;
+        function GetModifiedTime(const Path : string) : TDateTime;
+        function GetLastAccessedTime(const Path : string) : TDateTime;
       public
         constructor Create(Query : TFileSystemQuery); virtual;
         function GetEnumerator: TReturnType;
@@ -145,16 +164,24 @@ type
         function NameMatches(const Mask : String) : TReturnType; overload;
         function NameMatches(StringQuery : IUnboundStringQuery) : TReturnType; overload;
         function Files : TReturnType;
+        function Directories : TReturnType;
+{$IFDEF MSWINDOWS}
         function Hidden : TReturnType;
         function NotHidden : TReturnType;
         function ReadOnly : TReturnType;
         function NotReadOnly : TReturnType;
-        function Directories : TReturnType;
         function System : TReturnType;
         function NotSystem : TReturnType;
+{$ENDIF MSWINDOWS}
         function Extension(const AExtension : string) : TReturnType;
         function LargerThan(Bytes : Int64) : TReturnType;
         function SmallerThan(Bytes : Int64) : TReturnType;
+        function CreatedBefore(DateTime : TDateTime) : TReturnType;
+        function CreatedAfter(DateTime : TDateTime) : TReturnType;
+        function ModifiedBefore(DateTime : TDateTime) : TReturnType;
+        function ModifiedAfter(DateTime : TDateTime) : TReturnType;
+        function LastAccessedBefore(DateTime : TDateTime) : TReturnType;
+        function LastAccessedAfter(DateTime : TDateTime) : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<String>;
         function First : String;
@@ -220,7 +247,13 @@ end;
 
 const
   DirValue = 'Directory';
+{$IFDEF MSWINDOWS}
   FileAttrs = faReadOnly + faHIdden + faSysFile + faNormal + faTemporary + faCompressed + faEncrypted + faDirectory;
+{$ENDIF MSWINDOWS}
+{$IFDEF POSIX}
+  FileAttrs = faReadOnly + faNormal + faDirectory + faSymLink;
+{$ENDIF POSIX}
+
 
 
 
@@ -238,6 +271,38 @@ constructor TFileSystemQuery.TQueryImpl<TReturnType>.Create(
   Query: TFileSystemQuery);
 begin
   FQuery := Query;
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.CreatedAfter(
+  DateTime: TDateTime): TReturnType;
+var
+  LCreatedAfter : TPredicate<string>;
+begin
+  LCreatedAfter := function (CurrentValue : String) : Boolean
+                    begin
+                      Result := GetCreationTime(CurrentValue) > DateTime;
+                    end;
+
+  Result := Where(LCreatedAfter);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('CreatedAfter(''%s'')', [DateTimeToStr(DateTime)]);
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.CreatedBefore(
+  DateTime: TDateTime): TReturnType;
+var
+  LCreatedBefore : TPredicate<string>;
+begin
+  LCreatedBefore := function (CurrentValue : String) : Boolean
+                    begin
+                      Result := GetCreationTime(CurrentValue) < DateTime;
+                    end;
+
+  Result := Where(LCreatedBefore);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('CreatedBefore(''%s'')', [DateTimeToStr(DateTime)]);
+{$ENDIF}
 end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Directories: TReturnType;
@@ -323,9 +388,36 @@ begin
 {$ENDIF}
 end;
 
+function TFileSystemQuery.TQueryImpl<TReturnType>.GetCreationTime(
+  const Path: string): TDateTime;
+begin
+  if IsDir(Path) then
+    Result := TDirectory.GetCreationTime(Path)
+  else
+    Result := TFile.GetCreationTime(Path);
+end;
+
 function TFileSystemQuery.TQueryImpl<TReturnType>.GetEnumerator: TReturnType;
 begin
   Result := FQuery;
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.GetLastAccessedTime(
+  const Path: string): TDateTime;
+begin
+  if IsDir(Path) then
+    Result := TDirectory.GetLastAccessTime(Path)
+  else
+    Result := TFile.GetLastAccessTime(Path);
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.GetModifiedTime(
+  const Path: string): TDateTime;
+begin
+  if IsDir(Path) then
+    Result := TDirectory.GetLastWriteTime(Path)
+  else
+    Result := TFile.GetLastWriteTime(Path);
 end;
 
 {$IFDEF DEBUG}
@@ -364,6 +456,7 @@ begin
             end;
 end;
 
+{$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.Hidden: TReturnType;
 begin
   Result := Where(HasAttributePredicate([TFileAttribute.faHidden]));
@@ -371,6 +464,7 @@ begin
   Result.OperationName := 'Hidden';
 {$ENDIF}
 end;
+{$ENDIF MSWINDOWS}
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.LargerThan(
   Bytes: Int64): TReturnType;
@@ -394,6 +488,38 @@ begin
 {$ENDIF}
 end;
 
+function TFileSystemQuery.TQueryImpl<TReturnType>.LastAccessedAfter(
+  DateTime: TDateTime): TReturnType;
+var
+  LLastAccessedAfter : TPredicate<string>;
+begin
+  LLastAccessedAfter := function (CurrentValue : String) : Boolean
+                    begin
+                      Result := GetLastAccessedTime(CurrentValue) > DateTime;
+                    end;
+
+  Result := Where(LLastAccessedAfter);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('LastAccessedAfter(''%s'')', [DateTimeToStr(DateTime)]);
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.LastAccessedBefore(
+  DateTime: TDateTime): TReturnType;
+var
+  LLastAccessedBefore : TPredicate<string>;
+begin
+  LLastAccessedBefore := function (CurrentValue : String) : Boolean
+                    begin
+                      Result := GetLastAccessedTime(CurrentValue) < DateTime;
+                    end;
+
+  Result := Where(LLastAccessedBefore);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('LastAccessedBefore(''%s'')', [DateTimeToStr(DateTime)]);
+{$ENDIF}
+end;
+
 {$ENDIF}
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Map(
@@ -406,6 +532,38 @@ begin
 {$ENDIF}
 end;
 
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.ModifiedAfter(
+  DateTime: TDateTime): TReturnType;
+var
+  LModifiedAfter : TPredicate<string>;
+begin
+  LModifiedAfter := function (CurrentValue : String) : Boolean
+                    begin
+                      Result := GetModifiedTime(CurrentValue) > DateTime;
+                    end;
+
+  Result := Where(LModifiedAfter);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('ModifiedAfter(''%s'')', [DateTimeToStr(DateTime)]);
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.ModifiedBefore(
+  DateTime: TDateTime): TReturnType;
+var
+  LModifiedBefore : TPredicate<string>;
+begin
+  LModifiedBefore := function (CurrentValue : String) : Boolean
+                    begin
+                      Result := GetModifiedTime(CurrentValue) < DateTime;
+                    end;
+
+  Result := Where(LModifiedBefore);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('ModifiedBefore(''%s'')', [DateTimeToStr(DateTime)]);
+{$ENDIF}
+end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.NameMatches(const Mask: String): TReturnType;
 var
@@ -440,6 +598,7 @@ begin
             end;
 end;
 
+{$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotHidden: TReturnType;
 begin
   Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faHidden])));
@@ -447,7 +606,9 @@ begin
   Result.OperationName := 'NotHidden';
 {$ENDIF}
 end;
+{$ENDIF MSWINDOWS}
 
+{$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotReadOnly: TReturnType;
 begin
   Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faReadOnly])));
@@ -455,7 +616,9 @@ begin
   Result.OperationName := 'ReadOnly';
 {$ENDIF}
 end;
+{$ENDIF MSWINDOWS}
 
+{$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotSystem: TReturnType;
 begin
   Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faSystem])));
@@ -463,12 +626,14 @@ begin
   Result.OperationName := 'NotSystem';
 {$ENDIF}
 end;
+{$ENDIF MSWINDOWS}
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Predicate: TPredicate<String>;
 begin
   Result := TStringMethodFactory.QuerySingleValue(FQuery);
 end;
 
+{$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.ReadOnly: TReturnType;
 begin
   Result := Where(HasAttributePredicate([TFileAttribute.faReadOnly]));
@@ -476,6 +641,7 @@ begin
   Result.OperationName := 'ReadOnly';
 {$ENDIF}
 end;
+{$ENDIF MSWINDOWS}
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Skip(Count: Integer): TReturnType;
 begin
@@ -516,6 +682,7 @@ begin
 {$ENDIF}
 end;
 
+{$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.System: TReturnType;
 begin
   Result := Where(HasAttributePredicate([TFileAttribute.faSystem]));
@@ -523,6 +690,7 @@ begin
   Result.OperationName := 'NotSystem';
 {$ENDIF}
 end;
+{$ENDIF MSWINDOWS}
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.SkipWhile(
   Predicate: TPredicate<String>): TReturnType;

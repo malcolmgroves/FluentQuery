@@ -106,6 +106,14 @@ type
     procedure TestSmallerThanLargeRecursive;
     procedure TestSmallerThanSmallRecursive;
     procedure TestLargerThanSmallerThanRecursive;
+    procedure TestCreatedBeforeToday;
+    procedure TestCreatedBeforeTomorrow;
+    procedure TestCreatedAfterYesterday;
+    procedure TestCreatedAfterTomorrow;
+    procedure TestModifiedBeforeToday;
+    procedure TestModifiedBeforeTomorrow;
+    procedure TestModifiedAfterYesterday;
+    procedure TestModifiedAfterTomorrow;
   end;
 
 var
@@ -519,6 +527,71 @@ begin
   CheckNotEquals(0, LPasscount);
 end;
 
+procedure TestFileQuery.TestCreatedAfterTomorrow;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .CreatedAfter(Date + 1) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(0, LPassCount);
+end;
+
+procedure TestFileQuery.TestCreatedAfterYesterday;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .CreatedAfter(Date - 1) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FTotalRecursiveCount, LPassCount);
+end;
+
+procedure TestFileQuery.TestCreatedBeforeToday;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .Files
+                .CreatedBefore(Date) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(0, LPassCount);
+end;
+
+procedure TestFileQuery.TestCreatedBeforeTomorrow;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .CreatedBefore(Date + 1) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FTotalRecursiveCount, LPassCount);
+end;
+
 procedure TestFileQuery.TestDirectories;
 var
   LPassCount : Integer;
@@ -842,6 +915,71 @@ begin
   end;
   CheckEquals(4, LPassCount);
   CheckNotEquals(0, LPasscount);
+end;
+
+procedure TestFileQuery.TestModifiedAfterTomorrow;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .ModifiedAfter(Date + 1) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(0, LPassCount);
+end;
+
+procedure TestFileQuery.TestModifiedAfterYesterday;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .ModifiedAfter(Date - 1) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FTotalRecursiveCount, LPassCount);
+end;
+
+procedure TestFileQuery.TestModifiedBeforeToday;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .Files
+                .ModifiedBefore(Date) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(0, LPassCount);
+end;
+
+procedure TestFileQuery.TestModifiedBeforeTomorrow;
+var
+  LPassCount : Integer;
+  LFile : string;
+begin
+  LPassCount := 0;
+  for LFile in FileSystemQuery
+                .FromRecursive(FTestDirectory)
+                .ModifiedBefore(Date + 1) do
+  begin
+    Inc(LPassCount);
+    DummyFile := LFile;   // just to suppress warning about not using File
+  end;
+  CheckEquals(FTotalRecursiveCount, LPassCount);
 end;
 
 procedure TestFileQuery.TestNotHiddenFiles;
