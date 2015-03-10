@@ -32,6 +32,7 @@ type
     FUpstreamQuery : IBaseQuery<T>;
     FEnumerationStrategy : TEnumerationStrategy<T>;
     FSourceData : IMinimalEnumerator<T>;
+    FValues : TStrings;
 {$IFDEF DEBUG}
     FOperationName : String;
 {$ENDIF}
@@ -278,6 +279,7 @@ end;
 destructor TBaseQuery<T>.Destroy;
 begin
   FEnumerationStrategy.Free;
+  FValues.Free;
   inherited;
 end;
 

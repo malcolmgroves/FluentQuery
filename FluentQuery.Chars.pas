@@ -104,7 +104,6 @@ type
     function Predicate : TPredicate<Char>;
   end;
 
-  function Query : IUnboundCharQuery;
   function CharQuery : IUnboundCharQuery;
 
 
@@ -112,7 +111,7 @@ type
 
 implementation
 
-uses System.Character, FluentQuery.Chars.MethodFactories;
+uses System.Character, FluentQuery.Core.MethodFactories;
 
 type
   TCharQuery = class(TBaseQuery<Char>,
@@ -185,20 +184,17 @@ type
 
   end;
 
+  TCharPredicateFactory = class(TMethodFactory<Char>)
+  public
+    class function Matches(const AChar : Char; IgnoreCase : Boolean) : TPredicate<Char>;
+  end;
+
 
 function CharQuery : IUnboundCharQuery;
 begin
-  Result := Query;
-{$IFDEF DEBUG}
-  Result.OperationName := 'CharQuery';
-{$ENDIF}
-end;
-
-function Query : IUnboundCharQuery;
-begin
   Result := TCharQuery.Create(TEnumerationStrategy<Char>.Create);
 {$IFDEF DEBUG}
-  Result.OperationName := 'Query';
+  Result.OperationName := 'CharQuery';
 {$ENDIF}
 end;
 
@@ -267,120 +263,230 @@ end;
 {$ENDIF}
 
 function TCharQuery.TCharQueryImpl<T>.IsControl: T;
+var
+  LIsControl : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsControl());
+  LIsControl := function (CurrentValue : Char) : Boolean
+                 begin
+                   Result := CurrentValue.IsControl;
+                 end;
+
+  Result := Where(LIsControl);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsControl';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsDigit: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsDigit());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsDigit;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsDigit';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsHighSurrogate: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsHighSurrogate());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsHighSurrogate;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsHighSurrogate';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsInArray(const SomeChars: array of Char): T;
+var
+  LPredicate : TPredicate<char>;
+  LSomeChars : array of Char;
+  LIndex : Integer;
 begin
-  Result := Where(TCharPredicateFactory.IsInArray(SomeChars));
+  SetLength(LSomeChars, Length(SomeChars));
+  for LIndex := Low(SomeChars) to High(SomeChars) do
+    LSomeChars[LIndex] := SomeChars[LIndex];
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsInArray(LSomeChars);
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsInArray(SomeChars)';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsLetter: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsLetter());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsLetter;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLetter';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsLetterOrDigit: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsLetterOrDigit());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsLetterOrDigit;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLetterOrDigit';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsLower: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsLower());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsLower;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLower';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsLowSurrogate: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsLowSurrogate());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsLowSurrogate;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLowSurrogate';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsNumber: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsNumber());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsNumber;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsNumber';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsPunctuation: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsPunctuation());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsPunctuation;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsPunctuation';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsSeparator: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsSeparator());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsSeparator;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
-  Result.OperationName := 'IsSeperator';
+  Result.OperationName := 'IsSeparator';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsSurrogate: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsSurrogate());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsSurrogate;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsSurrogate';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsSymbol: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsSymbol());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsSymbol;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsSymbol';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsUpper: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsUpper());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsUpper;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsUpper';
 {$ENDIF}
 end;
 
 function TCharQuery.TCharQueryImpl<T>.IsWhiteSpace: T;
+var
+  LPredicate : TPredicate<char>;
 begin
-  Result := Where(TCharPredicateFactory.IsWhiteSpace());
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := CurrentValue.IsWhiteSpace;
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsWhitespace';
 {$ENDIF}
@@ -542,6 +648,20 @@ begin
   FBoundQuery.Free;
   FUnboundQuery.Free;
   inherited;
+end;
+
+{ TCharPredicateFactory }
+
+class function TCharPredicateFactory.Matches(const AChar: Char;
+  IgnoreCase: Boolean): TPredicate<Char>;
+begin
+  Result := function (Value : Char) : Boolean
+            begin
+            if IgnoreCase then
+              Result := Value.ToUpper = AChar.ToUpper
+            else
+              Result := Value = AChar;
+            end;
 end;
 
 end.

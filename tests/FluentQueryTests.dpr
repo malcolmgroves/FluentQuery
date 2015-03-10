@@ -34,13 +34,13 @@ uses
   FluentQuery.Components in '..\FluentQuery.Components.pas',
   FluentQuery.Components.Test in 'FluentQuery.Components.Test.pas',
   FluentQuery.Core.MethodFactories in '..\FluentQuery.Core.MethodFactories.pas',
-  FluentQuery.Chars.MethodFactories in '..\FluentQuery.Chars.MethodFactories.pas',
   FluentQuery.Strings.MethodFactories in '..\FluentQuery.Strings.MethodFactories.pas',
   FluentQuery.GenericObjects.MethodFactories in '..\FluentQuery.GenericObjects.MethodFactories.pas',
-  FluentQuery.Pointers.MethodFactories in '..\FluentQuery.Pointers.MethodFactories.pas',
   FluentQuery.Integers.MethodFactories in '..\FluentQuery.Integers.MethodFactories.pas',
   FluentQuery.Components.Test.Form in 'FluentQuery.Components.Test.Form.pas' {FQComponentTestForm},
-  FluentQuery.Components.MethodFactories in '..\FluentQuery.Components.MethodFactories.pas';
+  FluentQuery.Components.MethodFactories in '..\FluentQuery.Components.MethodFactories.pas',
+  FluentQuery.Files in '..\FluentQuery.Files.pas',
+  FLuentQuery.Files.Test in 'FLuentQuery.Files.Test.pas';
 
 {$R *.RES}
 

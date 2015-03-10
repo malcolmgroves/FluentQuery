@@ -77,7 +77,7 @@ type
 
 implementation
 
-uses FluentQuery.Pointers.MethodFactories;
+uses FluentQuery.Core.MethodFactories;
 
 type
   TPointerQuery = class(TBaseQuery<Pointer>,
@@ -204,8 +204,15 @@ end;
 {$ENDIF}
 
 function TPointerQuery.TPointerQueryImpl<T>.IsAssigned: T;
+var
+  LPredicate : TPredicate<Pointer>;
 begin
-  Result := Where(TPointerMethodFactory.IsAssigned());
+  LPredicate := function (Value : Pointer): boolean
+                begin
+                  Result := Assigned(Value);
+                end;
+
+  Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsAssigned';
 {$ENDIF}
@@ -224,12 +231,12 @@ end;
 
 function TPointerQuery.TPointerQueryImpl<T>.Predicate: TPredicate<Pointer>;
 begin
-  Result := TPointerMethodFactory.QuerySingleValue(FQuery);
+  Result := TMethodFactory<Pointer>.QuerySingleValue(FQuery);
 end;
 
 function TPointerQuery.TPointerQueryImpl<T>.Skip(Count: Integer): T;
 begin
-  Result := SkipWhile(TPointerMethodFactory.UpToNumberOfTimes(Count));
+  Result := SkipWhile(TMethodFactory<Pointer>.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Skip(%d)', [Count]);
 {$ENDIF}
@@ -256,7 +263,7 @@ end;
 
 function TPointerQuery.TPointerQueryImpl<T>.Take(Count: Integer): T;
 begin
-  Result := TakeWhile(TPointerMethodFactory.UpToNumberOfTimes(Count));
+  Result := TakeWhile(TMethodFactory<Pointer>.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
   Result.OperationName := Format('Take(%d)', [Count]);
 {$ENDIF}
@@ -303,7 +310,7 @@ end;
 function TPointerQuery.TPointerQueryImpl<T>.WhereNot(
   Predicate: TPredicate<Pointer>): T;
 begin
-  Result := Where(TPointerMethodFactory.InvertPredicate(Predicate));
+  Result := Where(TMethodFactory<Pointer>.InvertPredicate(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}
