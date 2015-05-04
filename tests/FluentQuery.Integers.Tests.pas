@@ -103,12 +103,13 @@ type
     procedure TestReverseStartAtMaxIntPassThrough;
     procedure TestReverseEndAtNegativeMaxIntPassThrough;
     procedure Test1To10Evens;
+//    procedure TestPerf;
   end;
 
 
 implementation
 uses
-  System.SysUtils, Math, FluentQuery.Core.Types;
+  System.SysUtils, Math, FluentQuery.Core.Types, System.Diagnostics;
 
 var
   DummyInt : Integer; // used ot suppress warnings about unused Loop variable
@@ -198,18 +199,8 @@ begin
 end;
 
 procedure TestTQueryInteger.TestTakeUntilUnboundQuery;
-var
-  LPassCount, I : Integer;
 begin
-  LPassCount := 0;
-
-  for I in Query.From(FIntegerCollection).TakeUntil(Query.Equals(9)) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(8, LPassCount);
+  CheckEquals(8, Query.From(FIntegerCollection).TakeUntil(Query.Equals(9)).Count);
 end;
 
 procedure TestTQueryInteger.TestTakeWhere;
@@ -1236,6 +1227,26 @@ begin
 
   CheckEquals(21, LPassCount);
 end;
+
+//procedure TestIntegerRange.TestPerf;
+//var
+//  LPassCount, I : Integer;
+//  LStopWatch : TStopWatch;
+//begin
+//  LPassCount := 0;
+//
+//  LStopWatch := TStopwatch.StartNew;
+//  try
+//    for I in Range(-1000000, 1000000).Positive.Even.GreaterThan(3000) do
+//    begin
+//      Inc(LPassCount);
+//      DummyInt := i;   // just to suppress warning about not using I
+//    end;
+//  finally
+//    LStopWatch.Stop;
+//  end;
+//  Check(LStopWatch.ElapsedMilliseconds < 0, Format('Slow! Expected %d Actual %d', [0, LStopWatch.ElapsedMilliseconds]));
+//end;
 
 procedure TestIntegerRange.TestReverseEndAtNegativeMaxIntPassThrough;
 var

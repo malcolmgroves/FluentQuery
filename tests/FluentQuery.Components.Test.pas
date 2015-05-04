@@ -67,17 +67,8 @@ begin
 end;
 
 procedure TestTQueryComponent.TestNonVisual;
-var
-  LPassCount : Integer;
-  LTimer : TTimer;
 begin
-  LPassCount := 0;
-  for LTimer in ComponentQuery<TTimer>.Select.From(FTestForm) do
-  begin
-    LTimer.Interval := 500; // suppress warnings about not using LTimer
-    Inc(LPassCount);
-  end;
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, ComponentQuery<TTimer>.Select.From(FTestForm).Count);
 end;
 
 procedure TestTQueryComponent.TestVisual;

@@ -47,6 +47,7 @@ type
     // type-specific operations
     function IsAssigned : IBoundPointerQuery;
     function First : Pointer;
+    function Count : Integer;
   end;
 
   IUnboundPointerQuery = interface(IBaseQuery<Pointer>)
@@ -115,6 +116,7 @@ type
         // Terminating Operations
         function Predicate : TPredicate<Pointer>;
         function First : Pointer;
+        function Count : Integer;
       end;
   protected
     FBoundQuery : TPointerQueryImpl<IBoundPointerQuery>;
@@ -149,6 +151,18 @@ end;
 
 
 { TPointerQueryEnumerator }
+
+function TPointerQuery.TPointerQueryImpl<T>.Count: Integer;
+var
+  LCount : Integer;
+begin
+  LCount := 0;
+
+  while FQuery.MoveNext do
+    Inc(LCount);
+
+  Result := LCount;
+end;
 
 constructor TPointerQuery.TPointerQueryImpl<T>.Create(
   Query: TPointerQuery);

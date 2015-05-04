@@ -94,17 +94,10 @@ end;
 
 procedure TestTQueryIntegerGenerics.TestTakeEqualCount;
 var
-  LPassCount, I, MaxPassCount : Integer;
+  MaxPassCount : Integer;
 begin
-  LPassCount := 0;
   MaxPassCount := FIntegerCollection.Count;
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = MaxPassCount, 'Take = Collection.Count should enumerate all items');
+  Check(GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount).Count = MaxPassCount, 'Take = Collection.Count should enumerate all items');
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeGreaterThanCount;

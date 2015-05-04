@@ -63,6 +63,7 @@ type
     function WhereNot(Predicate : TPredicate<Char>) : IBoundCharQuery; overload;
     // terminating operations
     function First : Char;
+    function Count : Integer;
     function ToAString : String;
   end;
 
@@ -168,6 +169,7 @@ type
         function Predicate : TPredicate<Char>;
         function ToAString : String;
         function First : Char;
+        function Count : Integer;
       end;
   protected
     FBoundQuery : TCharQueryImpl<IBoundCharQuery>;
@@ -199,6 +201,18 @@ begin
 end;
 
 { TCharQueryEnumerator }
+
+function TCharQuery.TCharQueryImpl<T>.Count: Integer;
+var
+  LCount : Integer;
+begin
+  LCount := 0;
+
+  while FQuery.MoveNext do
+    Inc(LCount);
+
+  Result := LCount;
+end;
 
 constructor TCharQuery.TCharQueryImpl<T>.Create(
   Query: TCharQuery);

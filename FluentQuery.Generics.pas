@@ -46,6 +46,7 @@ type
     // terminating operations
     function ToTList : TList<T>;
     function First : T;
+    function Count : Integer;
   end;
 
   IUnboundQuery<T> = interface(IBaseQuery<T>)
@@ -100,6 +101,7 @@ type
         function Predicate : TPredicate<T>;
         function ToTList : TList<T>;
         function First : T;
+        function Count : Integer;
       end;
   protected
     FBoundQuery : TQueryImpl<IBoundQuery<T>>;
@@ -138,6 +140,18 @@ end;
 
 
 { TQueryEnumerator<T> }
+
+function TQuery<T>.TQueryImpl<TReturnType>.Count: Integer;
+var
+  LCount : Integer;
+begin
+  LCount := 0;
+
+  while FQuery.MoveNext do
+    Inc(LCount);
+
+  Result := LCount;
+end;
 
 constructor TQuery<T>.TQueryImpl<TReturnType>.Create(
   Query: TQuery<T>);

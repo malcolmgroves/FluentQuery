@@ -209,16 +209,11 @@ end;
 procedure TestFileQuery.TestTakeEqualCount;
 var
   LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Take(FTotalCount) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
+  LPassCount := FileSystemQuery
+                 .From(FTestDirectory)
+                 .Take(FTotalCount)
+                 .Count;
 
   CheckEquals(FTotalCount, LPassCount);
   CheckNotEquals(0, LPasscount);
@@ -227,16 +222,11 @@ end;
 procedure TestFileQuery.TestTakeGreaterThanCount;
 var
   LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Take(FTotalCount + 1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
+  LPassCount := FileSystemQuery
+                  .From(FTestDirectory)
+                  .Take(FTotalCount + 1)
+                  .Count;
 
   CheckEquals(FTotalCount,  LPassCount);
   CheckNotEquals(0, LPasscount);

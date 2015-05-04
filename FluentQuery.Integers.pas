@@ -72,6 +72,7 @@ type
     function Max : Integer;
     function Min : Integer;
     function First : Integer;
+    function Count : Integer;
   end;
 
   IUnboundIntegerQuery = interface(IBaseQuery<Integer>)
@@ -182,6 +183,7 @@ type
         function Max : Integer;
         function Min : Integer;
         function First : Integer;
+        function Count : Integer;
       end;
   protected
     FBoundQuery : TIntegerQueryImpl<IBoundIntegerQuery>;
@@ -272,6 +274,18 @@ begin
     raise EEmptyResultSetException.Create('Cannot take Average of an empty ResultSet')
   else
     Result := LTotal/LCount;
+end;
+
+function TIntegerQuery.TIntegerQueryImpl<T>.Count: Integer;
+var
+  LCount : Integer;
+begin
+  LCount := 0;
+
+  while FQuery.MoveNext do
+    Inc(LCount);
+
+  Result := LCount;
 end;
 
 constructor TIntegerQuery.TIntegerQueryImpl<T>.Create(Query: TIntegerQuery);

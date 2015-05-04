@@ -73,17 +73,8 @@ var
 { TestTQueryChar }
 
 procedure TestTQueryChar.NotEquals;
-var
-  LPassCount : Integer;
-  LChar : Char;
 begin
-  LPassCount := 0;
-  for LChar in CharQuery.From(FStringVal).NotEquals('y') do
-  begin
-    Inc(LPassCount);
-    DummyChar := LChar; // suppress warning about LChar being unused
-  end;
-  Check(LPassCount = FStringVal.Length - 1, 'NotEquals Query should enumerate all but one char');
+  Check(CharQuery.From(FStringVal).NotEquals('y').Count = FStringVal.Length - 1, 'NotEquals Query should enumerate all but one char');
 end;
 
 procedure TestTQueryChar.SetUp;
@@ -95,17 +86,8 @@ end;
 
 
 procedure TestTQueryChar.TestTakeWhileQueryIsLetter;
-var
-  LPassCount : Integer;
-  LChar : Char;
 begin
-  LPassCount := 0;
-  for LChar in CharQuery.From(FStringVal).TakeWhile(CharQuery.IsLetter) do
-  begin
-    Inc(LPassCount);
-    DummyChar := LChar; // suppress warning about LChar being unused
-  end;
-  Check(LPassCount = 25, 'Takewhile(IsLetter) Query should enumerate the first 25 items');
+  Check(CharQuery.From(FStringVal).TakeWhile(CharQuery.IsLetter).Count = 25, 'Takewhile(IsLetter) Query should enumerate the first 25 items');
 end;
 
 procedure TestTQueryChar.TestCreateStringFromIsUpperSkipTake;

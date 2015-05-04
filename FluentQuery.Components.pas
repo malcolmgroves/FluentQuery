@@ -37,6 +37,7 @@ type
     function WhereNot(Predicate : TPredicate<T>) : IBoundComponentQuery<T>; overload;
     // terminating operations
     function First : T;
+    function Count : Integer;
   end;
 
   IUnboundComponentQuery<T : TComponent> = interface(IBaseQuery<T>)
@@ -106,6 +107,7 @@ type
         // Terminating Operations
         function Predicate : TPredicate<T>;
         function First : T;
+        function Count : Integer;
       end;
   protected
     FBoundQuery : TComponentQueryImpl<IBoundComponentQuery<T>>;
@@ -161,6 +163,18 @@ begin
 {$IFDEF DEBUG}
   Result.OperationName := 'BooleanProperty(Name, Value)';
 {$ENDIF}
+end;
+
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Count: Integer;
+var
+  LCount : Integer;
+begin
+  LCount := 0;
+
+  while FQuery.MoveNext do
+    Inc(LCount);
+
+  Result := LCount;
 end;
 
 constructor TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Create(

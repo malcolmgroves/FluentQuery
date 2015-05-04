@@ -58,6 +58,7 @@ type
     // terminating operations
     function ToTStrings : TStrings;
     function First : String;
+    function Count : Integer;
   end;
 
   IUnboundStringQuery = interface(IBaseQuery<String>)
@@ -147,6 +148,7 @@ type
         // Terminating Operations
         function ToTStrings : TStrings;
         function First : String;
+        function Count : Integer;
         function Predicate : TPredicate<string>;
       end;
   protected
@@ -210,6 +212,18 @@ begin
 {$IFDEF DEBUG}
   Result.OperationName := Format('Contains(''%s'', %s', [Value, IgnoreCase.ToString]);
 {$ENDIF}
+end;
+
+function TStringQuery.TStringQueryImpl<T>.Count: Integer;
+var
+  LCount : Integer;
+begin
+  LCount := 0;
+
+  while FQuery.MoveNext do
+    Inc(LCount);
+
+  Result := LCount;
 end;
 
 constructor TStringQuery.TStringQueryImpl<T>.Create(Query: TStringQuery);

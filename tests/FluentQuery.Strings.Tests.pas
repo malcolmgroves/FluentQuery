@@ -31,6 +31,7 @@ type
   TestTQueryTStrings = class(TTestCase)
   strict private
     FStrings: TStrings;
+    FNameStrings : TStrings;
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -104,11 +105,18 @@ begin
   FStrings.Add('8');
   FStrings.Add('9');
   FStrings.Add('10');
+
+  FNameStrings := TStringList.Create;
+  FNameStrings.Add('Malcolm');
+  FNameStrings.Add('Julie');
+  FNameStrings.Add('Jesse');
+  FNameStrings.Add('Lauren');
 end;
 
 procedure TestTQueryTStrings.TearDown;
 begin
   FStrings.Free;
+  FNameStrings.Free;
   inherited;
 end;
 
@@ -128,127 +136,38 @@ begin
 end;
 
 procedure TestTQueryTStrings.TestEquals;
-var
-  LPassCount : Integer;
-  LString : String;
-  LNameStrings : TStrings;
 begin
-  LNameStrings := TStringList.Create;
-  try
-    LNameStrings.Add('Malcolm');
-    LNameStrings.Add('Julie');
-    LNameStrings.Add('Jesse');
-    LNameStrings.Add('jesse');
-    LNameStrings.Add('Lauren');
+  FNameStrings.Add('jesse');
 
-    LPassCount := 0;
-    for LString in Query.From(LNameStrings).Equals('jesse') do
-      Inc(LPassCount);
-    Check(LPassCount = 1, 'Equals Query should enumerate one string');
-  finally
-    LNameStrings.Free;
-  end;
+  Check(Query.From(FNameStrings).Equals('jesse').Count = 1, 'Equals Query should enumerate one string');
 end;
 
 procedure TestTQueryTStrings.TestMatchesCaseInsensitive;
-var
-  LPassCount : Integer;
-  LString : String;
-  LNameStrings : TStrings;
 begin
-  LNameStrings := TStringList.Create;
-  try
-    LNameStrings.Add('Malcolm');
-    LNameStrings.Add('Julie');
-    LNameStrings.Add('Jesse');
-    LNameStrings.Add('Lauren');
-
-    LPassCount := 0;
-    for LString in Query.From(LNameStrings).Matches('jesse') do
-      Inc(LPassCount);
-    Check(LPassCount = 1, 'Case Insensitive Matches Query should enumerate one string');
-  finally
-    LNameStrings.Free;
-  end;
+  Check(Query.From(FNameStrings).Matches('jesse').Count = 1, 'Case Insensitive Matches Query should enumerate one string');
 end;
 
 procedure TestTQueryTStrings.TestMatchesCaseSensitive;
-var
-  LPassCount : Integer;
-  LString : String;
-  LNameStrings : TStrings;
 begin
-  LNameStrings := TStringList.Create;
-  try
-    LNameStrings.Add('Malcolm');
-    LNameStrings.Add('Julie');
-    LNameStrings.Add('Jesse');
-    LNameStrings.Add('Lauren');
-    LNameStrings.Add('jesse');
+  FNameStrings.Add('jesse');
 
-    LPassCount := 0;
-    for LString in Query.From(LNameStrings).Matches('Jesse', False) do
-      Inc(LPassCount);
-    Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one string');
-  finally
-    LNameStrings.Free;
-  end;
+  Check(Query.From(FNameStrings).Matches('Jesse', False).Count = 1, 'Case Sensitive Matches Query should enumerate one string');
 end;
 
 procedure TestTQueryTStrings.TestNoMatchesCaseSensitive;
-var
-  LPassCount : Integer;
-  LString : String;
-  LNameStrings : TStrings;
 begin
-  LNameStrings := TStringList.Create;
-  try
-    LNameStrings.Add('Malcolm');
-    LNameStrings.Add('Julie');
-    LNameStrings.Add('Jesse');
-    LNameStrings.Add('Lauren');
-
-    LPassCount := 0;
-    for LString in Query.From(LNameStrings).Matches('jesse', False) do
-      Inc(LPassCount);
-    Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
-  finally
-    LNameStrings.Free;
-  end;
+  Check(Query.From(FNameStrings).Matches('jesse', False).Count = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
 end;
 
 procedure TestTQueryTStrings.TestNotEquals;
-var
-  LPassCount : Integer;
-  LString : String;
-  LNameStrings : TStrings;
 begin
-  LNameStrings := TStringList.Create;
-  try
-    LNameStrings.Add('Malcolm');
-    LNameStrings.Add('Julie');
-    LNameStrings.Add('Jesse');
-    LNameStrings.Add('jesse');
-    LNameStrings.Add('Lauren');
-
-    LPassCount := 0;
-    for LString in Query.From(LNameStrings).NotEquals('jesse') do
-      Inc(LPassCount);
-    Check(LPassCount = 4, 'NotEquals Query should enumerate four strings');
-  finally
-    LNameStrings.Free;
-  end;
+  FNameStrings.Add('jesse');
+  Check(Query.From(FNameStrings).NotEquals('jesse').Count = 4, 'NotEquals Query should enumerate four strings');
 end;
 
 procedure TestTQueryTStrings.TestPassThrough;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStrings) do
-    Inc(LPassCount);
-  Check(LPassCount = FStrings.Count, 'Passthrough Query should enumerate all strings');
+  Check(Query.From(FStrings).Count = FStrings.Count, 'Passthrough Query should enumerate all strings');
 end;
 
 procedure TestTQueryTStrings.TestSkipTake;
@@ -257,10 +176,6 @@ var
   LString : String;
 begin
   LPassCount := 0;
-//  for LString in Query
-//                   .From(FStrings)
-//                   .Skip(4)
-//                   .Take(3) do
   for LString in Query
                    .From(FStrings)
                    .Skip(4)

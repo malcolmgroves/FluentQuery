@@ -76,6 +76,7 @@ type
     property Current: T read GetCurrent;
   end;
 
+//  TSuperTypeEnumeratorAdapter<TSuperType : IInterface; TSubType : IInterface> = class(TInterfacedObject, IMinimalEnumerator<TSubType>)
   TSuperTypeEnumeratorAdapter<TSuperType : class; TSubType : class> = class(TInterfacedObject, IMinimalEnumerator<TSubType>)
   protected
     FEnumerator : IMinimalEnumerator<TSuperType>;

@@ -148,19 +148,8 @@ begin
 end;
 
 procedure TestTQueryTList.TestIsAssigned;
-var
-  LPassCount : Integer;
-  LPointer : Pointer;
 begin
-  LPassCount := 0;
-  for LPointer in Query
-                    .From(FList)
-                    .IsAssigned do
-  begin
-    Inc(LPassCount);
-    DummyPointer := LPointer; // suppress warnings about unused loop variable
-  end;
-  Check(LPassCount = 4, 'IsAssigned Query should enumerate four items');
+  Check(Query.From(FList).IsAssigned.Count = 4, 'IsAssigned Query should enumerate four items');
 end;
 
 

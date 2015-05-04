@@ -51,6 +51,7 @@ type
     // terminating operations
     function First : T;
     function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
+    function Count : Integer;
   end;
 
   IUnboundObjectQuery<T : class> = interface(IBaseQuery<T>)
@@ -113,6 +114,7 @@ type
         function Predicate : TPredicate<T>;
         function First : T;
         function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
+        function Count : Integer;
       end;
   protected
     FBoundQuery : TObjectQueryImpl<IBoundObjectQuery<T>>;
@@ -148,6 +150,18 @@ begin
 {$IFDEF DEBUG}
   Result.OperationName := 'IsA';
 {$ENDIF}
+end;
+
+function TObjectQuery<T>.TObjectQueryImpl<TReturnType>.Count: Integer;
+var
+  LCount : Integer;
+begin
+  LCount := 0;
+
+  while FQuery.MoveNext do
+    Inc(LCount);
+
+  Result := LCount;
 end;
 
 constructor TObjectQuery<T>.TObjectQueryImpl<TReturnType>.Create(

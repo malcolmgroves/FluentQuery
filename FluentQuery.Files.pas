@@ -73,10 +73,11 @@ type
     function LastAccessedAfter(DateTime : TDateTime) : IBoundFileSystemQuery;
     // terminating operations
     function First : String;
+    function Count : Integer;
   end;
 
   IUnboundFileSystemQuery = interface(IBaseQuery<String>)
-    function GetEnumerator: IUnboundFileSystemQuery;
+//    function GetEnumerator: IUnboundFileSystemQuery;
     function From(const Directory : string) : IBoundFileSystemQuery;
     function FromRecursive(const Directory : string) : IBoundFileSystemQuery;
     // query operations
@@ -119,6 +120,10 @@ type
 
 function FileSystemQuery : IUnboundFileSystemQuery;
 
+const
+  Kilobyte = 1024;
+  Megabyte = 1048576;
+  Gigabyte = 1073741824;
 
 implementation
 
@@ -185,6 +190,7 @@ type
         // Terminating Operations
         function Predicate : TPredicate<String>;
         function First : String;
+        function Count : Integer;
       end;
   protected
     FBoundQuery : TQueryImpl<IBoundFileSystemQuery>;
@@ -266,6 +272,18 @@ begin
 end;
 
 { TQueryEnumerator<String> }
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.Count: Integer;
+var
+  LCount : Integer;
+begin
+  LCount := 0;
+
+  while FQuery.MoveNext do
+    Inc(LCount);
+
+  Result := LCount;
+end;
 
 constructor TFileSystemQuery.TQueryImpl<TReturnType>.Create(
   Query: TFileSystemQuery);
