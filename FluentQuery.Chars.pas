@@ -64,7 +64,7 @@ type
     // terminating operations
     function First : Char;
     function Count : Integer;
-    function ToAString : String;
+    function AsString : String;
   end;
 
   IUnboundCharQuery = interface(IBaseQuery<Char>)
@@ -112,7 +112,7 @@ type
 
 implementation
 
-uses System.Character, FluentQuery.Core.MethodFactories;
+uses System.Character, FluentQuery.Core.MethodFactories, FluentQuery.Core.Reduce;
 
 type
   TCharQuery = class(TBaseQuery<Char>,
@@ -167,7 +167,7 @@ type
         function IsWhiteSpace: T;
         // Terminating Operations
         function Predicate : TPredicate<Char>;
-        function ToAString : String;
+        function AsString : String;
         function First : Char;
         function Count : Integer;
       end;
@@ -203,15 +203,13 @@ end;
 { TCharQueryEnumerator }
 
 function TCharQuery.TCharQueryImpl<T>.Count: Integer;
-var
-  LCount : Integer;
 begin
-  LCount := 0;
-
-  while FQuery.MoveNext do
-    Inc(LCount);
-
-  Result := LCount;
+  Result := TReducer<Char,Integer>.Reduce(FQuery,
+                                          0,
+                                          function(Accumulator : Integer; NextValue : Char): Integer
+                                          begin
+                                            Result := Accumulator + 1;
+                                          end);
 end;
 
 constructor TCharQuery.TCharQueryImpl<T>.Create(
@@ -603,16 +601,14 @@ begin
 {$ENDIF}
 end;
 
-function TCharQuery.TCharQueryImpl<T>.ToAString: String;
-var
-  LString : String;
+function TCharQuery.TCharQueryImpl<T>.AsString: String;
 begin
-  LString := '';
-
-  while FQuery.MoveNext do
-    LString := LString + FQuery.GetCurrent;
-
-  Result := LString;
+  Result := TReducer<Char,String>.Reduce(FQuery,
+                                         '',
+                                         function(Accumulator : String; NextValue : Char): String
+                                         begin
+                                           Result := Accumulator + NextValue;
+                                         end);
 end;
 
 function TCharQuery.TCharQueryImpl<T>.Where(

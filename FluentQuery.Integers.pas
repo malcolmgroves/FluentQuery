@@ -66,7 +66,7 @@ type
     function WhereNot(Predicate : TPredicate<Integer>) : IBoundIntegerQuery; overload;
     function Zero : IBoundIntegerQuery;
     // terminating operations
-    function ToTList : TList<Integer>;
+    function AsTList : TList<Integer>;
     function Sum : Integer;
     function Average : Double;
     function Max : Integer;
@@ -121,7 +121,7 @@ type
 
 implementation
 
-uses FluentQuery.Integers.MethodFactories;
+uses FluentQuery.Integers.MethodFactories, FluentQuery.Core.Reduce, System.Math;
 
 type
   TIntegerQuery = class(TBaseQuery<Integer>,
@@ -176,7 +176,7 @@ type
         function LessThanOrEquals(const Value : Integer) : T;
         function GreaterThanOrEquals(const Value : Integer) : T;
         // Terminating Operations
-        function ToTList : TList<Integer>;
+        function AsTList : TList<Integer>;
         function Predicate : TPredicate<Integer>;
         function Sum : Integer;
         function Average : Double;
@@ -262,13 +262,15 @@ function TIntegerQuery.TIntegerQueryImpl<T>.Average: Double;
 var
   LTotal, LCount : Integer;
 begin
-  LTotal := 0;
   LCount := 0;
-  while FQuery.MoveNext do
-  begin
-    LTotal := LTotal + FQuery.GetCurrent;
-    Inc(LCount)
-  end;
+
+  LTotal := TReducer<Integer, Integer>.Reduce(FQuery,
+                                              0,
+                                              function(Accumulator : Integer; NextValue : Integer) : Integer
+                                              begin
+                                                Result := Accumulator + NextValue;
+                                                Inc(LCount);
+                                              end);
 
   if LCount = 0 then
     raise EEmptyResultSetException.Create('Cannot take Average of an empty ResultSet')
@@ -277,15 +279,13 @@ begin
 end;
 
 function TIntegerQuery.TIntegerQueryImpl<T>.Count: Integer;
-var
-  LCount : Integer;
 begin
-  LCount := 0;
-
-  while FQuery.MoveNext do
-    Inc(LCount);
-
-  Result := LCount;
+  Result := TReducer<Integer,Integer>.Reduce(FQuery,
+                                             0,
+                                             function(Accumulator : Integer; NextValue : Integer): Integer
+                                             begin
+                                               Result := Accumulator + 1;
+                                             end);
 end;
 
 constructor TIntegerQuery.TIntegerQueryImpl<T>.Create(Query: TIntegerQuery);
@@ -448,33 +448,23 @@ end;
 
 
 function TIntegerQuery.TIntegerQueryImpl<T>.Max: Integer;
-var
-  LMax, LCurrent : Integer;
 begin
-  LMax := -MaxInt;
-  while FQuery.MoveNext do
-  begin
-    LCurrent := FQuery.GetCurrent;
-    if LCurrent > LMax then
-      LMax := LCurrent;
-  end;
-
-  Result := LMax;
+  Result := TReducer<Integer, Integer>.Reduce(FQuery,
+                                              -MaxInt,
+                                              function(Accumulator : Integer; NextValue : Integer) : Integer
+                                              begin
+                                                Result := System.Math.Max(Accumulator, NextValue);
+                                              end);
 end;
 
 function TIntegerQuery.TIntegerQueryImpl<T>.Min: Integer;
-var
-  LMin, LCurrent : Integer;
 begin
-  LMin := MaxInt;
-  while FQuery.MoveNext do
-  begin
-    LCurrent := FQuery.GetCurrent;
-    if LCurrent < LMin then
-      LMin := LCurrent;
-  end;
-
-  Result := LMin;
+  Result := TReducer<Integer, Integer>.Reduce(FQuery,
+                                              MaxInt,
+                                              function(Accumulator : Integer; NextValue : Integer) : Integer
+                                              begin
+                                                Result := System.Math.Min(Accumulator, NextValue);
+                                              end);
 end;
 
 function TIntegerQuery.TIntegerQueryImpl<T>.Predicate: TPredicate<Integer>;
@@ -527,14 +517,13 @@ begin
 end;
 
 function TIntegerQuery.TIntegerQueryImpl<T>.Sum: Integer;
-var
-  LTotal : Integer;
 begin
-  LTotal := 0;
-  while FQuery.MoveNext do
-    LTotal := LTotal + FQuery.GetCurrent;
-
-  Result := LTotal;
+  Result := TReducer<Integer, Integer>.Reduce(FQuery,
+                                              0,
+                                              function(Accumulator : Integer; NextValue : Integer) : Integer
+                                              begin
+                                                Result := Accumulator + NextValue;
+                                              end);
 end;
 
 function TIntegerQuery.TIntegerQueryImpl<T>.SkipWhile(
@@ -624,17 +613,15 @@ begin
 {$ENDIF}
 end;
 
-function TIntegerQuery.TIntegerQueryImpl<T>.ToTList: TList<Integer>;
-var
-  LList : TList<Integer>;
-  Item : Integer;
+function TIntegerQuery.TIntegerQueryImpl<T>.AsTList: TList<Integer>;
 begin
-  LList := TList<Integer>.Create;
-
-  while FQuery.MoveNext do
-    LList.Add(FQuery.GetCurrent);
-
-  Result := LList;
+  Result := TReducer<Integer,TList<Integer>>.Reduce(FQuery,
+                                              TList<Integer>.Create,
+                                              function(Accumulator : TList<Integer>; NextValue : Integer): TList<Integer>
+                                              begin
+                                                Accumulator.Add(NextValue);
+                                                Result := Accumulator;
+                                              end);
 end;
 
 function TIntegerQuery.TIntegerQueryImpl<T>.TakeWhile(Predicate: TPredicate<Integer>): T;

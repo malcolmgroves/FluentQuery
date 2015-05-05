@@ -56,7 +56,7 @@ type
     function SubString(const StartIndex : Integer; Length : Integer) : IBoundStringQuery; overload;
     function Value(const Name : String; IgnoreCase : Boolean = True) : IBoundStringQuery;
     // terminating operations
-    function ToTStrings : TStrings;
+    function AsTStrings : TStrings;
     function First : String;
     function Count : Integer;
   end;
@@ -101,7 +101,7 @@ const
 
 implementation
 
-uses FluentQuery.Strings.MethodFactories;
+uses FluentQuery.Strings.MethodFactories, FluentQuery.Core.Reduce;
 
 type
   TStringQuery = class(TBaseQuery<String>,
@@ -146,7 +146,7 @@ type
         function SubString(const StartIndex : Integer; Length : Integer) : T; overload;
         function Value(const Name : String; IgnoreCase : Boolean = True) : T;
         // Terminating Operations
-        function ToTStrings : TStrings;
+        function AsTStrings : TStrings;
         function First : String;
         function Count : Integer;
         function Predicate : TPredicate<string>;
@@ -215,15 +215,13 @@ begin
 end;
 
 function TStringQuery.TStringQueryImpl<T>.Count: Integer;
-var
-  LCount : Integer;
 begin
-  LCount := 0;
-
-  while FQuery.MoveNext do
-    Inc(LCount);
-
-  Result := LCount;
+  Result := TReducer<String,Integer>.Reduce(FQuery,
+                                            0,
+                                            function(Accumulator : Integer; NextValue : String): Integer
+                                            begin
+                                              Result := Accumulator + 1;
+                                            end);
 end;
 
 constructor TStringQuery.TStringQueryImpl<T>.Create(Query: TStringQuery);
@@ -435,16 +433,15 @@ begin
 {$ENDIF}
 end;
 
-function TStringQuery.TStringQueryImpl<T>.ToTStrings: TStrings;
-var
-  LStrings : TStrings;
+function TStringQuery.TStringQueryImpl<T>.AsTStrings: TStrings;
 begin
-  LStrings := TStringList.Create;
-
-  while FQuery.MoveNext do
-    LStrings.Add(FQuery.GetCurrent);
-
-  Result := LStrings;
+  Result := TReducer<String,TStrings>.Reduce(FQuery,
+                                        TStringList.Create,
+                                        function(Accumulator : TStrings; NextValue : String): TStrings
+                                        begin
+                                          Accumulator.Add(NextValue);
+                                          Result := Accumulator;
+                                        end);
 end;
 
 function TStringQuery.TStringQueryImpl<T>.Where(

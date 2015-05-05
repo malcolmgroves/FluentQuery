@@ -40,7 +40,8 @@ uses
   FluentQuery.Components.Test.Form in 'FluentQuery.Components.Test.Form.pas' {FQComponentTestForm},
   FluentQuery.Components.MethodFactories in '..\FluentQuery.Components.MethodFactories.pas',
   FluentQuery.Files in '..\FluentQuery.Files.pas',
-  FLuentQuery.Files.Test in 'FLuentQuery.Files.Test.pas';
+  FLuentQuery.Files.Test in 'FLuentQuery.Files.Test.pas',
+  FluentQuery.Core.Reduce in '..\FluentQuery.Core.Reduce.pas';
 
 {$R *.RES}
 

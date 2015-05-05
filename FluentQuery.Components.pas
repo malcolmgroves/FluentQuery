@@ -134,7 +134,7 @@ type
 implementation
 uses
   FluentQuery.Components.MethodFactories, FluentQuery.GenericObjects, FluentQuery.Integers.MethodFactories,
-  FluentQuery.Strings.MethodFactories;
+  FluentQuery.Strings.MethodFactories, FluentQuery.Core.Reduce;
 
 { TComponentQueryEnumerator<T> }
 
@@ -166,15 +166,13 @@ begin
 end;
 
 function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Count: Integer;
-var
-  LCount : Integer;
 begin
-  LCount := 0;
-
-  while FQuery.MoveNext do
-    Inc(LCount);
-
-  Result := LCount;
+  Result := TReducer<T,Integer>.Reduce(FQuery,
+                                       0,
+                                       function(Accumulator : Integer; NextValue : T): Integer
+                                       begin
+                                         Result := Accumulator + 1;
+                                       end);
 end;
 
 constructor TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Create(

@@ -110,6 +110,7 @@
         <DCCReference Include="..\FluentQuery.Components.MethodFactories.pas"/>
         <DCCReference Include="..\FluentQuery.Files.pas"/>
         <DCCReference Include="FLuentQuery.Files.Test.pas"/>
+        <DCCReference Include="..\FluentQuery.Core.Reduce.pas"/>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
         <None Include="ModelSupport_FluentQueryTests\default.txvpck"/>
         <None Include="ModelSupport_FluentQueryTests\FluentQueryTests\default.txvpck"/>
@@ -532,13 +533,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="OSX32">False</Platform>

@@ -44,7 +44,7 @@ type
     function WhereNot(UnboundQuery : IUnboundQuery<T>) : IBoundQuery<T>; overload;
     function WhereNot(Predicate : TPredicate<T>) : IBoundQuery<T>; overload;
     // terminating operations
-    function ToTList : TList<T>;
+    function AsTList : TList<T>;
     function First : T;
     function Count : Integer;
   end;
@@ -99,7 +99,7 @@ type
         function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
         // Terminating Operations
         function Predicate : TPredicate<T>;
-        function ToTList : TList<T>;
+        function AsTList : TList<T>;
         function First : T;
         function Count : Integer;
       end;
@@ -123,11 +123,9 @@ type
     class function Select : IUnboundQuery<T>;
   end;
 
-//  GenericQuery<T> = Query<T>;
-
 implementation
 
-uses FluentQuery.Core.MethodFactories;
+uses FluentQuery.Core.MethodFactories, FluentQuery.Core.Reduce;
 
 class function GenericQuery<T>.Select: IUnboundQuery<T>;
 begin
@@ -142,15 +140,13 @@ end;
 { TQueryEnumerator<T> }
 
 function TQuery<T>.TQueryImpl<TReturnType>.Count: Integer;
-var
-  LCount : Integer;
 begin
-  LCount := 0;
-
-  while FQuery.MoveNext do
-    Inc(LCount);
-
-  Result := LCount;
+  Result := TReducer<T,Integer>.Reduce(FQuery,
+                                       0,
+                                       function(Accumulator : Integer; NextValue : T): Integer
+                                       begin
+                                         Result := Accumulator + 1;
+                                       end);
 end;
 
 constructor TQuery<T>.TQueryImpl<TReturnType>.Create(
@@ -268,17 +264,15 @@ begin
 {$ENDIF}
 end;
 
-function TQuery<T>.TQueryImpl<TReturnType>.ToTList: TList<T>;
-var
-  LList : TList<T>;
-  Item : T;
+function TQuery<T>.TQueryImpl<TReturnType>.AsTList: TList<T>;
 begin
-  LList := TList<T>.Create;
-
-  while FQuery.MoveNext do
-    LList.Add(FQuery.GetCurrent);
-
-  Result := LList;
+  Result := TReducer<T,TList<T>>.Reduce(FQuery,
+                                        TList<T>.Create,
+                                        function(Accumulator : TList<T>; NextValue : T): TList<T>
+                                        begin
+                                          Accumulator.Add(NextValue);
+                                          Result := Accumulator;
+                                        end);
 end;
 
 function TQuery<T>.TQueryImpl<TReturnType>.Where(

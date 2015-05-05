@@ -127,7 +127,7 @@ const
 
 implementation
 
-uses  FluentQuery.Strings.MethodFactories;
+uses  FluentQuery.Strings.MethodFactories, FluentQuery.Core.Reduce;
 
 type
   TFileSystemQuery = class(TBaseQuery<String>, IBoundFileSystemQuery, IUnboundFileSystemQuery)
@@ -274,15 +274,13 @@ end;
 { TQueryEnumerator<String> }
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Count: Integer;
-var
-  LCount : Integer;
 begin
-  LCount := 0;
-
-  while FQuery.MoveNext do
-    Inc(LCount);
-
-  Result := LCount;
+  Result := TReducer<String,Integer>.Reduce(FQuery,
+                                            0,
+                                            function(Accumulator : Integer; NextValue : String): Integer
+                                            begin
+                                              Result := Accumulator + 1;
+                                            end);
 end;
 
 constructor TFileSystemQuery.TQueryImpl<TReturnType>.Create(

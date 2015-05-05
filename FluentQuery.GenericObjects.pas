@@ -50,7 +50,7 @@ type
     function WhereNot(Predicate : TPredicate<T>) : IBoundObjectQuery<T>; overload;
     // terminating operations
     function First : T;
-    function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
+    function AsTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
     function Count : Integer;
   end;
 
@@ -113,7 +113,7 @@ type
         // Terminating Operations
         function Predicate : TPredicate<T>;
         function First : T;
-        function ToTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
+        function AsTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
         function Count : Integer;
       end;
   protected
@@ -139,7 +139,7 @@ type
 
 implementation
 
-uses FluentQuery.GenericObjects.MethodFactories;
+uses FluentQuery.GenericObjects.MethodFactories, FluentQuery.Core.Reduce;
 
 { TObjectQueryEnumerator<T>.TObjectQueryEnumeratorImpl<TReturnType> }
 
@@ -153,15 +153,13 @@ begin
 end;
 
 function TObjectQuery<T>.TObjectQueryImpl<TReturnType>.Count: Integer;
-var
-  LCount : Integer;
 begin
-  LCount := 0;
-
-  while FQuery.MoveNext do
-    Inc(LCount);
-
-  Result := LCount;
+  Result := TReducer<T,Integer>.Reduce(FQuery,
+                                       0,
+                                       function(Accumulator : Integer; NextValue : T): Integer
+                                       begin
+                                         Result := Accumulator + 1;
+                                       end);
 end;
 
 constructor TObjectQuery<T>.TObjectQueryImpl<TReturnType>.Create(
@@ -290,18 +288,16 @@ begin
 {$ENDIF}
 end;
 
-function TObjectQuery<T>.TObjectQueryImpl<TReturnType>.ToTObjectList(
+function TObjectQuery<T>.TObjectQueryImpl<TReturnType>.AsTObjectList(
   AOwnsObjects: Boolean): TObjectList<T>;
-var
-  LObjectList : TObjectList<T>;
-  Item : T;
 begin
-  LObjectList := TObjectList<T>.Create(AOwnsObjects);
-
-  while FQuery.MoveNext do
-    LObjectList.Add(FQuery.GetCurrent);
-
-  Result := LObjectList;
+  Result := TReducer<T,TObjectList<T>>.Reduce(FQuery,
+                                              TObjectList<T>.Create(AOwnsObjects),
+                                              function(Accumulator : TObjectList<T>; NextValue : T): TObjectList<T>
+                                              begin
+                                                Accumulator.Add(NextValue);
+                                                Result := Accumulator;
+                                              end);
 end;
 
 function TObjectQuery<T>.TObjectQueryImpl<TReturnType>.Where(

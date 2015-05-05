@@ -112,7 +112,7 @@ begin
   LPersonList := ObjectQuery<TPerson>.Select
                       .From(FPersonCollection)
                       .Where(L18OrMore)
-                      .ToTObjectList(False);
+                      .AsTObjectList(False);
   try
     CheckEquals(2, LPersonList.Count);
     CheckEquals('Malcolm', LPersonList.Items[0].Name);

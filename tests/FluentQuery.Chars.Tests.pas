@@ -99,24 +99,15 @@ begin
                      .IsUpper
                      .Skip(5)
                      .Take(4)
-                     .ToAString;
+                     .AsString;
 
   Check(LResultString.Length = 4, 'Take(4) should enumerate 4 chars');
   Check(LResultString = 'FGHI', 'IsUpper.Skip(5).Take(4) should enumerate F, G, H and then I');
 end;
 
 procedure TestTQueryChar.TestEquals;
-var
-  LPassCount : Integer;
-  LChar : Char;
 begin
-  LPassCount := 0;
-  for LChar in CharQuery.From(FStringVal).Equals('y') do
-  begin
-    Inc(LPassCount);
-    DummyChar := LChar; // suppress warning about LChar being unused
-  end;
-  Check(LPassCount = 1, 'Equals Query should enumerate one char');
+  Check(CharQuery.From(FStringVal).Equals('y').Count = 1, 'Equals Query should enumerate one char');
 end;
 
 procedure TestTQueryChar.TestIsDigit;

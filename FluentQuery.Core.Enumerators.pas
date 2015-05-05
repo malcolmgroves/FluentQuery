@@ -37,9 +37,9 @@ type
     FOperationName : String;
 {$ENDIF}
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>); virtual;
+  public
     function GetCurrent: T; virtual;
     function MoveNext: Boolean; virtual;
-  public
     constructor Create(EnumerationStrategy : TEnumerationStrategy<T>;
                        UpstreamQuery : IBaseQuery<T> = nil;
                        SourceData : IMinimalEnumerator<T> = nil); virtual;

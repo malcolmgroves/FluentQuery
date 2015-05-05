@@ -78,7 +78,7 @@ type
 
 implementation
 
-uses FluentQuery.Core.MethodFactories;
+uses FluentQuery.Core.MethodFactories, FluentQuery.Core.Reduce;
 
 type
   TPointerQuery = class(TBaseQuery<Pointer>,
@@ -153,15 +153,13 @@ end;
 { TPointerQueryEnumerator }
 
 function TPointerQuery.TPointerQueryImpl<T>.Count: Integer;
-var
-  LCount : Integer;
 begin
-  LCount := 0;
-
-  while FQuery.MoveNext do
-    Inc(LCount);
-
-  Result := LCount;
+  Result := TReducer<Pointer,Integer>.Reduce(FQuery,
+                                             0,
+                                             function(Accumulator : Integer; NextValue : Pointer): Integer
+                                             begin
+                                               Result := Accumulator + 1;
+                                             end);
 end;
 
 constructor TPointerQuery.TPointerQueryImpl<T>.Create(

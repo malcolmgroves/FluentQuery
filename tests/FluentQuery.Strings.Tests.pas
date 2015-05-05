@@ -197,7 +197,7 @@ begin
                 .From(FStrings)
                 .Skip(4)
                 .Take(3)
-                .ToTStrings;
+                .AsTStrings;
   try
     Check(LStrings.Count = 3, 'Should contain 3 strings');
   finally

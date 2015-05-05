@@ -716,7 +716,7 @@ begin
   LIntegerList := Query
                     .From(FIntegerCollection)
                     .TakeWhile(LFourOrLess)
-                    .ToTList;
+                    .AsTList;
   try
     Check(LIntegerList.Count = 4, 'Should have 4 items in list');
     Check(LIntegerList.Items[0] = 1, 'First item should be 1');
