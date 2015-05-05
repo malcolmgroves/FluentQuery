@@ -72,182 +72,91 @@ begin
 end;
 
 procedure TestTQueryComponent.TestVisual;
-var
-  LPassCount : Integer;
-  LEdit : TEdit;
 begin
-  LPassCount := 0;
-  for LEdit in ComponentQuery<TEdit>.Select.From(FTestForm) do
-  begin
-    LEdit.Text := 'Hello'; // suppress warnings about not using LEdit
-    Inc(LPassCount);
-  end;
-  CheckEquals(4, LPassCount);
+  CheckEquals(4, ComponentQuery<TEdit>.Select.From(FTestForm).Count);
 end;
 
 procedure TestTQueryComponent.TestHasPropertyColor;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>
-                      .Select
-                      .From(FTestForm)
-                      .HasProperty('Color', tkInteger) do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(6, LPassCount);
+  CheckEquals(6, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .HasProperty('Color', tkInteger)
+                  .Count);
 end;
 
 procedure TestTQueryComponent.TestHasTagEquals1;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>
-                      .Select
-                      .From(FTestForm)
-                      .IntegerProperty('Tag', 1) do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(4, LPassCount);
+  CheckEquals(4, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .IntegerProperty('Tag', 1)
+                  .Count);
 end;
 
 procedure TestTQueryComponent.TestHasTagGreaterThanZero;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>
-                      .Select
-                      .From(FTestForm)
-                      .IntegerProperty('Tag', IntegerQuery.GreaterThan(0)) do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(5, LPassCount);
+  CheckEquals(5, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .IntegerProperty('Tag', IntegerQuery.GreaterThan(0))
+                  .Count);
 end;
 
 procedure TestTQueryComponent.TestIsAWinControlHasEnabledFalse;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>
-                      .Select
-                      .From(FTestForm)
-                      .IsA(TWinControl)
-                      .BooleanProperty('Enabled', False) do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .IsA(TWinControl)
+                  .BooleanProperty('Enabled', False)
+                  .Count);
 end;
 
 procedure TestTQueryComponent.TestHasCaptionEqualsHello;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>
-                      .Select
-                      .From(FTestForm)
-                      .StringProperty('Caption', 'HeLLo') do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .StringProperty('Caption', 'HeLLo')
+                  .Count);
 end;
 
 procedure TestTQueryComponent.TestHasCaptionStartingWithHel;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>
-                      .Select
-                      .From(FTestForm)
-                      .StringProperty('Caption', StringQuery.StartsWith('HEL')) do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .StringProperty('Caption', StringQuery.StartsWith('HEL'))
+                  .Count);
 end;
 
 procedure TestTQueryComponent.TestNonExistant;
-var
-  LPassCount : Integer;
-  LMemo : TMemo;
 begin
-  LPassCount := 0;
-  for LMemo in ComponentQuery<TMemo>.Select.From(FTestForm) do
-  begin
-    LMemo.Text := 'Hello'; // suppress warnings about not using LMemo
-    Inc(LPassCount);
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, ComponentQuery<TMemo>.Select.From(FTestForm).Count);
 end;
 
 procedure TestTQueryComponent.TestPassThrough;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>.Select.From(FTestForm) do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(FTestForm.ComponentCount, LPassCount);
+  CheckEquals(FTestForm.ComponentCount, ComponentQuery<TComponent>.Select.From(FTestForm).Count);
 end;
 
 procedure TestTQueryComponent.TestTagEquals;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>
-                      .Select
-                      .From(FTestForm)
-                      .TagEquals(1) do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(4, LPassCount);
+  CheckEquals(4, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .TagEquals(1)
+                  .Count);
 end;
 
 procedure TestTQueryComponent.TestTagEqualsTagNotFound;
-var
-  LPassCount : Integer;
-  LComponent : TComponent;
 begin
-  LPassCount := 0;
-  for LComponent in ComponentQuery<TComponent>
-                      .Select
-                      .From(FTestForm)
-                      .TagEquals(32) do
-  begin
-    LComponent.Tag := 0; // suppress warnings about not using LComponent
-    Inc(LPassCount);
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .TagEquals(32)
+                  .Count);
 end;
 
 initialization
