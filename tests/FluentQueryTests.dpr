@@ -41,7 +41,9 @@ uses
   FluentQuery.Components.MethodFactories in '..\FluentQuery.Components.MethodFactories.pas',
   FluentQuery.Files in '..\FluentQuery.Files.pas',
   FLuentQuery.Files.Test in 'FLuentQuery.Files.Test.pas',
-  FluentQuery.Core.Reduce in '..\FluentQuery.Core.Reduce.pas';
+  FluentQuery.Core.Reduce in '..\FluentQuery.Core.Reduce.pas',
+  FluentQuery.DB.Tests in 'FluentQuery.DB.Tests.pas',
+  FluentQuery.DB in '..\FluentQuery.DB.pas';
 
 {$R *.RES}
 
