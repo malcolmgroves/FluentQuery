@@ -31,6 +31,9 @@ type
   public
     constructor Create(Dataset : TDataset); virtual;
     function FieldByName(const FieldName: string): TField;
+    procedure Edit;
+    procedure Post;
+    procedure Cancel;
   end;
 
   IUnboundDBRecordQuery = interface;
@@ -83,6 +86,7 @@ type
   private
     FDataset : TDataset;
     FDBRecord : TDBRecord;
+    FFirstTime : Boolean;
   protected
     function MoveNext: Boolean;
     function GetCurrent: TDBRecord;
@@ -163,9 +167,19 @@ end;
 
 { TDatasetRecord }
 
+procedure TDBRecord.Cancel;
+begin
+  FDataset.Cancel;
+end;
+
 constructor TDBRecord.Create(Dataset: TDataset);
 begin
   FDataset := Dataset;
+end;
+
+procedure TDBRecord.Edit;
+begin
+  FDataset.Edit;
 end;
 
 function TDBRecord.FieldByName(const FieldName: string): TField;
@@ -177,6 +191,11 @@ begin
 end;
 
 
+procedure TDBRecord.Post;
+begin
+  FDataset.Post;
+end;
+
 { TDatasetEnumerator }
 
 constructor TDatasetEnumerator.Create(Dataset: TDataset);
@@ -185,6 +204,7 @@ begin
     raise EFluentQueryException.Create('Dataset not active');
   FDataset := Dataset;
   FDataset.First;
+  FFirstTime := True;
   FDBRecord := TDBRecord.Create(FDataset);
 end;
 
@@ -201,8 +221,11 @@ end;
 
 function TDatasetEnumerator.MoveNext: Boolean;
 begin
+  if not FFirstTime then
+    FDataset.Next
+  else
+    FFirstTime := False;
   Result := not FDataset.Eof;
-  FDataset.Next;
 end;
 
 

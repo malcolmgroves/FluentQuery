@@ -23,7 +23,9 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
   published
-    procedure TestDBRecordFieldByName;
+    procedure TestFieldByName;
+    procedure TestEditAndPost;
+    procedure TestEditAndCancel;
   end;
 
   TestTDBRecordQuery = class(TTestCase)
@@ -35,9 +37,12 @@ type
   published
     procedure TestPassthroughEmptyDataset;
     procedure TestPassthrough;
+    procedure TestWherePredicate;
   end;
 
 implementation
+uses
+  System.SysUtils;
 
 procedure InitMemTable(MemTable : TFDMemTable);
 var
@@ -109,6 +114,25 @@ begin
   CheckEquals(0, LPassCount, 'Should have enumerated no records, as dataset is empty');
 end;
 
+procedure TestTDBRecordQuery.TestWherePredicate;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+  LPredicate : TPredicate<TDBRecord>;
+begin
+  LPassCount := 0;
+
+  LPredicate := function(Value : TDBRecord) : boolean
+                begin
+                  Result := Value.FieldByName('Age').AsInteger > 43;
+                end;
+
+  for LDBRecord in DBRecordQuery.From(FMemTable).Where(LPredicate) do
+    Inc(LPassCount);
+
+  CheckEquals(1, LPassCount);
+end;
+
 { TestTDBRecord }
 
 procedure TestTDBRecord.SetUp;
@@ -122,7 +146,69 @@ begin
   FMemTable.Free;
 end;
 
-procedure TestTDBRecord.TestDBRecordFieldByName;
+procedure TestTDBRecord.TestEditAndCancel;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+begin
+  for LDBRecord in DBRecordQuery.From(FMemTable) do
+  begin
+    LDBRecord.Edit;
+    LDBRecord.FieldByName('Age').AsInteger := 5;
+    LDBRecord.Cancel;
+  end;
+
+  LPassCount := 0;
+  FMemTable.First;
+  while not FMemTable.Eof do
+  begin
+    Inc(LPassCount);
+    case LPassCount of
+       1 : begin
+             CheckEqualsString('Malcolm', FMemTable.FieldByName('Name').AsString);
+             CheckEquals(45, FMemTable.FieldByName('Age').AsInteger);
+           end;
+       2 : begin
+             CheckEqualsString('Julie', FMemTable.FieldByName('Name').AsString);
+             CheckEquals(43, FMemTable.FieldByName('Age').AsInteger);
+           end;
+    end;
+    FMemTable.Next;
+  end;
+end;
+
+procedure TestTDBRecord.TestEditAndPost;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+begin
+  for LDBRecord in DBRecordQuery.From(FMemTable) do
+  begin
+    LDBRecord.Edit;
+    LDBRecord.FieldByName('Age').AsInteger := 5;
+    LDBRecord.Post;
+  end;
+
+  LPassCount := 0;
+  FMemTable.First;
+  while not FMemTable.Eof do
+  begin
+    Inc(LPassCount);
+    case LPassCount of
+       1 : begin
+             CheckEqualsString('Malcolm', FMemTable.FieldByName('Name').AsString);
+             CheckEquals(5, FMemTable.FieldByName('Age').AsInteger);
+           end;
+       2 : begin
+             CheckEqualsString('Julie', FMemTable.FieldByName('Name').AsString);
+             CheckEquals(5, FMemTable.FieldByName('Age').AsInteger);
+           end;
+    end;
+    FMemTable.Next;
+  end;
+end;
+
+procedure TestTDBRecord.TestFieldByName;
 var
   LDBRecord : TDBRecord;
   LPassCount : Integer;
@@ -132,11 +218,11 @@ begin
   begin
     Inc(LPassCount);
     case LPassCount of
-       0 : begin
+       1 : begin
              CheckEqualsString('Malcolm', LDBRecord.FieldByName('Name').AsString);
              CheckEquals(45, LDBRecord.FieldByName('Age').AsInteger);
            end;
-       1 : begin
+       2 : begin
              CheckEqualsString('Julie', LDBRecord.FieldByName('Name').AsString);
              CheckEquals(43, LDBRecord.FieldByName('Age').AsInteger);
            end;
