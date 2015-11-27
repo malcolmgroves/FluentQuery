@@ -38,11 +38,16 @@ type
     procedure TestPassthroughEmptyDataset;
     procedure TestPassthrough;
     procedure TestWherePredicate;
+    procedure TestStringField;
+    procedure TestStringFieldAllMatch;
+    procedure TestStringFieldNoMatch;
+    procedure TestStringFieldNoField;
   end;
 
 implementation
 uses
-  System.SysUtils;
+  System.SysUtils,
+  FluentQuery.Strings;
 
 procedure InitMemTable(MemTable : TFDMemTable);
 var
@@ -112,6 +117,66 @@ begin
     Inc(LPassCount);
 
   CheckEquals(0, LPassCount, 'Should have enumerated no records, as dataset is empty');
+end;
+
+procedure TestTDBRecordQuery.TestStringField;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+begin
+  LPassCount := 0;
+
+  for LDBRecord in DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.StartsWith('mal')) do
+  begin
+    Inc(LPassCount);
+    CheckEquals(45, LDBRecord.FieldByName('Age').AsInteger);
+  end;
+
+  CheckEquals(1, LPassCount);
+end;
+
+procedure TestTDBRecordQuery.TestStringFieldAllMatch;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+begin
+  LPassCount := 0;
+
+  for LDBRecord in DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.Contains('l')) do
+    Inc(LPassCount);
+
+  CheckEquals(2, LPassCount);
+end;
+
+procedure TestTDBRecordQuery.TestStringFieldNoField;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+begin
+  LPassCount := 0;
+
+  ExpectedException := EDatabaseError;
+
+  for LDBRecord in DBRecordQuery
+                     .From(FMemTable)
+                     .StringField('Blah', StringQuery.Contains('l')) do
+    Inc(LPassCount);
+
+  StopExpectingException;
+  CheckEquals(0, LPassCount);
+end;
+
+procedure TestTDBRecordQuery.TestStringFieldNoMatch;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+begin
+  LPassCount := 0;
+
+  for LDBRecord in DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.Contains('z')) do
+    Inc(LPassCount);
+
+  CheckEquals(0, LPassCount);
 end;
 
 procedure TestTDBRecordQuery.TestWherePredicate;

@@ -22,7 +22,8 @@ interface
 uses
   Data.DB,
   FluentQuery.Core.Types,
-  System.SysUtils;
+  System.SysUtils,
+  FluentQuery.Strings;
 
 type
   TDBRecord = class(TObject)
@@ -52,6 +53,7 @@ type
 //    function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : IBoundDBRecordQuery; overload;
 //    function WhereNot(Predicate : TPredicate<TDBRecord>) : IBoundDBRecordQuery; overload;
     // type-specific operations
+    function StringField(const Name : string; Query : IUnboundStringQuery) : IBoundDBRecordQuery;
     // terminating operations
 //    function First : TDBRecord;
 //    function Count : Integer;
@@ -72,6 +74,7 @@ type
 //    function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : IUnboundDBRecordQuery; overload;
 //    function WhereNot(Predicate : TPredicate<TDBRecord>) : IUnboundDBRecordQuery; overload;
     // type-specific operations
+    function StringField(const Name : string; Query : IUnboundStringQuery) : IUnboundDBRecordQuery;
   end;
 
   function DBRecordQuery : IUnboundDBRecordQuery;
@@ -135,6 +138,7 @@ type
 //        function SubString(const StartIndex : Integer) : T; overload;
 //        function SubString(const StartIndex : Integer; Length : Integer) : T; overload;
 //        function Value(const Name : TDBRecord; IgnoreCase : Boolean = True) : T;
+        function StringField(const Name : string; Query : IUnboundStringQuery) : T;
         // Terminating Operations
 //        function First : TDBRecord;
 //        function Count : Integer;
@@ -284,6 +288,32 @@ function TDBRecordQuery.TDBRecordQueryImpl<T>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
+function TDBRecordQuery.TDBRecordQueryImpl<T>.StringField(const Name: string;
+  Query: IUnboundStringQuery): T;
+var
+  LPredicate : TPredicate<TDBRecord>;
+begin
+  LPredicate := function (Value : TDBRecord) : boolean
+                var
+                  LField : TField;
+                  LQueryPredicate : TPredicate<string>;
+                begin
+                  Result := False;
+                  LField := Value.FieldByName(Name);
+                  if Assigned(LField) then
+                    if LField.DataType = ftString then
+                    begin
+                      LQueryPredicate := Query.Predicate;
+                      Result := LQueryPredicate(LField.AsString);
+                    end;
+                end;
+
+  Result := Where(LPredicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('StringField(%s, %s)', [Name, Query.OperationPath]);
+{$ENDIF}
+end;
+
 {$ENDIF}
 
 function TDBRecordQuery.TDBRecordQueryImpl<T>.Where(
