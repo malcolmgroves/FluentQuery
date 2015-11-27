@@ -61,11 +61,6 @@ type
     constructor Create(Predicate : TPredicate<T>); virtual;
   end;
 
-  TWhereNotEnumerationStrategy<T> = class(TWhereEnumerationStrategy<T>)
-  protected
-    function ShouldIncludeItem(Enumerator : IMinimalEnumerator<T>) : Boolean; override;
-  end;
-
   TIsomorphicTransformEnumerationStrategy<T> = class(TEnumerationStrategy<T>)
   protected
     FTransformFunc : TFunc<T, T>;
@@ -210,22 +205,6 @@ begin
   end;
 end;
 
-
-{ TWhereNotEnumerationStrategy<T> }
-
-function TWhereNotEnumerationStrategy<T>.ShouldIncludeItem(
-  Enumerator: IMinimalEnumerator<T>): Boolean;
-begin
-  try
-    if Assigned(FWherePredicate) then
-      Result := not FWherePredicate(Enumerator.Current)
-    else
-      Result := False;
-  except
-    on E : EArgumentOutOfRangeException do
-      Result := False;
-  end;
-end;
 
 { TTransformEnumerationStrategy<T> }
 

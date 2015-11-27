@@ -338,7 +338,7 @@ var
 begin
   LSkipDotEntries := function(Value : string): boolean
                      begin
-                        Result := IsDots(Value);
+                        Result := not IsDots(Value);
                      end;
 
   if Recursive then
@@ -347,7 +347,7 @@ begin
     EnumeratorWrapper := TFileSystemEnumerator.Create(Directory, FileAttrs) as IMinimalEnumerator<String>;
 
 
-  Result := TFileSystemQuery.Create(TWhereNotEnumerationStrategy<String>.Create(LSkipDotEntries),
+  Result := TFileSystemQuery.Create(TWhereEnumerationStrategy<String>.Create(LSkipDotEntries),
                                        IBaseQuery<String>(FQuery),
                                        EnumeratorWrapper);
 end;
