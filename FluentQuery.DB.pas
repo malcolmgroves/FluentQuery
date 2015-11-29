@@ -23,7 +23,8 @@ uses
   Data.DB,
   FluentQuery.Core.Types,
   System.SysUtils,
-  FluentQuery.Strings;
+  FluentQuery.Strings,
+  FluentQuery.Integers;
 
 type
   TDBRecord = class(TObject)
@@ -42,39 +43,47 @@ type
   IBoundDBRecordQuery = interface(IBaseQuery<TDBRecord>)
     function GetEnumerator: IBoundDBRecordQuery;
     // common operations
-//    function Map(Transformer : TFunc<TDBRecord, TDBRecord>) : IBoundDBRecordQuery;
-//    function Skip(Count : Integer): IBoundDBRecordQuery;
-//    function SkipWhile(Predicate : TPredicate<TDBRecord>) : IBoundDBRecordQuery; overload;
-//    function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : IBoundDBRecordQuery; overload;
-//    function Take(Count : Integer): IBoundDBRecordQuery;
-//    function TakeWhile(Predicate : TPredicate<TDBRecord>): IBoundDBRecordQuery; overload;
-//    function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): IBoundDBRecordQuery; overload;
+    function Map(Transformer : TFunc<TDBRecord, TDBRecord>) : IBoundDBRecordQuery;
+    function Skip(Count : Integer): IBoundDBRecordQuery;
+    function SkipWhile(Predicate : TPredicate<TDBRecord>) : IBoundDBRecordQuery; overload;
+    function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : IBoundDBRecordQuery; overload;
+    function Take(Count : Integer): IBoundDBRecordQuery;
+    function TakeWhile(Predicate : TPredicate<TDBRecord>): IBoundDBRecordQuery; overload;
+    function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): IBoundDBRecordQuery; overload;
     function Where(Predicate : TPredicate<TDBRecord>) : IBoundDBRecordQuery;
-//    function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : IBoundDBRecordQuery; overload;
-//    function WhereNot(Predicate : TPredicate<TDBRecord>) : IBoundDBRecordQuery; overload;
+    function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : IBoundDBRecordQuery; overload;
+    function WhereNot(Predicate : TPredicate<TDBRecord>) : IBoundDBRecordQuery; overload;
     // type-specific operations
-    function StringField(const Name : string; Query : IUnboundStringQuery) : IBoundDBRecordQuery;
+    function StringField(const Name : string; Query : IUnboundStringQuery) : IBoundDBRecordQuery; overload;
+    function StringField(const Name : string; Predicate : TPredicate<String>) : IBoundDBRecordQuery; overload;
+    function IntegerField(const Name : string; Query : IUnboundIntegerQuery) : IBoundDBRecordQuery; overload;
+    function IntegerField(const Name : string; Predicate : TPredicate<Integer>) : IBoundDBRecordQuery; overload;
     // terminating operations
-//    function First : TDBRecord;
-//    function Count : Integer;
+    function First : TDBRecord;
+    function Count : Integer;
   end;
 
   IUnboundDBRecordQuery = interface(IBaseQuery<TDBRecord>)
     function GetEnumerator: IUnboundDBRecordQuery;
     // common operations
     function From(Dataset : TDataset) : IBoundDBRecordQuery; overload;
-//    function Map(Transformer : TFunc<TDBRecord, TDBRecord>) : IUnboundDBRecordQuery;
-//    function Skip(Count : Integer): IUnboundDBRecordQuery;
-//    function SkipWhile(Predicate : TPredicate<TDBRecord>) : IUnboundDBRecordQuery; overload;
-//    function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : IUnboundDBRecordQuery; overload;
-//    function Take(Count : Integer): IUnboundDBRecordQuery;
-//    function TakeWhile(Predicate : TPredicate<TDBRecord>): IUnboundDBRecordQuery; overload;
-//    function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): IUnboundDBRecordQuery; overload;
+    function Map(Transformer : TFunc<TDBRecord, TDBRecord>) : IUnboundDBRecordQuery;
+    function Skip(Count : Integer): IUnboundDBRecordQuery;
+    function SkipWhile(Predicate : TPredicate<TDBRecord>) : IUnboundDBRecordQuery; overload;
+    function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : IUnboundDBRecordQuery; overload;
+    function Take(Count : Integer): IUnboundDBRecordQuery;
+    function TakeWhile(Predicate : TPredicate<TDBRecord>): IUnboundDBRecordQuery; overload;
+    function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): IUnboundDBRecordQuery; overload;
     function Where(Predicate : TPredicate<TDBRecord>) : IUnboundDBRecordQuery;
-//    function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : IUnboundDBRecordQuery; overload;
-//    function WhereNot(Predicate : TPredicate<TDBRecord>) : IUnboundDBRecordQuery; overload;
+    function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : IUnboundDBRecordQuery; overload;
+    function WhereNot(Predicate : TPredicate<TDBRecord>) : IUnboundDBRecordQuery; overload;
     // type-specific operations
-    function StringField(const Name : string; Query : IUnboundStringQuery) : IUnboundDBRecordQuery;
+    function StringField(const Name : string; Query : IUnboundStringQuery) : IUnboundDBRecordQuery; overload;
+    function StringField(const Name : string; Predicate : TPredicate<String>) : IUnboundDBRecordQuery; overload;
+    function IntegerField(const Name : string; Query : IUnboundIntegerQuery) : IUnboundDBRecordQuery; overload;
+    function IntegerField(const Name : string; Predicate : TPredicate<Integer>) : IUnboundDBRecordQuery; overload;
+    // terminating operations
+    function Predicate : TPredicate<TDBRecord>;
   end;
 
   function DBRecordQuery : IUnboundDBRecordQuery;
@@ -82,7 +91,8 @@ type
 
 implementation
 uses
-  FluentQuery.Core.EnumerationStrategies, FluentQuery.Core.Enumerators;
+  FluentQuery.Core.EnumerationStrategies, FluentQuery.Core.Enumerators,
+  FluentQuery.Core.Reduce, FluentQuery.Core.MethodFactories;
 
 type
   TDatasetEnumerator = class(TInterfacedObject, IMinimalEnumerator<TDBRecord>)
@@ -117,31 +127,25 @@ type
 {$ENDIF}
         function From(Dataset : TDataset) : IBoundDBRecordQuery; overload;
         // Primitive Operations
-//        function Map(Transformer : TFunc<TDBRecord, TDBRecord>) : T;
-//        function SkipWhile(Predicate : TPredicate<TDBRecord>) : T; overload;
-//        function TakeWhile(Predicate : TPredicate<TDBRecord>): T; overload;
+        function Map(Transformer : TFunc<TDBRecord, TDBRecord>) : T;
+        function SkipWhile(Predicate : TPredicate<TDBRecord>) : T; overload;
+        function TakeWhile(Predicate : TPredicate<TDBRecord>): T; overload;
         function Where(Predicate : TPredicate<TDBRecord>) : T;
         // Derivative Operations
-//        function Skip(Count : Integer): T;
-//        function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : T; overload;
-//        function Take(Count : Integer): T;
-//        function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): T; overload;
-//        function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : T; overload;
-//        function WhereNot(Predicate : TPredicate<TDBRecord>) : T; overload;
-//        function Equals(const Value : TDBRecord) : T; reintroduce;
-//        function NotEquals(const Value : TDBRecord) : T;
-//        function Matches(const Value : TDBRecord; IgnoreCase : Boolean = True) : T;
-//        function NotMatches(const Value : TDBRecord; IgnoreCase : Boolean = True) : T;
-//        function Contains(const Value : TDBRecord; IgnoreCase : Boolean = True) : T;
-//        function StartsWith(const Value : TDBRecord; IgnoreCase : Boolean = True) : T;
-//        function EndsWith(const Value : TDBRecord; IgnoreCase : Boolean = True) : T;
-//        function SubString(const StartIndex : Integer) : T; overload;
-//        function SubString(const StartIndex : Integer; Length : Integer) : T; overload;
-//        function Value(const Name : TDBRecord; IgnoreCase : Boolean = True) : T;
-        function StringField(const Name : string; Query : IUnboundStringQuery) : T;
+        function Skip(Count : Integer): T;
+        function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : T; overload;
+        function Take(Count : Integer): T;
+        function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): T; overload;
+        function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : T; overload;
+        function WhereNot(Predicate : TPredicate<TDBRecord>) : T; overload;
+        function StringField(const Name : string; Query : IUnboundStringQuery) : T; overload;
+        function StringField(const Name : string; Predicate : TPredicate<string>) : T; overload;
+        function IntegerField(const Name : string; Query : IUnboundIntegerQuery) : T; overload;
+        function IntegerField(const Name : string; Predicate : TPredicate<Integer>) : T; overload;
         // Terminating Operations
-//        function First : TDBRecord;
-//        function Count : Integer;
+        function First : TDBRecord;
+        function Count : Integer;
+        function Predicate : TPredicate<TDBRecord>;
       end;
   protected
     FBoundQuery : TDBRecordQueryImpl<IBoundDBRecordQuery>;
@@ -254,9 +258,27 @@ end;
 
 { TDBRecordQuery.TDBRecordQueryImpl<T> }
 
+function TDBRecordQuery.TDBRecordQueryImpl<T>.Count: Integer;
+begin
+  Result := TReducer<TDBRecord,Integer>.Reduce( FQuery,
+                                                0,
+                                                function(Accumulator : Integer; NextValue : TDBRecord): Integer
+                                                begin
+                                                  Result := Accumulator + 1;
+                                                end);
+end;
+
 constructor TDBRecordQuery.TDBRecordQueryImpl<T>.Create(Query: TDBRecordQuery);
 begin
   FQuery := Query;
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.First: TDBRecord;
+begin
+  if FQuery.MoveNext then
+    Result := FQuery.GetCurrent
+  else
+    raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
 end;
 
 function TDBRecordQuery.TDBRecordQueryImpl<T>.From(
@@ -288,8 +310,83 @@ function TDBRecordQuery.TDBRecordQueryImpl<T>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.IntegerField(const Name: string;
+  Query: IUnboundIntegerQuery): T;
+begin
+  Result := IntegerField(Name, Query.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IntegerField(%s, %s)', [Name, Query.OperationPath]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.IntegerField(const Name: string;
+  Predicate: TPredicate<Integer>): T;
+var
+  LPredicate : TPredicate<TDBRecord>;
+begin
+  LPredicate := function (Value : TDBRecord) : boolean
+                var
+                  LField : TField;
+                  LQueryPredicate : TPredicate<string>;
+                begin
+                  Result := False;
+                  LField := Value.FieldByName(Name);
+                  if Assigned(LField) then
+                    if LField.DataType = ftInteger then
+                      Result := Predicate(LField.AsInteger);
+                end;
+
+  Result := Where(LPredicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IntegerField(%s, Predicate)', [Name]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.Map(
+  Transformer: TFunc<TDBRecord, TDBRecord>): T;
+begin
+  Result := TDBRecordQuery.Create(TIsomorphicTransformEnumerationStrategy<TDBRecord>.Create(Transformer),
+                                          IBaseQuery<TDBRecord>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Map(Transformer)';
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.Predicate: TPredicate<TDBRecord>;
+begin
+  Result := TMethodFactory<TDBRecord>.QuerySingleValue(FQuery);
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.Skip(Count: Integer): T;
+begin
+  Result := SkipWhile(TMethodFactory<TDBRecord>.UpToNumberOfTimes(Count));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Skip(%d)', [Count]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.SkipWhile(
+  Predicate: TPredicate<TDBRecord>): T;
+begin
+  Result := TDBRecordQuery.Create(TSkipWhileEnumerationStrategy<TDBRecord>.Create(Predicate),
+                                          IBaseQuery<TDBRecord>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'SkipWhile(Predicate)';
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.SkipWhile(
+  UnboundQuery: IUnboundDBRecordQuery): T;
+begin
+  Result := SkipWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
 function TDBRecordQuery.TDBRecordQueryImpl<T>.StringField(const Name: string;
-  Query: IUnboundStringQuery): T;
+  Predicate: TPredicate<string>): T;
 var
   LPredicate : TPredicate<TDBRecord>;
 begin
@@ -302,13 +399,46 @@ begin
                   LField := Value.FieldByName(Name);
                   if Assigned(LField) then
                     if LField.DataType = ftString then
-                    begin
-                      LQueryPredicate := Query.Predicate;
-                      Result := LQueryPredicate(LField.AsString);
-                    end;
+                      Result := Predicate(LField.AsString);
                 end;
 
   Result := Where(LPredicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('StringField(%s, Predicate)', [Name]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.Take(Count: Integer): T;
+begin
+  Result := TakeWhile(TMethodFactory<TDBRecord>.UpToNumberOfTimes(Count));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Take(%d)', [Count]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.TakeWhile(
+  Predicate: TPredicate<TDBRecord>): T;
+begin
+  Result := TDBRecordQuery.Create(TTakeWhileEnumerationStrategy<TDBRecord>.Create(Predicate),
+                                          IBaseQuery<TDBRecord>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'TakeWhile(Predicate)';
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.TakeWhile(
+  UnboundQuery: IUnboundDBRecordQuery): T;
+begin
+  Result := TakeWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('TakeWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.StringField(const Name: string;
+  Query: IUnboundStringQuery): T;
+begin
+  Result := StringField(Name, Query.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('StringField(%s, %s)', [Name, Query.OperationPath]);
 {$ENDIF}
@@ -323,6 +453,25 @@ begin
                                           IBaseQuery<TDBRecord>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'Where(Predicate)';
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.WhereNot(
+  UnboundQuery: IUnboundDBRecordQuery): T;
+begin
+  Result := WhereNot(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('WhereNot(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.WhereNot(
+  Predicate: TPredicate<TDBRecord>): T;
+begin
+  Result := Where(TMethodFactory<TDBRecord>.InvertPredicate(Predicate));
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}
 end;
 
