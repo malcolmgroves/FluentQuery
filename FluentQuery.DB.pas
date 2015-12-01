@@ -58,6 +58,8 @@ type
     function StringField(const Name : string; Predicate : TPredicate<String>) : IBoundDBRecordQuery; overload;
     function IntegerField(const Name : string; Query : IUnboundIntegerQuery) : IBoundDBRecordQuery; overload;
     function IntegerField(const Name : string; Predicate : TPredicate<Integer>) : IBoundDBRecordQuery; overload;
+    function Null(const Name : string) : IBoundDBRecordQuery;
+    function NotNull(const Name : string) : IBoundDBRecordQuery;
     // terminating operations
     function First : TDBRecord;
     function Count : Integer;
@@ -82,6 +84,8 @@ type
     function StringField(const Name : string; Predicate : TPredicate<String>) : IUnboundDBRecordQuery; overload;
     function IntegerField(const Name : string; Query : IUnboundIntegerQuery) : IUnboundDBRecordQuery; overload;
     function IntegerField(const Name : string; Predicate : TPredicate<Integer>) : IUnboundDBRecordQuery; overload;
+    function Null(const Name : string) : IUnboundDBRecordQuery;
+    function NotNull(const Name : string) : IUnboundDBRecordQuery;
     // terminating operations
     function Predicate : TPredicate<TDBRecord>;
   end;
@@ -138,10 +142,13 @@ type
         function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): T; overload;
         function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : T; overload;
         function WhereNot(Predicate : TPredicate<TDBRecord>) : T; overload;
+        // type-specific operations
         function StringField(const Name : string; Query : IUnboundStringQuery) : T; overload;
         function StringField(const Name : string; Predicate : TPredicate<string>) : T; overload;
         function IntegerField(const Name : string; Query : IUnboundIntegerQuery) : T; overload;
         function IntegerField(const Name : string; Predicate : TPredicate<Integer>) : T; overload;
+        function Null(const Name : string) : T;
+        function NotNull(const Name : string) : T;
         // Terminating Operations
         function First : TDBRecord;
         function Count : Integer;
@@ -288,8 +295,8 @@ var
 begin
   EnumeratorAdapter := TDatasetEnumerator.Create(Dataset) as IMinimalEnumerator<TDBRecord>;
   Result := TDBRecordQuery.Create(TEnumerationStrategy<TDBRecord>.Create,
-                                          IBaseQuery<TDBRecord>(FQuery),
-                                          EnumeratorAdapter);
+                                  IBaseQuery<TDBRecord>(FQuery),
+                                  EnumeratorAdapter);
 {$IFDEF DEBUG}
   Result.OperationName := Format('From(%s)', [Dataset.Name]);
 {$ENDIF}
@@ -299,6 +306,7 @@ function TDBRecordQuery.TDBRecordQueryImpl<T>.GetEnumerator: T;
 begin
   Result := FQuery;
 end;
+
 
 {$IFDEF DEBUG}
 function TDBRecordQuery.TDBRecordQueryImpl<T>.GetOperationName: String;
@@ -350,6 +358,48 @@ begin
                                           IBaseQuery<TDBRecord>(FQuery));
 {$IFDEF DEBUG}
   Result.OperationName := 'Map(Transformer)';
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.NotNull(const Name: string): T;
+var
+  LPredicate : TPredicate<TDBRecord>;
+begin
+  LPredicate := function (Value : TDBRecord) : boolean
+                var
+                  LField : TField;
+                  LQueryPredicate : TPredicate<string>;
+                begin
+                  Result := False;
+                  LField := Value.FieldByName(Name);
+                  if Assigned(LField) then
+                    Result := not LField.IsNull;
+                end;
+
+  Result := Where(LPredicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('NotNull(%s)', [Name]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.Null(const Name: string): T;
+var
+  LPredicate : TPredicate<TDBRecord>;
+begin
+  LPredicate := function (Value : TDBRecord) : boolean
+                var
+                  LField : TField;
+                  LQueryPredicate : TPredicate<string>;
+                begin
+                  Result := False;
+                  LField := Value.FieldByName(Name);
+                  if Assigned(LField) then
+                    Result := LField.IsNull;
+                end;
+
+  Result := Where(LPredicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Null(%s)', [Name]);
 {$ENDIF}
 end;
 

@@ -53,6 +53,8 @@ type
     procedure TestSkipOne;
     procedure TestSkipZero;
     procedure TestMapResetAge;
+    procedure TestNullFields;
+    procedure TestNotNullFields;
   end;
 
 implementation
@@ -63,7 +65,7 @@ uses
 
 procedure InitMemTable(MemTable : TFDMemTable);
 var
-  LNameField, LAgeField : TFieldDef;
+  LNameField, LAgeField, LNotesField : TFieldDef;
 begin
   LNameField := MemTable.FieldDefs.AddFieldDef;
   LNameField.Name := 'Name';
@@ -74,10 +76,15 @@ begin
   LAgeField.Name := 'Age';
   LAgeField.DataType := ftInteger;
 
+  LNotesField := MemTable.FieldDefs.AddFieldDef;
+  LNotesField.Name := 'Notes';
+  LNotesField.DataType := ftMemo;
+
   MemTable.Open;
   MemTable.Append;
   MemTable.Fields[0].AsString := 'Malcolm';
   MemTable.Fields[1].AsInteger := 45;
+  MemTable.Fields[2].AsString := 'whatevs';
   MemTable.Post;
 
   MemTable.Append;
@@ -160,6 +167,7 @@ begin
                     Value.Edit;
                     Value.FieldByName('Age').AsInteger := 0;
                     Value.Post;
+                    Result := Value;
                   end;
 
   LPassCount := 0;
@@ -171,6 +179,38 @@ begin
   end;
 
   CheckEquals(2, LPassCount);
+end;
+
+procedure TestTDBRecordQuery.TestNotNullFields;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+begin
+  LPassCount := 0;
+
+  for LDBRecord in DBRecordQuery.From(FMemTable).NotNull('Notes') do
+  begin
+    Inc(LPassCount);
+    CheckEquals('Malcolm', LDBRecord.FieldByName('Name').AsString);
+  end;
+
+  CheckEquals(1, LPassCount);
+end;
+
+procedure TestTDBRecordQuery.TestNullFields;
+var
+  LDBRecord : TDBRecord;
+  LPassCount : Integer;
+begin
+  LPassCount := 0;
+
+  for LDBRecord in DBRecordQuery.From(FMemTable).Null('Notes') do
+  begin
+    Inc(LPassCount);
+    CheckEquals('Julie', LDBRecord.FieldByName('Name').AsString);
+  end;
+
+  CheckEquals(1, LPassCount);
 end;
 
 procedure TestTDBRecordQuery.TestPassthrough;
