@@ -55,15 +55,9 @@ type
     procedure TestCreateStringFromIsUpperSkipTake;
     procedure TestSkipWhileQueryIsLetter;
     procedure TestTakeWhileQueryIsLetter;
-  end;
-
-
-  TestFluentCharPredicate = class(TTestCase)
-  private
-    function AcceptableCount(CharPredicate : TPredicate<Char>) : Integer;
-  published
     procedure TestCharPredicate;
   end;
+
 
 implementation
 
@@ -71,7 +65,7 @@ implementation
 
 procedure TestTQueryChar.NotEquals;
 begin
-  Check(CharQuery.From(FStringVal).NotEquals('y').Count = FStringVal.Length - 1, 'NotEquals Query should enumerate all but one char');
+  CheckEquals(FStringVal.Length - 1, CharQuery.From(FStringVal).NotEquals('y').Count);
 end;
 
 procedure TestTQueryChar.SetUp;
@@ -84,7 +78,7 @@ end;
 
 procedure TestTQueryChar.TestTakeWhileQueryIsLetter;
 begin
-  Check(CharQuery.From(FStringVal).TakeWhile(CharQuery.IsLetter).Count = 25, 'Takewhile(IsLetter) Query should enumerate the first 25 items');
+  CheckEquals(25, CharQuery.From(FStringVal).TakeWhile(CharQuery.IsLetter).Count);
 end;
 
 procedure TestTQueryChar.TestCreateStringFromIsUpperSkipTake;
@@ -202,31 +196,30 @@ begin
   Check(CharQuery.From(FStringVal).SkipWhile(CharQuery.IsLetter).Count = FStringVal.Length - 25, 'Skipwhile(IsLetter) Query should enumerate all items except the first 25');
 end;
 
-function TestFluentCharPredicate.AcceptableCount(
-  CharPredicate: TPredicate<Char>): Integer;
-var
-  CharList : TList<Char>;
-begin
-  CharList := TList<Char>.Create;
-  try
-    CharList.Add('a');
-    CharList.Add('B');
-    CharList.Add('/');
-    CharList.Add('c');
-    CharList.Add('C');
-    CharList.Add('*');
-    CharList.Add('1');
-    CharList.Add('2');
 
-    Result := CharQuery.From(CharList).Where(CharPredicate).Count;
-  finally
-    CharList.Free;
-  end;
-end;
-
-procedure TestFluentCharPredicate.TestCharPredicate;
+procedure TestTQueryChar.TestCharPredicate;
 var
   LCount : Integer;
+  function AcceptableCount(CharPredicate: TPredicate<Char>): Integer;
+  var
+    CharList : TList<Char>;
+  begin
+    CharList := TList<Char>.Create;
+    try
+      CharList.Add('a');
+      CharList.Add('B');
+      CharList.Add('/');
+      CharList.Add('c');
+      CharList.Add('C');
+      CharList.Add('*');
+      CharList.Add('1');
+      CharList.Add('2');
+
+      Result := CharQuery.From(CharList).Where(CharPredicate).Count;
+    finally
+      CharList.Free;
+    end;
+  end;
 begin
   LCount := AcceptableCount(CharQuery
                               .IsUpper
@@ -238,6 +231,5 @@ end;
 initialization
   // Register any test cases with the test runner
   RegisterTest('Chars', TestTQueryChar.Suite);
-  RegisterTest('Chars', TestFluentCharPredicate.Suite);
 end.
 

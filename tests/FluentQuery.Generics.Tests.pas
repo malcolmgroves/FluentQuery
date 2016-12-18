@@ -24,10 +24,12 @@ interface
 uses
   TestFramework,
   System.Generics.Collections,
-  FluentQuery.Generics;
+  FluentQuery.Generics,
+  FluentQuery.Tests.Base,
+  System.SysUtils;
 
 type
-  TestTQueryIntegerGenerics = class(TTestCase)
+  TestTQueryIntegerGenerics = class(TFluentQueryIntegerTestCase)
   strict private
     FIntegerCollection: TList<Integer>;
   public
@@ -67,8 +69,7 @@ var
   DummyInt : Integer; // used to suppress warnings about not using loop variables in tests
 
 implementation
-uses
-  System.SysUtils;
+
 
 procedure TestTQueryIntegerGenerics.SetUp;
 begin
@@ -93,229 +94,103 @@ end;
 
 
 procedure TestTQueryIntegerGenerics.TestTakeEqualCount;
-var
-  MaxPassCount : Integer;
 begin
-  MaxPassCount := FIntegerCollection.Count;
-  Check(GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount).Count = MaxPassCount, 'Take = Collection.Count should enumerate all items');
+  CheckEquals(FIntegerCollection.Count, GenericQuery<Integer>.Select.From(FIntegerCollection).Take(FIntegerCollection.Count).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeGreaterThanCount;
-var
-  LPassCount, I, MaxPassCount : Integer;
 begin
-  LPassCount := 0;
-  MaxPassCount := FIntegerCollection.Count + 1;
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = FIntegerCollection.Count, 'Take > collection.count should enumerate all items');
+  CheckEquals(FIntegerCollection.Count, GenericQuery<Integer>
+                                    .Select
+                                    .From(FIntegerCollection)
+                                    .Take(FIntegerCollection.Count + 1)
+                                    .Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeLowerThanCount;
-var
-  LPassCount, I, MaxPassCount : Integer;
 begin
-  LPassCount := 0;
-  MaxPassCount := FIntegerCollection.Count - 1;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = MaxPassCount, 'Take < collection.count should not enumerate all items');
+  CheckEquals(FIntegerCollection.Count - 1, GenericQuery<Integer>
+                                              .Select
+                                              .From(FIntegerCollection)
+                                              .Take(FIntegerCollection.Count - 1)
+                                              .Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeOne;
-var
-  LPassCount, I : Integer;
 begin
-  LPassCount := 0;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(1) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 1, 'Take(1) on a non-empty collection should enumerate one item');
+  CheckEquals(1, GenericQuery<Integer>.Select.From(FIntegerCollection).Take(1).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeWhere;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
-
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := Value mod 2 = 0;
-                  end;
-
-  for I in GenericQuery<Integer>.Select
-             .From(FIntegerCollection)
-             .Take(5)
-             .Where(LEvenNumbers) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 2, 'Should enumerate even numbered items in the first 5');
+  CheckEquals(2, GenericQuery<Integer>.Select
+                   .From(FIntegerCollection)
+                   .Take(5)
+                   .Where(FEvenNumbers)
+                   .Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeWhile;
-var
-  LEnumerationCount, I : Integer;
-  LFourOrLess : TPredicate<Integer>;
 begin
-  LEnumerationCount := 0;
-  LFourOrLess := function (Value : Integer) : Boolean
-                 begin
-                   Result := Value <= 4;
-                 end;
-
-  for I in GenericQuery<Integer>.Select
-             .From(FIntegerCollection)
-             .TakeWhile(LFourOrLess) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = 4, 'TakeWhile 4 or less should have enumerated 4 items');
+  CheckEquals(4, GenericQuery<Integer>.Select
+                   .From(FIntegerCollection)
+                   .TakeWhile(FFourOrLess)
+                   .Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeWhileFalse;
-var
-  LEnumerationCount, I : Integer;
-  LFalse : TPredicate<Integer>;
 begin
-  LEnumerationCount := 0;
-  LFalse := function (Value : Integer) : Boolean
-            begin
-              Result := False;
-            end;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).TakeWhile(LFalse) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = 0, 'TakeWhile False should have enumerated zero items');
+  CheckEquals(0, GenericQuery<Integer>.Select.From(FIntegerCollection).TakeWhile(FFalsePredicate).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeWhileTrue;
-var
-  LEnumerationCount, I : Integer;
-  LTrue : TPredicate<Integer>;
 begin
-  LEnumerationCount := 0;
-  LTrue := function (Value : Integer) : Boolean
-           begin
-             Result := True;
-           end;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).TakeWhile(LTrue) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = FIntegerCollection.Count, 'TakeWhile True should have enumerated all items');
+  CheckEquals(FIntegerCollection.Count, GenericQuery<Integer>.Select.From(FIntegerCollection).TakeWhile(FTruePredicate).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestTakeZero;
-var
-  LPassCount, I, MaxPassCount : Integer;
 begin
-  LPassCount := 0;
-  MaxPassCount := 0;
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Take(MaxPassCount) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = MaxPassCount, 'Take = 0 should enumerate no items');
+  CheckEquals(0, GenericQuery<Integer>.Select.From(FIntegerCollection).Take(0).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestFirst;
-var
-  I : Integer;
 begin
-  I := GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(2).First;
-
-  CheckEquals(3, I);
+  CheckEquals(3, GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(2).First);
 end;
 
 procedure TestTQueryIntegerGenerics.TestWhereNotEven;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
-
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := Value mod 2 = 0;
-                  end;
-
-  for I in GenericQuery<Integer>.Select
-             .From(FIntegerCollection)
-             .WhereNot(LEvenNumbers) do
-  begin
-    Inc(LPassCount);
-    Check(I mod 2 <> 0,
-          'Should enumerate odd numbered items, but enumerated ' + I.ToString);
-  end;
-  Check(LPassCount = 5, 'Should enumerate even numbered items');
+  CheckExpectedCountWithInnerCheck(GenericQuery<Integer>.Select.From(FIntegerCollection).WhereNot(FEvenNumbers),
+                                   function (Arg : Integer) : Boolean
+                                   begin
+                                     Result := Arg mod 2 <> 0;
+                                   end,
+                                   5, 'Should enumerate odd numbered items only');
 end;
 
 procedure TestTQueryIntegerGenerics.TestWhereNotWhereEven;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
+  CheckExpectedCountWithInnerCheck(GenericQuery<Integer>
+                                    .Select
+                                    .From(FIntegerCollection)
+                                    .WhereNot(GenericQuery<Integer>
+                                                .Select
+                                                .Where(FEvenNumbers)),
+                                   function (Arg : Integer) : Boolean
+                                   begin
+                                     Result := Arg mod 2 <> 0;
+                                   end,
+                                   5, 'Should enumerate odd numbered items only');
 
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := Value mod 2 = 0;
-                  end;
-
-  for I in GenericQuery<Integer>.Select
-             .From(FIntegerCollection)
-             .WhereNot(GenericQuery<Integer>.Select.Where(LEvenNumbers)) do
-  begin
-    Inc(LPassCount);
-    Check(I mod 2 <> 0,
-          'Should enumerate odd numbered items, but enumerated ' + I.ToString);
-  end;
-  Check(LPassCount = 5, 'Should enumerate even numbered items');
 end;
 
 procedure TestTQueryIntegerGenerics.TestCreateList;
 var
   LIntegerList : TList<Integer>;
-  LFourOrLess : TPredicate<Integer>;
 begin
-  LFourOrLess := function (Value : Integer) : Boolean
-                 begin
-                   Result := Value <= 4;
-                 end;
-
-
   LIntegerList := GenericQuery<Integer>.Select
                     .From(FIntegerCollection)
-                    .TakeWhile(LFourOrLess)
+                    .TakeWhile(FFourOrLess)
                     .AsTList;
   try
     Check(LIntegerList.Count = 4, 'Should have 4 items in list');
@@ -329,274 +204,85 @@ begin
 end;
 
 procedure TestTQueryIntegerGenerics.TestPassThrough;
-var
-  LPassCount, I : Integer;
 begin
-  LPassCount := 0;
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-  Check(LPassCount = FIntegerCollection.Count, 'Passthrough Query should enumerate all items');
+  CheckEquals(FIntegerCollection.Count, GenericQuery<Integer>.Select.From(FIntegerCollection).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestSkipEqualCount;
-var
-  LEnumerationCount, I, LSkipCount : Integer;
 begin
-  LEnumerationCount := 0;
-  LSkipCount := FIntegerCollection.Count;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(LSkipCount) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = 0, 'Skip of Collection.Count should have enumerated zero items');
+  CheckEquals(0, GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(FIntegerCollection.Count).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestSkipGreaterThanCount;
-var
-  LEnumerationCount, I, LSkipCount : Integer;
 begin
-  LEnumerationCount := 0;
-  LSkipCount := FIntegerCollection.Count + 2;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(LSkipCount) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = 0, 'Skip of Collection.Count + 2 should have enumerated zero items');
+  CheckEquals(0, GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(FIntegerCollection.Count + 2).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestSkipLowerThanCount;
-var
-  LEnumerationCount, I, LSkipCount : Integer;
 begin
-  LEnumerationCount := 0;
-  LSkipCount := FIntegerCollection.Count - 2;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(LSkipCount) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = 2, 'Skip of Collection.Count - 2 should have enumerated 2 items');
+  CheckEquals(2, GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(FIntegerCollection.Count - 2).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestSkipWhere;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
-
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := Value mod 2 = 0;
-                  end;
-
-  for I in GenericQuery<Integer>.Select
-             .From(FIntegerCollection)
-             .Skip(5)
-             .Where(LEvenNumbers) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 3, 'Should enumerate even numbered items after 5');
+  CheckEquals(3, GenericQuery<Integer>.Select
+                   .From(FIntegerCollection)
+                   .Skip(5)
+                   .Where(FEvenNumbers)
+                   .Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestSkipWhile;
-var
-  LEnumerationCount, I : Integer;
-  LFourOrLess : TPredicate<Integer>;
 begin
-  LEnumerationCount := 0;
-  LFourOrLess := function (Value : Integer) : Boolean
-                 begin
-                   Result := Value <= 4;
-                 end;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(LFourOrLess) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = 6, 'SkipWhile 4 or less should have enumerated 6 items');
+  CheckEquals(6, GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(FFourOrLess).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestSkipWhileFalse;
-var
-  LEnumerationCount, I : Integer;
-  LFalsePredicate : TPredicate<Integer>;
 begin
-  LEnumerationCount := 0;
-  LFalsePredicate := function (Value : Integer) : Boolean
-                     begin
-                       Result := False;
-                     end;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(LFalsePredicate) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = FIntegerCollection.Count, 'SkipWhile False should have enumerated all items');
+  CheckEquals(FIntegerCollection.Count, GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(FFalsePredicate).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestSkipWhileTrue;
-var
-  LEnumerationCount, I : Integer;
-  LTruePredicate : TPredicate<Integer>;
 begin
-  LEnumerationCount := 0;
-  LTruePredicate := function (Value : Integer) : Boolean
-                     begin
-                       Result := True;
-                     end;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(LTruePredicate) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = 0, 'SkipWhile True should have enumerated zero items');
+  CheckEquals(0, GenericQuery<Integer>.Select.From(FIntegerCollection).SkipWhile(FTruePredicate).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestSkipZero;
-var
-  LEnumerationCount, I, LSkipCount : Integer;
 begin
-  LEnumerationCount := 0;
-  LSkipCount := 0;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(LSkipCount) do
-  begin
-    Inc(LEnumerationCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LEnumerationCount = FIntegerCollection.Count, 'Skip of zero should have enumerated all items');
+  CheckEquals(FIntegerCollection.Count, GenericQuery<Integer>.Select.From(FIntegerCollection).Skip(0).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestWhereEven;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
-
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := Value mod 2 = 0;
-                  end;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Where(LEvenNumbers) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-  Check(LPassCount = 5, 'Should enumerate even numbered items');
+  CheckEquals(5, GenericQuery<Integer>.Select.From(FIntegerCollection).Where(FEvenNumbers).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestWhereAll;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
-
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := True;
-                  end;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Where(LEvenNumbers) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 10, 'Should enumerate all items');
+  CheckEquals(10, GenericQuery<Integer>.Select.From(FIntegerCollection).Where(FTruePredicate).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestWhereTake;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
-
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := Value mod 2 = 0;
-                  end;
-
-  for I in GenericQuery<Integer>.Select
-             .From(FIntegerCollection)
-             .Where(LEvenNumbers)
-             .Take(3) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 3, 'Should enumerate the first 3 even numbered items');
+  CheckEquals(3, GenericQuery<Integer>.Select
+                   .From(FIntegerCollection)
+                   .Where(FEvenNumbers)
+                   .Take(3)
+                   .Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestWhereNone;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
-
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := Value > 10;
-                  end;
-
-  for I in GenericQuery<Integer>.Select.From(FIntegerCollection).Where(LEvenNumbers) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;   // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 0, 'Should enumerate no items');
+  CheckEquals(0, GenericQuery<Integer>.Select.From(FIntegerCollection).Where(FGreaterThanTen).Count);
 end;
 
 procedure TestTQueryIntegerGenerics.TestWhereSkip;
-var
-  LPassCount, I : Integer;
-  LEvenNumbers : TPredicate<Integer>;
 begin
-  LPassCount := 0;
-
-  LEvenNumbers := function (Value : Integer) : Boolean
-                  begin
-                    Result := Value mod 2 = 0;
-                  end;
-
-  for I in GenericQuery<Integer>.Select
-             .From(FIntegerCollection)
-             .Where(LEvenNumbers)
-             .Skip(3) do
-  begin
-    Inc(LPassCount);
-    DummyInt := i;  // just to suppress warning about not using I
-  end;
-
-  Check(LPassCount = 2, 'Should enumerate 8 and 10, the last 2 even numbered items');
+  CheckEquals(2, GenericQuery<Integer>.Select
+                   .From(FIntegerCollection)
+                   .Where(FEvenNumbers)
+                   .Skip(3)
+                   .Count);
 end;
 
 

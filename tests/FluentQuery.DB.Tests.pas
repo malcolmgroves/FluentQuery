@@ -13,7 +13,7 @@ interface
 
 uses
   TestFramework, FluentQuery.Core.Types, FluentQuery.DB, Data.DB,
-  FireDAC.Comp.Client;
+  FireDAC.Comp.Client, FLuentQuery.Tests.Base,  System.SysUtils;
 
 type
   TestTDBRecord = class(TTestCase)
@@ -28,13 +28,16 @@ type
     procedure TestEditAndCancel;
   end;
 
-  TestTDBRecordQuery = class(TTestCase)
+  TestTDBRecordQuery = class(TFluentQueryTestCase<TDBRecord>)
   strict private
     FMemTable : TFDMemTable;
+    FTransformer : TFunc<TDBRecord, TDBRecord>;
+    FAgeGreaterThan43 : TPredicate<TDBRecord>;
     procedure EmptyTable;
   public
     procedure SetUp; override;
     procedure TearDown; override;
+    constructor Create(MethodName: string; RunCount: Int64); override;
   published
     procedure TestPassthroughEmptyDataset;
     procedure TestPassthrough;
@@ -59,7 +62,6 @@ type
 
 implementation
 uses
-  System.SysUtils,
   FluentQuery.Strings,
   FluentQuery.Integers;
 
@@ -91,6 +93,22 @@ begin
   MemTable.Fields[0].AsString := 'Julie';
   MemTable.Fields[1].AsInteger := 43;
   MemTable.Post;
+end;
+
+constructor TestTDBRecordQuery.Create(MethodName: string; RunCount: Int64);
+begin
+  inherited;
+  FTransformer := function(Value : TDBRecord) : TDBRecord
+                  begin
+                    Value.Edit;
+                    Value.FieldByName('Age').AsInteger := 0;
+                    Value.Post;
+                    Result := Value;
+                  end;
+  FAgeGreaterThan43 :=  function(Value : TDBRecord) : boolean
+                        begin
+                          Result := Value.FieldByName('Age').AsInteger > 43;
+                        end;
 end;
 
 procedure TestTDBRecordQuery.EmptyTable;
@@ -141,163 +159,75 @@ begin
 end;
 
 procedure TestTDBRecordQuery.TestIntegerField;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).IntegerField('Age', IntegerQuery.GreaterThan(44)) do
-  begin
-    Inc(LPassCount);
-    CheckEquals('Malcolm', LDBRecord.FieldByName('Name').AsString);
-  end;
-
-  CheckEquals(1, LPassCount);
+  CheckExpectedCountWithInnerCheck(DBRecordQuery.From(FMemTable).IntegerField('Age', IntegerQuery.GreaterThan(44)),
+                                   function (Arg : TDBRecord) : Boolean
+                                   begin
+                                     Result := Arg.FieldByName('Name').AsString = 'Malcolm';
+                                   end,
+                                   1, 'Name should be ''Malcolm''');
 end;
 
 procedure TestTDBRecordQuery.TestMapResetAge;
-var
-  LDBRecord : TDBRecord;
-  LTransformer : TFunc<TDBRecord, TDBRecord>;
-  LPassCount : Integer;
 begin
-  LTransformer := function(Value : TDBRecord) : TDBRecord
-                  begin
-                    Value.Edit;
-                    Value.FieldByName('Age').AsInteger := 0;
-                    Value.Post;
-                    Result := Value;
-                  end;
-
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).Map(LTransformer) do
-  begin
-    Inc(LPassCount);
-    CheckEquals(0, LDBRecord.FieldByName('Age').AsInteger);
-  end;
-
-  CheckEquals(2, LPassCount);
+  CheckExpectedCountWithInnerCheck(DBRecordQuery.From(FMemTable).Map(FTransformer),
+                                   function (Arg : TDBRecord) : Boolean
+                                   begin
+                                     Result := Arg.FieldByName('Age').AsInteger = 0;
+                                   end,
+                                   2, 'Age should be 0');
 end;
 
 procedure TestTDBRecordQuery.TestNotNullFields;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).NotNull('Notes') do
-  begin
-    Inc(LPassCount);
-    CheckEquals('Malcolm', LDBRecord.FieldByName('Name').AsString);
-  end;
-
-  CheckEquals(1, LPassCount);
+  CheckExpectedCountWithInnerCheck(DBRecordQuery.From(FMemTable).NotNull('Notes'),
+                                   function (Arg : TDBRecord) : Boolean
+                                   begin
+                                     Result := Arg.FieldByName('Name').AsString = 'Malcolm';
+                                   end,
+                                   1, 'Name should be ''Malcolm''');
 end;
 
 procedure TestTDBRecordQuery.TestNullFields;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).Null('Notes') do
-  begin
-    Inc(LPassCount);
-    CheckEquals('Julie', LDBRecord.FieldByName('Name').AsString);
-  end;
-
-  CheckEquals(1, LPassCount);
+  CheckExpectedCountWithInnerCheck(DBRecordQuery.From(FMemTable).Null('Notes'),
+                                   function (Arg : TDBRecord) : Boolean
+                                   begin
+                                     Result := Arg.FieldByName('Name').AsString = 'Julie';
+                                   end,
+                                   1, 'Name should be ''Julie''');
 end;
 
 procedure TestTDBRecordQuery.TestPassthrough;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable) do
-    Inc(LPassCount);
-
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, DBRecordQuery.From(FMemTable).Count);
 end;
 
 procedure TestTDBRecordQuery.TestPassthroughEmptyDataset;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
   EmptyTable;
   CheckEquals(0, FMemTable.RecordCount, 'FMemTable should be empty at this point');
-
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable) do
-    Inc(LPassCount);
-
-  CheckEquals(0, LPassCount, 'Should have enumerated no records, as dataset is empty');
+  CheckEquals(0, DBRecordQuery.From(FMemTable).Count);
 end;
 
 procedure TestTDBRecordQuery.TestSkipOne;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).Skip(1) do
-  begin
-    Inc(LPassCount);
-    CheckEquals(43, LDBRecord.FieldByName('Age').AsInteger);
-  end;
-
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, DBRecordQuery.From(FMemTable).Skip(1).Count);
 end;
 
 procedure TestTDBRecordQuery.TestSkipZero;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).Skip(0) do
-    Inc(LPassCount);
-
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, DBRecordQuery.From(FMemTable).Skip(0).Count);
 end;
 
 procedure TestTDBRecordQuery.TestStringField;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.StartsWith('mal')) do
-  begin
-    Inc(LPassCount);
-    CheckEquals(45, LDBRecord.FieldByName('Age').AsInteger);
-  end;
-
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.StartsWith('mal')).Count);
 end;
 
 procedure TestTDBRecordQuery.TestStringFieldAllMatch;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.Contains('l')) do
-    Inc(LPassCount);
-
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.Contains('l')).Count);
 end;
 
 procedure TestTDBRecordQuery.TestStringFieldNoField;
@@ -319,67 +249,27 @@ begin
 end;
 
 procedure TestTDBRecordQuery.TestStringFieldNoMatch;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.Contains('z')) do
-    Inc(LPassCount);
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, DBRecordQuery.From(FMemTable).StringField('Name', StringQuery.Contains('z')).Count);
 end;
 
 procedure TestTDBRecordQuery.TestTakeOne;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).Take(1) do
-  begin
-    Inc(LPassCount);
-    CheckEquals(45, LDBRecord.FieldByName('Age').AsInteger);
-  end;
-
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, DBRecordQuery.From(FMemTable).Take(1).Count);
 end;
 
 procedure TestTDBRecordQuery.TestTakeZero;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
 begin
-  LPassCount := 0;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).Take(0) do
-    Inc(LPassCount);
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, DBRecordQuery.From(FMemTable).Take(0).Count);
 end;
 
 procedure TestTDBRecordQuery.TestWherePredicate;
-var
-  LDBRecord : TDBRecord;
-  LPassCount : Integer;
-  LPredicate : TPredicate<TDBRecord>;
 begin
-  LPassCount := 0;
-
-  LPredicate := function(Value : TDBRecord) : boolean
-                begin
-                  Result := Value.FieldByName('Age').AsInteger > 43;
-                end;
-
-  for LDBRecord in DBRecordQuery.From(FMemTable).Where(LPredicate) do
-    Inc(LPassCount);
-
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, DBRecordQuery.From(FMemTable).Where(FAgeGreaterThan43).Count);
 end;
 
 { TestTDBRecord }
+
 
 procedure TestTDBRecord.SetUp;
 begin
@@ -394,15 +284,15 @@ end;
 
 procedure TestTDBRecord.TestEditAndCancel;
 var
-  LDBRecord : TDBRecord;
   LPassCount : Integer;
 begin
-  for LDBRecord in DBRecordQuery.From(FMemTable) do
-  begin
-    LDBRecord.Edit;
-    LDBRecord.FieldByName('Age').AsInteger := 5;
-    LDBRecord.Cancel;
-  end;
+  DBRecordQuery.From(FMemTable).Map(function(Value : TDBRecord) : TDBRecord
+                                    begin
+                                      Value.Edit;
+                                      Value.FieldByName('Age').AsInteger := 5;
+                                      Value.Cancel;
+                                      Result := Value;
+                                    end).Count; // should really have another terminating function called Execute.
 
   LPassCount := 0;
   FMemTable.First;
@@ -425,15 +315,15 @@ end;
 
 procedure TestTDBRecord.TestEditAndPost;
 var
-  LDBRecord : TDBRecord;
   LPassCount : Integer;
 begin
-  for LDBRecord in DBRecordQuery.From(FMemTable) do
-  begin
-    LDBRecord.Edit;
-    LDBRecord.FieldByName('Age').AsInteger := 5;
-    LDBRecord.Post;
-  end;
+  DBRecordQuery.From(FMemTable).Map(function(Value : TDBRecord) : TDBRecord
+                                    begin
+                                      Value.Edit;
+                                      Value.FieldByName('Age').AsInteger := 5;
+                                      Value.Post;
+                                      Result := Value;
+                                    end).Count; //should really have an Execute terminating function
 
   LPassCount := 0;
   FMemTable.First;

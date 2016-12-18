@@ -43,7 +43,8 @@ uses
   FLuentQuery.Files.Test in 'FLuentQuery.Files.Test.pas',
   FluentQuery.Core.Reduce in '..\FluentQuery.Core.Reduce.pas',
   FluentQuery.DB.Tests in 'FluentQuery.DB.Tests.pas',
-  FluentQuery.DB in '..\FluentQuery.DB.pas';
+  FluentQuery.DB in '..\FluentQuery.DB.pas',
+  FluentQuery.Tests.Base in 'FluentQuery.Tests.Base.pas';
 
 {$R *.RES}
 

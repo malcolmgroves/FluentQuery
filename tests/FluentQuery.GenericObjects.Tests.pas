@@ -24,7 +24,8 @@ interface
 uses
   TestFramework,
   System.Generics.Collections,
-  FluentQuery.GenericObjects;
+  FluentQuery.GenericObjects,
+  System.SysUtils;
 
 type
   TPerson = class
@@ -50,9 +51,12 @@ type
   TestTQueryPerson = class(TTestCase)
   strict private
     FPersonCollection: TObjectList<TPerson>;
+    FAgedSixOrMore : TPredicate<TPerson>;
+    FIncrementAge : TProc<TPerson>;
   public
     procedure SetUp; override;
     procedure TearDown; override;
+    constructor Create(MethodName: string; RunCount: Int64); override;
   published
     procedure TestPassThrough;
     procedure TestToObjectList;
@@ -69,7 +73,7 @@ var
 
 implementation
 uses
-  System.SysUtils, System.TypInfo;
+  System.TypInfo;
 
 
 { TPerson }
@@ -81,6 +85,22 @@ begin
 end;
 
 { TestTQueryPerson }
+
+constructor TestTQueryPerson.Create(MethodName: string; RunCount: Int64);
+begin
+  inherited;
+  FAgedSixOrMore := function (Value : TPerson) : Boolean
+                    begin
+                      Result := Value.Age >= 6;
+                    end;
+
+  FIncrementAge := procedure (Value : TPerson)
+                   begin
+                     Value.Age := Value.Age + 1;
+                   end;
+
+end;
+
 
 procedure TestTQueryPerson.SetUp;
 begin
@@ -101,17 +121,10 @@ end;
 procedure TestTQueryPerson.TestToObjectList;
 var
   LPersonList : TObjectList<TPerson>;
-  L18OrMore : TPredicate<TPerson>;
 begin
-  L18OrMore := function (Value : TPerson) : Boolean
-               begin
-                 Result := Value.Age >= 6;
-               end;
-
-
   LPersonList := ObjectQuery<TPerson>.Select
                       .From(FPersonCollection)
-                      .Where(L18OrMore)
+                      .Where(FAgedSixOrMore)
                       .AsTObjectList(False);
   try
     CheckEquals(2, LPersonList.Count);
@@ -150,105 +163,44 @@ begin
   FPersonCollection.Insert(3, TCustomer.Create('Spacely''s Sprockets', 0));
   FPersonCollection.Insert(3, TSpecialCustomer.Create('Foo', 0));
 
-  CheckEquals(3,
-              ObjectQuery<TPerson>.Select
+  CheckEquals(3, ObjectQuery<TPerson>.Select
                     .From(FPersonCollection)
                     .IsA(TCustomer)
                     .Count );
 end;
 
 procedure TestTQueryPerson.TestMapAfter;
-var
-  LPassCount : Integer;
-  LAged6OrMore : TPredicate<TPerson>;
-  LIncrementAge : TProc<TPerson>;
-  LPerson : TPerson;
 begin
-  LPassCount := 0;
-  LIncrementAge := procedure (Value : TPerson)
-                   begin
-                     Value.Age := Value.Age + 1;
-                   end;
-
-  LAged6OrMore := function (Value : TPerson) : Boolean
-               begin
-                 Result := Value.Age >= 6;
-               end;
-
-
-  for LPerson in ObjectQuery<TPerson>.Select
+  CheckEquals(2, ObjectQuery<TPerson>.Select
                       .From(FPersonCollection)
-                      .Where(LAged6OrMore)
-                      .Map(LIncrementAge) do
-  begin
-    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
-    Inc(LPassCount);
-  end;
-  CheckEquals(2, LPassCount);
+                      .Where(FAgedSixOrMore)
+                      .Map(FIncrementAge)
+                      .Count);
 end;
 
 procedure TestTQueryPerson.TestMapBefore;
-var
-  LPassCount : Integer;
-  LAged6OrMore : TPredicate<TPerson>;
-  LIncrementAge : TProc<TPerson>;
-  LPerson : TPerson;
 begin
-  LPassCount := 0;
-  LIncrementAge := procedure (Value : TPerson)
-                   begin
-                     Value.Age := Value.Age + 1;
-                   end;
-
-  LAged6OrMore := function (Value : TPerson) : Boolean
-               begin
-                 Result := Value.Age >= 6;
-               end;
-
-
-  for LPerson in ObjectQuery<TPerson>.Select
+  CheckEquals(3, ObjectQuery<TPerson>.Select
                       .From(FPersonCollection)
-                      .Map(LIncrementAge)
-                      .Where(LAged6OrMore) do
-  begin
-    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
-    Inc(LPassCount);
-  end;
-  CheckEquals(3, LPassCount);
+                      .Map(FIncrementAge)
+                      .Where(FAgedSixOrMore)
+                      .Count);
 end;
 
 
 procedure TestTQueryPerson.TestPassThrough;
-var
-  LPassCount : Integer;
-  LPerson : TPerson;
 begin
-  LPassCount := 0;
-  for LPerson in ObjectQuery<TPerson>.Select.From(FPersonCollection) do
-  begin
-    LPerson.Age := LPerson.Age + 1; // suppress warnings about not using LPerson
-    Inc(LPassCount);
-  end;
-  Check(LPassCount = FPersonCollection.Count, 'Passthrough Query should enumerate all items');
+  CheckEquals(FPersonCollection.Count, ObjectQuery<TPerson>.Select.From(FPersonCollection).Count);
 end;
 
 
 
 procedure TestTQueryPerson.TestSelectSubTypeFrom;
-var
-  LPassCount : Integer;
-  LCustomer : TCustomer;
 begin
-  LPassCount := 0;
   FPersonCollection.Insert(2, TCustomer.Create('Acme', 3));
   FPersonCollection.Insert(3, TCustomer.Create('Spacely''s Sprockets', 0));
 
-  for LCustomer in ObjectQuery<TCustomer>.From<TPerson>(FPersonCollection) do
-  begin
-    Inc(LPassCount);
-    LCustomer.Age := LCustomer.Age + 1; // suppress warnings about not using LPerson
-  end;
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, ObjectQuery<TCustomer>.From<TPerson>(FPersonCollection).Count);
 end;
 
 initialization

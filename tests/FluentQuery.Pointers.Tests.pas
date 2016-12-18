@@ -91,33 +91,13 @@ begin
 end;
 
 procedure TestTQueryPointer.TestIsAssigned;
-var
-  LPassCount : Integer;
-  LPointer : Pointer;
 begin
-  LPassCount := 0;
-  for LPointer in Query
-                    .From(FList)
-                    .IsAssigned do
-  begin
-    Inc(LPassCount);
-    DummyPointer := LPointer; // suppress warnings about unused loop variable
-  end;
-  Check(LPassCount = 4, 'IsAssigned Query should enumerate four items');
+  CheckEquals(4, PointerQuery.From(FList).IsAssigned.Count);
 end;
 
 procedure TestTQueryPointer.TestPassThrough;
-var
-  LPassCount : Integer;
-  LPointer : Pointer;
 begin
-  LPassCount := 0;
-  for LPointer in Query.From(FList) do
-  begin
-    Inc(LPassCount);
-    DummyPointer := LPointer; // suppress warnings about unused loop variable
-  end;
-  Check(LPassCount = FList.Count, 'Passthrough Query should enumerate all items');
+  CheckEquals(FList.Count, PointerQuery.From(FList).Count);
 end;
 
 
@@ -149,74 +129,31 @@ end;
 
 procedure TestTQueryTList.TestIsAssigned;
 begin
-  Check(Query.From(FList).IsAssigned.Count = 4, 'IsAssigned Query should enumerate four items');
+  CheckEquals(4, PointerQuery.From(FList).IsAssigned.Count);
 end;
 
 
 procedure TestTQueryTList.TestWhereNotIsAssigned;
-var
-  LPassCount : Integer;
-  LPointer : Pointer;
 begin
-  LPassCount := 0;
-  for LPointer in Query
-                    .From(FList)
-                    .WhereNot(Query.IsAssigned) do
-  begin
-    Inc(LPassCount);
-    DummyPointer := LPointer; // suppress warnings about unused loop variable
-  end;
-  Check(LPassCount = FList.Count - 4, 'WhereNot(IsAssigned) Query should enumerate all but four items');
+  CheckEquals(FList.Count - 4, PointerQuery.From(FList).WhereNot(PointerQuery.IsAssigned).Count);
 end;
 
 procedure TestTQueryTList.TestWhereNotIsAssignedPredicate;
-var
-  LPassCount : Integer;
-  LPointer : Pointer;
-  LIsAssigned : TPredicate<Pointer>;
 begin
-  LPassCount := 0;
-  LIsAssigned := Query.IsAssigned.Predicate;
-
-  for LPointer in Query
-                    .From(FList)
-                    .WhereNot(LIsAssigned) do
-  begin
-    Inc(LPassCount);
-    DummyPointer := LPointer; // suppress warnings about unused loop variable
-  end;
-  Check(LPassCount = FList.Count - 4, 'WhereNot(Predicate(IsAssigned)) Query should enumerate all but four items');
+  CheckEquals(FList.Count - 4, PointerQuery.From(FList).WhereNot(PointerQuery
+                                                                  .IsAssigned
+                                                                  .Predicate).Count);
 end;
 
 procedure TestTQueryTList.TestPassThrough;
-var
-  LPassCount : Integer;
-  LPointer : Pointer;
 begin
-  LPassCount := 0;
-  for LPointer in Query.From(FList) do
-  begin
-    Inc(LPassCount);
-    DummyPointer := LPointer; // suppress warnings about unused loop variable
-  end;
-  Check(LPassCount = FList.Count, 'Passthrough Query should enumerate all items');
+  CheckEquals(FList.Count, PointerQuery.From(FList).Count);
 end;
 
 
 procedure TestTQueryTList.TestTakeWhileIsAssigned;
-var
-  LPassCount : Integer;
-  LPointer : Pointer;
 begin
-  LPassCount := 0;
-  for LPointer in Query
-                    .From(FList)
-                    .TakeWhile(Query.IsAssigned) do
-  begin
-    Inc(LPassCount);
-    DummyPointer := LPointer; // suppress warnings about unused loop variable
-  end;
-  Check(LPassCount = 1, 'TakeWhile(IsAssigned) Query should enumerate only the first item');
+  CheckEquals(1, Query.From(FList).TakeWhile(PointerQuery.IsAssigned).Count);
 end;
 
 initialization

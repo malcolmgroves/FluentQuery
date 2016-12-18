@@ -25,10 +25,13 @@ uses
   TestFramework,
   System.Generics.Collections,
   FluentQuery.Strings,
-  System.Classes;
+  System.Classes,
+  FluentQuery.Core.Types,
+  System.SysUtils,
+  FluentQuery.Tests.Base;
 
 type
-  TestTQueryTStrings = class(TTestCase)
+  TestTQueryTStrings = class(TFluentQueryTestCase<String>)
   strict private
     FStrings: TStrings;
     FNameStrings : TStrings;
@@ -47,7 +50,7 @@ type
     procedure TestEnumerateUnboundQuery;
   end;
 
-  TestTQueryString = class(TTestCase)
+  TestTQueryString = class(TFluentQueryTestCase<String>)
   strict private
     FStringCollection: TList<String>;
   public
@@ -84,9 +87,7 @@ type
 
 implementation
 uses
-  FMX.Listbox,
-  FluentQuery.Core.Types,
-  SysUtils;
+  FMX.Listbox;
 
 
 { TestTQueryTStrings }
@@ -138,53 +139,44 @@ end;
 procedure TestTQueryTStrings.TestEquals;
 begin
   FNameStrings.Add('jesse');
-
-  Check(Query.From(FNameStrings).Equals('jesse').Count = 1, 'Equals Query should enumerate one string');
+  CheckEquals(1, Query.From(FNameStrings).Equals('jesse').Count);
 end;
 
 procedure TestTQueryTStrings.TestMatchesCaseInsensitive;
 begin
-  Check(Query.From(FNameStrings).Matches('jesse').Count = 1, 'Case Insensitive Matches Query should enumerate one string');
+  CheckEquals(1, Query.From(FNameStrings).Matches('jesse').Count);
 end;
 
 procedure TestTQueryTStrings.TestMatchesCaseSensitive;
 begin
   FNameStrings.Add('jesse');
-
-  Check(Query.From(FNameStrings).Matches('Jesse', False).Count = 1, 'Case Sensitive Matches Query should enumerate one string');
+  CheckEquals(1, Query.From(FNameStrings).Matches('Jesse', False).Count);
 end;
 
 procedure TestTQueryTStrings.TestNoMatchesCaseSensitive;
 begin
-  Check(Query.From(FNameStrings).Matches('jesse', False).Count = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
+  CheckEquals(0, Query.From(FNameStrings).Matches('jesse', False).Count);
 end;
 
 procedure TestTQueryTStrings.TestNotEquals;
 begin
   FNameStrings.Add('jesse');
-  Check(Query.From(FNameStrings).NotEquals('jesse').Count = 4, 'NotEquals Query should enumerate four strings');
+  CheckEquals(4, Query.From(FNameStrings).NotEquals('jesse').Count);
 end;
 
 procedure TestTQueryTStrings.TestPassThrough;
 begin
-  Check(Query.From(FStrings).Count = FStrings.Count, 'Passthrough Query should enumerate all strings');
+  CheckEquals(FStrings.Count, Query.From(FStrings).Count);
 end;
 
 procedure TestTQueryTStrings.TestSkipTake;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query
-                   .From(FStrings)
-                   .Skip(4)
-                   .Take(3)do
-  begin
-    Inc(LPassCount);
-    Check((LString = '5') or (LString = '6') or (LString = '7'), 'Should Enumerate 5, 6 and 7');
-  end;
-  Check(LPassCount = 3, 'Take(3) should enumerate 3 strings');
+  CheckExpectedCountWithInnerCheck(Query.From(FStrings).Skip(4).Take(3),
+                                   function (Arg : String) : Boolean
+                                   begin
+                                     Result := (Arg = '5') or (Arg = '6') or (Arg = '7');
+                                   end,
+                                   3, 'Should Enumerate 5, 6 and 7');
 end;
 
 
@@ -192,7 +184,6 @@ procedure TestTQueryTStrings.TestSkipTakeCreateStrings;
 var
   LStrings : TStrings;
 begin
-
   LStrings := Query
                 .From(FStrings)
                 .Skip(4)
@@ -230,142 +221,64 @@ begin
 end;
 
 procedure TestTQueryString.TestContainsCaseInsensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).Contains('e') do
-    Inc(LPassCount);
-  Check(LPassCount = 7, 'Case Insensitive Contains ''e'' Query should enumerate seven strings');
+  CheckEquals(7, Query.From(FStringCollection).Contains('e').Count);
 end;
 
 procedure TestTQueryString.TestContainsCaseSensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).Contains('e', False) do
-    Inc(LPassCount);
-  Check(LPassCount = 6, 'Case Sensitive Contains ''e'' Query should enumerate six strings');
+  CheckEquals(6, Query.From(FStringCollection).Contains('e', False).Count);
 end;
 
 procedure TestTQueryString.TestEndsWithCaseInsensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
   FStringCollection.Add('seventeeN');
-
-  for LString in Query.From(FStringCollection).EndsWith('n') do
-    Inc(LPassCount);
-  Check(LPassCount = 3, 'Case Insensitive EndsWith ''n'' Query should enumerate three strings');
+  CheckEquals(3, Query.From(FStringCollection).EndsWith('n').Count);
 end;
 
 procedure TestTQueryString.TestEndsWithCaseSensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  FStringCollection.Add('seventeeN');
-
-  for LString in Query.From(FStringCollection).EndsWith('n', False) do
-    Inc(LPassCount);
-  Check(LPassCount = 2, 'Case Sensitive EndsWith ''n'' Query should enumerate two strings');
+  CheckEquals(2, Query.From(FStringCollection).EndsWith('n', False).Count);
 end;
 
 procedure TestTQueryString.TestMatchesCaseInsensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).Matches('six') do
-    Inc(LPassCount);
-  Check(LPassCount = 1, 'Case Insensitive Matches Query should enumerate one string');
+  CheckEquals(1, Query.From(FStringCollection).Matches('six').Count);
 end;
 
 procedure TestTQueryString.TestMatchesCaseSensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).Matches('Six', False) do
-    Inc(LPassCount);
-  Check(LPassCount = 1, 'Case Sensitive Matches Query should enumerate one string');
+  CheckEquals(1, Query.From(FStringCollection).Matches('Six', False).Count);
 end;
 
 procedure TestTQueryString.TestMatchesCaseSensitiveNone;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).Matches('six', False) do
-    Inc(LPassCount);
-  Check(LPassCount = 0, 'Case Sensitive Matches Query with no matches should enumerate zero strings');
+  CheckEquals(0, Query.From(FStringCollection).Matches('six', False).Count);
 end;
 
 procedure TestTQueryString.TestContainsCaseSensitiveNone;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).Contains('s', False) do
-    Inc(LPassCount);
-  Check(LPassCount = 0, 'Case Sensitive Contains ''s'' Query with no matches should enumerate zero strings');
+  CheckEquals(0, Query.From(FStringCollection).Contains('s', False).Count);
 end;
 
 procedure TestTQueryString.TestEndsWithCaseSensitiveNone;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).EndsWith('N', False) do
-    Inc(LPassCount);
-  Check(LPassCount = 0, 'Case Sensitive EndsWith ''N'' Query with no matches should enumerate zero strings');
+  CheckEquals(0, Query.From(FStringCollection).EndsWith('N', False).Count);
 end;
 
 procedure TestTQueryString.TestWhereNotContainsCaseInsensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).WhereNot(Query.Contains('e')) do
-    Inc(LPassCount);
-  Check(LPassCount = 3, 'WhereNot(Case Insensitive Contains ''e'') Query should enumerate seven strings');
+  CheckEquals(3, Query.From(FStringCollection).WhereNot(Query.Contains('e')).Count);
 end;
 
 procedure TestTQueryString.TestWhereNotPredicateContainsCaseInsensitive;
-var
-  LPassCount : Integer;
-  LString : String;
-  LContainsE : TPredicate<string>;
 begin
-  LPassCount := 0;
-  LContainsE := Query.Contains('e').Predicate;
-
-  for LString in Query.From(FStringCollection).WhereNot(LContainsE) do
-    Inc(LPassCount);
-  Check(LPassCount = 3, 'WhereNot(Predicate(Case Insensitive Contains ''e'')) Query should enumerate seven strings');
+  CheckEquals(3, Query.From(FStringCollection).WhereNot(Query.Contains('e').Predicate).Count);
 end;
 
 procedure TestTQueryString.TestStartsWithCaseSensitiveNone;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-  for LString in Query.From(FStringCollection).StartsWith('s', False) do
-    Inc(LPassCount);
-  Check(LPassCount = 0, 'Case Sensitive StartsWith ''s'' Query with no matches should enumerate zero strings');
+  CheckEquals(0, Query.From(FStringCollection).StartsWith('s', False).Count);
 end;
 
 procedure TestTQueryString.TestSubstring;
@@ -441,73 +354,42 @@ begin
 end;
 
 procedure TestTQueryString.TestValue;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
   FStringCollection.Add('Param=Hello World');
-
-  for LString in Query.From(FStringCollection).Value('param') do
-  begin
-    Inc(LPassCount);
-    CheckEquals('Hello World', LString);
-  end;
-  CheckEquals(1, LPassCount);
+  CheckExpectedCountWithInnerCheck(Query.From(FStringCollection).Value('param'),
+                                   function (Arg : String) : Boolean
+                                   begin
+                                     Result := Arg = 'Hello World';
+                                   end,
+                                   1, 'String should be Hello World');
 end;
 
 procedure TestTQueryString.TestValueNameIsNotFound;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
-
-  for LString in Query.From(FStringCollection).Value('param') do
-    Inc(LPassCount);
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, Query.From(FStringCollection).Value('param').Count);
 end;
 
 procedure TestTQueryString.TestValueNameIsEmpty;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
   FStringCollection.Add('Param=');
-
-  for LString in Query.From(FStringCollection).Value('param') do
-  begin
-    Inc(LPassCount);
-    CheckEquals('', LString);
-  end;
-  CheckEquals(LPassCount, 1);
+  CheckExpectedCountWithInnerCheck(Query.From(FStringCollection).Value('param'),
+                                   function (Arg : String) : Boolean
+                                   begin
+                                     Result := Arg = '';
+                                   end,
+                                   1, 'String should be empty');
 end;
 
 procedure TestTQueryString.TestStartsWithCaseInsensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
   FStringCollection.Add('seventeen');
-
-  for LString in Query.From(FStringCollection).StartsWith('S') do
-    Inc(LPassCount);
-  Check(LPassCount = 3, 'Case Insensitive StartsWith ''S'' Query should enumerate three strings');
+  CheckEquals(3, Query.From(FStringCollection).StartsWith('S').Count);
 end;
 
 procedure TestTQueryString.TestStartsWithCaseSensitive;
-var
-  LPassCount : Integer;
-  LString : String;
 begin
-  LPassCount := 0;
   FStringCollection.Add('seventeen');
-
-  for LString in Query.StartsWith('S', False).From(FStringCollection) do
-    Inc(LPassCount);
-  Check(LPassCount = 2, 'Case Sensitive StartsWith ''S'' Query should enumerate two strings');
+  CheckEquals(2, Query.StartsWith('S', False).From(FStringCollection).Count);
 end;
 
 
@@ -546,10 +428,12 @@ begin
   end;
 end;
 
+
 initialization
   // Register any test cases with the test runner
   RegisterTest('Strings', TestTQueryTStrings.Suite);
   RegisterTest('Strings', TestTQueryString.Suite);
   RegisterTest('Strings', TestFluentStringPredicate.Suite);
 end.
+
 

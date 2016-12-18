@@ -27,10 +27,11 @@ uses
   FluentQuery.Files,
   IOUtils,
   System.Types,
-  SysUtils;
+  SysUtils,
+  FluentQuery.Tests.Base;
 
 type
-  TestFileQuery = class(TTestCase)
+  TestFileQuery = class(TFluentQueryTestCase<String>)
   strict private
     FTestDirectory : string;
     FFileCount, FRecursiveFileCount : Integer;
@@ -38,8 +39,6 @@ type
     FTotalCount, FTotalRecursiveCount : Integer;
     FFirstLetterEven : TPredicate<string>;
     FFirstLetterFourOrLess : TPredicate<string>;
-    FTruePredicate : TPredicate<string>;
-    FFalsePredicate : TPredicate<string>;
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -189,15 +188,6 @@ begin
                         Result := False;
                     end;
                  end;
-  FTruePredicate := function (Value : string) : Boolean
-                    begin
-                      Result := True;
-                    end;
-
-  FFalsePredicate := function (Value : string) : Boolean
-                     begin
-                       Result := False;
-                     end;
 end;
 
 procedure TestFileQuery.TearDown;
@@ -207,160 +197,48 @@ end;
 
 
 procedure TestFileQuery.TestTakeEqualCount;
-var
-  LPassCount : Integer;
 begin
-  LPassCount := FileSystemQuery
-                 .From(FTestDirectory)
-                 .Take(FTotalCount)
-                 .Count;
-
-  CheckEquals(FTotalCount, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FTotalCount, FileSystemQuery.From(FTestDirectory).Take(FTotalCount).Count);
 end;
 
 procedure TestFileQuery.TestTakeGreaterThanCount;
-var
-  LPassCount : Integer;
 begin
-  LPassCount := FileSystemQuery
-                  .From(FTestDirectory)
-                  .Take(FTotalCount + 1)
-                  .Count;
-
-  CheckEquals(FTotalCount,  LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FTotalCount,  FileSystemQuery.From(FTestDirectory).Take(FTotalCount + 1).Count);
 end;
 
 procedure TestFileQuery.TestTakeLowerThanCount;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Take(FTotalCount - 1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(FTotalCount - 1, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FTotalCount - 1, FileSystemQuery.From(FTestDirectory).Take(FTotalCount - 1).Count);
 end;
 
 procedure TestFileQuery.TestTakeOne;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Take(1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(1, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(1, FileSystemQuery.From(FTestDirectory).Take(1).Count);
 end;
 
 procedure TestFileQuery.TestTakeWhere;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .Take(5)
-             .Where(FFirstLetterEven) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(2, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(2, FileSystemQuery.From(FTestDirectory).Take(5).Where(FFirstLetterEven).Count);
 end;
 
 procedure TestFileQuery.TestTakeWhile;
-var
-  LPasscount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .TakeWhile(FFirstLetterFourOrLess) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(5, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(5, FileSystemQuery.From(FTestDirectory).TakeWhile(FFirstLetterFourOrLess).Count);
 end;
 
 procedure TestFileQuery.TestTakeWhileFalse;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .TakeWhile(FFalsePredicate) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery.From(FTestDirectory).TakeWhile(FFalsePredicate).Count);
 end;
 
 procedure TestFileQuery.TestTakeWhileTrue;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .TakeWhile(FTruePredicate) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(FTotalCount, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FTotalCount, FileSystemQuery.From(FTestDirectory).TakeWhile(FTruePredicate).Count);
 end;
 
 procedure TestFileQuery.TestTakeZero;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Take(0) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery.From(FTestDirectory).Take(0).Count);
 end;
 
 procedure TestFileQuery.TestFirst;
@@ -379,1045 +257,496 @@ begin
 end;
 
 procedure TestFileQuery.TestNameMatchesAll;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .NameMatches('*') do
-    Inc(LPassCount);
-
-  CheckEquals(FTotalCount, LPassCount);
-  CheckNotEquals(0, LPassCount);
+  CheckEquals(FTotalCount, FileSystemQuery.From(FTestDirectory).NameMatches('*').Count);
 end;
 
 procedure TestFileQuery.TestNameMatchesDir;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .NameMatches('child*') do
-    Inc(LPassCount);
-
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, FileSystemQuery.From(FTestDirectory).NameMatches('child*').Count);
 end;
 
 procedure TestFileQuery.TestNameMatchesNone;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .NameMatches('*.blah') do
-    Inc(LPassCount);
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery.From(FTestDirectory).NameMatches('*.blah').Count);
 end;
 
 procedure TestFileQuery.TestNameMatchesSome;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .NameMatches('1*.*') do
-    Inc(LPassCount);
-
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, FileSystemQuery.From(FTestDirectory).NameMatches('1*.*').Count);
 end;
 
 procedure TestFileQuery.TestWhereNotEven;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .WhereNot(FFirstLetterEven) do
-  begin
-    try
-      Check(StrToInt(TPath.GetFilename(I).Substring(0, 1)) mod 2 <> 0,
-            'Should enumerate odd numbered items, but enumerated ' + I);
-      Inc(LPassCount);
-    except
-      on E : EConvertError do
-        DummyFile := '';
-    end;        
-  end;
-  CheckEquals(6, LPassCount);
+  CheckExpectedCountWithInnerCheck(FileSystemQuery
+                                     .From(FTestDirectory)
+                                     .Files
+                                     .WhereNot(FFirstLetterEven),
+                                   function (Arg : String) : Boolean
+                                   begin
+                                     Result := StrToInt(TPath.GetFilename(Arg).Substring(0, 1)) mod 2 <> 0;
+                                   end,
+                                   6, 'Should enumerate odd numbered items');
 end;
 
 procedure TestFileQuery.TestWhereNotWhereEven;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .WhereNot(FileSystemQuery.Where(FFirstLetterEven)) do
-  begin
-    try
-      Check(StrToInt(TPath.GetFilename(I).Substring(0, 1)) mod 2 <> 0,
-          'Should enumerate odd numbered items, but enumerated ' + I);
-      Inc(LPassCount);
-    except 
-      on E : EConvertError do
-        DummyFile := '';
-    end;      
-  end;
-  CheckEquals(6, LPassCount);
+  CheckExpectedCountWithInnerCheck(FileSystemQuery
+                                     .From(FTestDirectory)
+                                     .Files
+                                     .WhereNot(FileSystemQuery.Where(FFirstLetterEven)),
+                                   function (Arg : String) : Boolean
+                                   begin
+                                     Result := StrToInt(TPath.GetFilename(Arg).Substring(0, 1)) mod 2 <> 0;
+                                   end,
+                                   6, 'Should enumerate odd numbered items');
 end;
 
 procedure TestFileQuery.TestPassThrough;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FTotalCount, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FTotalCount, FileSystemQuery.From(FTestDirectory).Count);
 end;
 
 procedure TestFileQuery.TestPassThroughRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FTotalRecursiveCount, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FTotalRecursiveCount, FileSystemQuery.FromRecursive(FTestDirectory).Count);
 end;
 
 procedure TestFileQuery.TestCreatedAfterTomorrow;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .CreatedAfter(Date + 1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery.FromRecursive(FTestDirectory).CreatedAfter(Date + 1).Count);
 end;
 
 procedure TestFileQuery.TestCreatedAfterYesterday;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .CreatedAfter(Date - 1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FTotalRecursiveCount, LPassCount);
+  CheckEquals(FTotalRecursiveCount, FileSystemQuery.FromRecursive(FTestDirectory).CreatedAfter(Date - 1).Count);
 end;
 
 procedure TestFileQuery.TestCreatedBeforeToday;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .CreatedBefore(Date) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .FromRecursive(FTestDirectory)
+                  .Files
+                  .CreatedBefore(Date)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestCreatedBeforeTomorrow;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .CreatedBefore(Date + 1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FTotalRecursiveCount, LPassCount);
+  CheckEquals(FTotalRecursiveCount, FileSystemQuery
+                                    .FromRecursive(FTestDirectory)
+                                    .CreatedBefore(Date + 1)
+                                    .Count);
 end;
 
 procedure TestFileQuery.TestDirectories;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Directories do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FTopLevelDirCount, LPassCount);
+  CheckEquals(FTopLevelDirCount, FileSystemQuery
+                                  .From(FTestDirectory)
+                                  .Directories
+                                  .Count);
 end;
 
 procedure TestFileQuery.TestDirectoriesRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Directories do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FTotalDirCount, LPassCount);
+  CheckEquals(FTotalDirCount, FileSystemQuery
+                              .FromRecursive(FTestDirectory)
+                              .Directories
+                              .Count);
 end;
 
 procedure TestFileQuery.TestDirNameMatchesStringQuery;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .Directories
-             .NameMatches(StringQuery.StartsWith('chi')) do
-    Inc(LPassCount);
-
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, FileSystemQuery
+                   .From(FTestDirectory)
+                   .Directories
+                   .NameMatches(StringQuery.StartsWith('chi')).Count);
 end;
 
 procedure TestFileQuery.TestExtension;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Extension('.doc') do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(2, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(2, FileSystemQuery
+                   .From(FTestDirectory)
+                   .Extension('.doc').Count);
 end;
 
 procedure TestFileQuery.TestExtensionRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Extension('.doc') do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(3, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(3, FileSystemQuery
+                   .FromRecursive(FTestDirectory)
+                   .Extension('.doc').Count);
 end;
 
 procedure TestFileQuery.TestFiles;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FFileCount, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FFileCount, FileSystemQuery
+                            .From(FTestDirectory)
+                            .Files.Count);
 end;
 
 procedure TestFileQuery.TestFilesNameMatchesStringQuery;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .Files
-             .NameMatches(StringQuery.StartsWith('10')) do
-    Inc(LPassCount);
-
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, FileSystemQuery
+                   .From(FTestDirectory)
+                   .Files
+                   .NameMatches(StringQuery.StartsWith('10')).Count);
 end;
 
 procedure TestFileQuery.TestFilesRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FRecursiveFileCount, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FRecursiveFileCount, FileSystemQuery
+                                     .FromRecursive(FTestDirectory)
+                                     .Files.Count);
 end;
 
 procedure TestFileQuery.TestHiddenFiles;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .Hidden do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, FileSystemQuery
+                   .From(FTestDirectory)
+                   .Files
+                   .Hidden
+                   .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanLarge;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .LargerThan(MaxLongint) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                    .From(FTestDirectory)
+                    .Files
+                    .LargerThan(MaxLongint)
+                    .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanLargeRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .LargerThan(MaxLongint) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .FromRecursive(FTestDirectory)
+                  .Files
+                  .LargerThan(MaxLongint)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanNegative;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .LargerThan(-1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FFileCount, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FFileCount, FileSystemQuery
+                            .From(FTestDirectory)
+                            .Files
+                            .LargerThan(-1)
+                            .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanNegativeRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .LargerThan(-1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FRecursiveFileCount, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FRecursiveFileCount, FileSystemQuery
+                                    .FromRecursive(FTestDirectory)
+                                    .Files
+                                    .LargerThan(-1)
+                                    .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanSmall;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .LargerThan(4) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Files
+                  .LargerThan(4)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanSmallerThan;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .LargerThan(100)
-                .SmallerThan(400) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Files
+                  .LargerThan(100)
+                  .SmallerThan(400)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanSmallerThanRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .LargerThan(100)
-                .SmallerThan(400) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(4, LPassCount);
+  CheckEquals(4, FileSystemQuery
+                  .FromRecursive(FTestDirectory)
+                  .Files
+                  .LargerThan(100)
+                  .SmallerThan(400)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanSmallRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .LargerThan(4) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(4, LPassCount);
+  CheckEquals(4, FileSystemQuery
+                  .FromRecursive(FTestDirectory)
+                  .Files
+                  .LargerThan(4)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanZero;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .LargerThan(0) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(2, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(2, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Files
+                  .LargerThan(0)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestLargerThanZeroRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .LargerThan(0) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(4, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(4, FileSystemQuery
+                  .FromRecursive(FTestDirectory)
+                  .Files
+                  .LargerThan(0)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestModifiedAfterTomorrow;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .ModifiedAfter(Date + 1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .FromRecursive(FTestDirectory)
+                  .ModifiedAfter(Date + 1)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestModifiedAfterYesterday;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .ModifiedAfter(Date - 1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FTotalRecursiveCount, LPassCount);
+  CheckEquals(FTotalRecursiveCount, FileSystemQuery
+                                      .FromRecursive(FTestDirectory)
+                                      .ModifiedAfter(Date - 1)
+                                      .Count);
 end;
 
 procedure TestFileQuery.TestModifiedBeforeToday;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .ModifiedBefore(Date) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .FromRecursive(FTestDirectory)
+                  .Files
+                  .ModifiedBefore(Date)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestModifiedBeforeTomorrow;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .ModifiedBefore(Date + 1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FTotalRecursiveCount, LPassCount);
+  CheckEquals(FTotalRecursiveCount, FileSystemQuery
+                                      .FromRecursive(FTestDirectory)
+                                      .ModifiedBefore(Date + 1)
+                                      .Count);
 end;
 
 procedure TestFileQuery.TestNotHiddenFiles;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .NotHidden do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FFileCount - 1, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FFileCount - 1, FileSystemQuery
+                                .From(FTestDirectory)
+                                .Files
+                                .NotHidden
+                                .Count);
 end;
 
 procedure TestFileQuery.TestNotHiddenNotReadOnlyFiles;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .NotHidden
-                .NotReadOnly do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FFileCount - 2, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FFileCount - 2, FileSystemQuery
+                                .From(FTestDirectory)
+                                .Files
+                                .NotHidden
+                                .NotReadOnly
+                                .Count);
 end;
 
 procedure TestFileQuery.TestNotReadOnlyFiles;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .NotReadOnly do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FFileCount - 1, LPassCount);
-  CheckNotEquals(0, LPasscount);
+  CheckEquals(FFileCount - 1, FileSystemQuery
+                                .From(FTestDirectory)
+                                .Files
+                                .NotReadOnly
+                                .Count);
 end;
 
 procedure TestFileQuery.TestReadOnlyFiles;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .ReadOnly do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Files
+                  .ReadOnly
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSkipEqualCount;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Skip(FTotalCount) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Skip(FTotalCount)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSkipGreaterThanCount;
-var
-  LPassCount, LSkipCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-  LSkipCount := FTotalCount + 2;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Skip(LSkipCount) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Skip(FTotalCount + 2)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSkipLowerThanCount;
-var
-  LPassCount, LSkipCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-  LSkipCount := FTotalCount - 2;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Skip(LSkipCount) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Skip(FTotalCount - 2)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSkipWhere;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .Skip(5)
-             .Where(FFirstLetterEven) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(2, LPassCount);
+  CheckEquals(2, FileSystemQuery
+                   .From(FTestDirectory)
+                   .Skip(5)
+                   .Where(FFirstLetterEven)
+                   .Count);
 end;
 
 procedure TestFileQuery.TestSkipWhile;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .SkipWhile(FFirstLetterFourOrLess) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(6, LPassCount);
+  CheckEquals(6, FileSystemQuery
+                  .From(FTestDirectory)
+                  .SkipWhile(FFirstLetterFourOrLess)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSkipWhileFalse;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .SkipWhile(FFalsePredicate) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(FTotalCount, LPassCount);
-  CheckNotEquals(0, LPassCount);
+  CheckEquals(FTotalCount, FileSystemQuery
+                            .From(FTestDirectory)
+                            .SkipWhile(FFalsePredicate)
+                            .Count);
 end;
 
 procedure TestFileQuery.TestSkipWhileTrue;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .SkipWhile(FTruePredicate) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .From(FTestDirectory)
+                  .SkipWhile(FTruePredicate)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSkipZero;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Skip(0) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(FTotalCount, LPassCount);
+  CheckEquals(FTotalCount, FileSystemQuery
+                            .From(FTestDirectory)
+                            .Skip(0)
+                            .Count);
 end;
 
 procedure TestFileQuery.TestSmallerThanLarge;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .SmallerThan(MaxLongint) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FFileCount, LPassCount);
+  CheckEquals(FFileCount, FileSystemQuery
+                            .From(FTestDirectory)
+                            .Files
+                            .SmallerThan(MaxLongint)
+                            .Count);
 end;
 
 procedure TestFileQuery.TestSmallerThanLargeRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .SmallerThan(MaxLongint) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FRecursiveFileCount, LPassCount);
+  CheckEquals(FRecursiveFileCount, FileSystemQuery
+                                    .FromRecursive(FTestDirectory)
+                                    .Files
+                                    .SmallerThan(MaxLongint)
+                                    .Count);
 end;
 
 procedure TestFileQuery.TestSmallerThanNegative;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .SmallerThan(-1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Files
+                  .SmallerThan(-1)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSmallerThanNegativeRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .SmallerThan(-1) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .FromRecursive(FTestDirectory)
+                  .Files
+                  .SmallerThan(-1)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSmallerThanSmall;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .SmallerThan(4) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FFileCount - 2, LPassCount);
+  CheckEquals(FFileCount - 2, FileSystemQuery
+                                .From(FTestDirectory)
+                                .Files
+                                .SmallerThan(4)
+                                .Count);
 end;
 
 procedure TestFileQuery.TestSmallerThanSmallRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .FromRecursive(FTestDirectory)
-                .Files
-                .SmallerThan(4) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(FRecursiveFileCount - 4, LPassCount);
+  CheckEquals(FRecursiveFileCount - 4, FileSystemQuery
+                                        .FromRecursive(FTestDirectory)
+                                        .Files
+                                        .SmallerThan(4)
+                                        .Count);
 end;
 
 procedure TestFileQuery.TestSmallerThanZero;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
-                .From(FTestDirectory)
-                .Files
-                .SmallerThan(0) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Files
+                  .SmallerThan(0)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestSmallerThanZeroRecursive;
-var
-  LPassCount : Integer;
-  LFile : string;
 begin
-  LPassCount := 0;
-  for LFile in FileSystemQuery
+  CheckEquals(0, FileSystemQuery
                 .FromRecursive(FTestDirectory)
                 .Files
-                .SmallerThan(0) do
-  begin
-    Inc(LPassCount);
-    DummyFile := LFile;   // just to suppress warning about not using File
-  end;
-  CheckEquals(0, LPassCount);
+                .SmallerThan(0)
+                .Count);
 end;
 
 procedure TestFileQuery.TestWhereEven;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Where(FFirstLetterEven) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(4, LPassCount);
+  CheckEquals(4, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Where(FFirstLetterEven)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestWhereAll;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Where(FTruePredicate) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(FTotalCount, LPassCount);
+  CheckEquals(FTotalCount, FileSystemQuery
+                            .From(FTestDirectory)
+                            .Where(FTruePredicate)
+                            .Count);
 end;
 
 procedure TestFileQuery.TestWhereTake;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .Where(FFirstLetterEven)
-             .Take(3) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(3, LPassCount);
+  CheckEquals(3, FileSystemQuery
+                   .From(FTestDirectory)
+                   .Where(FFirstLetterEven)
+                   .Take(3)
+                   .Count);
 end;
 
 procedure TestFileQuery.TestWhereNone;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-            .From(FTestDirectory)
-            .Where(FFalsePredicate) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;   // just to suppress warning about not using I
-  end;
-
-  CheckEquals(0, LPassCount);
+  CheckEquals(0, FileSystemQuery
+                  .From(FTestDirectory)
+                  .Where(FFalsePredicate)
+                  .Count);
 end;
 
 procedure TestFileQuery.TestWhereSkip;
-var
-  LPassCount : Integer;
-  I : string;
 begin
-  LPassCount := 0;
-
-  for I in FileSystemQuery
-             .From(FTestDirectory)
-             .Where(FFirstLetterEven)
-             .Skip(3) do
-  begin
-    Inc(LPassCount);
-    DummyFile := i;  // just to suppress warning about not using I
-  end;
-
-  CheckEquals(1, LPassCount);
+  CheckEquals(1, FileSystemQuery
+                   .From(FTestDirectory)
+                   .Where(FFirstLetterEven)
+                   .Skip(3)
+                   .Count);
 end;
 
 
