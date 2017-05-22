@@ -383,7 +383,7 @@ end;
 function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := Where(TComponentMethodFactory<T>.InvertPredicate(Predicate));
+  Result := Where(TComponentMethodFactory<T>.&Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

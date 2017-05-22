@@ -471,7 +471,7 @@ end;
 function TIntegerQuery.TIntegerQueryImpl<T>.SkipUntil(
   Predicate: TPredicate<Integer>): T;
 begin
-  Result := SkipWhile(TIntegerMethodFactory.InvertPredicate(Predicate));
+  Result := SkipWhile(TIntegerMethodFactory.Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'SkipUntil(Predicate)';
 {$ENDIF}
@@ -480,7 +480,7 @@ end;
 function TIntegerQuery.TIntegerQueryImpl<T>.SkipUntil(
   UnboundQuery: IUnboundIntegerQuery): T;
 begin
-  Result := SkipWhile(TIntegerMethodFactory.InvertPredicate(UnboundQuery.Predicate));
+  Result := SkipWhile(TIntegerMethodFactory.Not(UnboundQuery.Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipUntil(%s)', [UnboundQuery.OperationPath]);
 {$ENDIF}
@@ -555,10 +555,10 @@ function TIntegerQuery.TIntegerQueryImpl<T>.TakeBetween(
 begin
   Result := TIntegerQuery.Create(
               TTakeWhileEnumerationStrategy<Integer>.Create(
-                TIntegerMethodFactory.InvertPredicate(EndPredicate)),
+                TIntegerMethodFactory.Not(EndPredicate)),
               TIntegerQuery.Create(
                 TSkipWhileEnumerationStrategy<Integer>.Create(
-                  TIntegerMethodFactory.InvertPredicate(StartPredicate)),
+                  TIntegerMethodFactory.Not(StartPredicate)),
                 IBaseQuery<Integer>(FQuery)));
 {$IFDEF DEBUG}
   Result.OperationName := 'TakeBetween(StartPredicate, EndPredicate)';
@@ -568,7 +568,7 @@ end;
 function TIntegerQuery.TIntegerQueryImpl<T>.TakeUntil(
   Predicate: TPredicate<Integer>): T;
 begin
-  Result := TakeWhile(TIntegerMethodFactory.InvertPredicate(Predicate));
+  Result := TakeWhile(TIntegerMethodFactory.Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'TakeUntil(Predicate)';
 {$ENDIF}
@@ -577,7 +577,7 @@ end;
 function TIntegerQuery.TIntegerQueryImpl<T>.TakeUntil(
   UnboundQuery: IUnboundIntegerQuery): T;
 begin
-  Result := TakeWhile(TIntegerMethodFactory.InvertPredicate(UnboundQuery.Predicate));
+  Result := TakeWhile(TIntegerMethodFactory.Not(UnboundQuery.Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := Format('TakeUntil(%s)', [UnboundQuery.OperationPath]);
 {$ENDIF}
@@ -643,7 +643,7 @@ end;
 function TIntegerQuery.TIntegerQueryImpl<T>.WhereNot(
   Predicate: TPredicate<Integer>): T;
 begin
-  Result := Where(TIntegerMethodFactory.InvertPredicate(Predicate));
+  Result := Where(TIntegerMethodFactory.Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

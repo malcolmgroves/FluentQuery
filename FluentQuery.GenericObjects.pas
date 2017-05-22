@@ -309,7 +309,7 @@ end;
 function TObjectQuery<T>.TObjectQueryImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := Where(TGenericObjectMethodFactory<T>.InvertPredicate(Predicate));
+  Result := Where(TGenericObjectMethodFactory<T>.&Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

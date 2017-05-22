@@ -513,7 +513,7 @@ end;
 function TDBRecordQuery.TDBRecordQueryImpl<T>.WhereNot(
   Predicate: TPredicate<TDBRecord>): T;
 begin
-  Result := Where(TMethodFactory<TDBRecord>.InvertPredicate(Predicate));
+  Result := Where(TMethodFactory<TDBRecord>.&Not(Predicate));
 
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';

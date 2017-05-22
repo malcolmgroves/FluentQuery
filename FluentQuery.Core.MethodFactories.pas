@@ -28,8 +28,10 @@ type
   public
     class function UpToNumberOfTimes(Count : Integer) : TPredicate<T>;
     class function QuerySingleValue(UnboundQuery : IBaseQuery<T>) : TPredicate<T>;
-    class function InvertPredicate(Predicate : TPredicate<T>) : TPredicate<T>;
+    class function &Not(Predicate : TPredicate<T>) : TPredicate<T>;
     class function InPlaceTransformer(TransformProc : TProc<T>) : TFunc<T, T>;
+    class function &Or(PredicateA, PredicateB : TPredicate<T>) : TPredicate<T>;
+    class function &And(PredicateA, PredicateB : TPredicate<T>) : TPredicate<T>;
   end;
 
 implementation
@@ -37,6 +39,24 @@ uses FluentQuery.Core.Enumerators;
 
 
 { TPredicateFactory<T> }
+
+class function TMethodFactory<T>.&Or(PredicateA,
+  PredicateB: TPredicate<T>): TPredicate<T>;
+begin
+  Result := function (CurrentValue : T) : Boolean
+            begin
+              Result := PredicateA(CurrentValue) or PredicateB(CurrentValue);
+            end;
+end;
+
+class function TMethodFactory<T>.&And(PredicateA,
+  PredicateB: TPredicate<T>): TPredicate<T>;
+begin
+  Result := function (CurrentValue : T) : Boolean
+            begin
+              Result := PredicateA(CurrentValue) and PredicateB(CurrentValue);
+            end;
+end;
 
 class function TMethodFactory<T>.InPlaceTransformer(
   TransformProc: TProc<T>): TFunc<T, T>;
@@ -48,7 +68,7 @@ begin
                       end;
 end;
 
-class function TMethodFactory<T>.InvertPredicate(
+class function TMethodFactory<T>.&Not(
   Predicate: TPredicate<T>): TPredicate<T>;
 begin
   Result := function (CurrentValue : T) : Boolean

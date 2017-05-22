@@ -294,7 +294,7 @@ end;
 function TQuery<T>.TQueryImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<T>): TReturnType;
 begin
-  Result := Where(TMethodFactory<T>.InvertPredicate(Predicate));
+  Result := Where(TMethodFactory<T>.&Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

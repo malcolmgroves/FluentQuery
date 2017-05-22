@@ -368,7 +368,7 @@ end;
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Files: TReturnType;
 begin
-  Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faDirectory])));
+  Result := Where(TStringMethodFactory.&Not(HasAttributePredicate([TFileAttribute.faDirectory])));
 {$IFDEF DEBUG}
   Result.OperationName := 'Files';
 {$ENDIF}
@@ -612,7 +612,7 @@ end;
 {$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotHidden: TReturnType;
 begin
-  Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faHidden])));
+  Result := Where(TStringMethodFactory.&Not(HasAttributePredicate([TFileAttribute.faHidden])));
 {$IFDEF DEBUG}
   Result.OperationName := 'NotHidden';
 {$ENDIF}
@@ -622,7 +622,7 @@ end;
 {$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotReadOnly: TReturnType;
 begin
-  Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faReadOnly])));
+  Result := Where(TStringMethodFactory.&Not(HasAttributePredicate([TFileAttribute.faReadOnly])));
 {$IFDEF DEBUG}
   Result.OperationName := 'ReadOnly';
 {$ENDIF}
@@ -632,7 +632,7 @@ end;
 {$IFDEF MSWINDOWS}
 function TFileSystemQuery.TQueryImpl<TReturnType>.NotSystem: TReturnType;
 begin
-  Result := Where(TStringMethodFactory.InvertPredicate(HasAttributePredicate([TFileAttribute.faSystem])));
+  Result := Where(TStringMethodFactory.&Not(HasAttributePredicate([TFileAttribute.faSystem])));
 {$IFDEF DEBUG}
   Result.OperationName := 'NotSystem';
 {$ENDIF}
@@ -764,7 +764,7 @@ end;
 function TFileSystemQuery.TQueryImpl<TReturnType>.WhereNot(
   Predicate: TPredicate<String>): TReturnType;
 begin
-  Result := Where(TStringMethodFactory.InvertPredicate(Predicate));
+  Result := Where(TStringMethodFactory.&Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

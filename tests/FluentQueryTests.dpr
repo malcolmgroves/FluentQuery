@@ -44,7 +44,10 @@ uses
   FluentQuery.Core.Reduce in '..\FluentQuery.Core.Reduce.pas',
   FluentQuery.DB.Tests in 'FluentQuery.DB.Tests.pas',
   FluentQuery.DB in '..\FluentQuery.DB.pas',
-  FluentQuery.Tests.Base in 'FluentQuery.Tests.Base.pas';
+  FluentQuery.Tests.Base in 'FluentQuery.Tests.Base.pas',
+  FluentQuery.JSON in '..\FluentQuery.JSON.pas',
+  FluentQuery.JSON.Tests in 'FluentQuery.JSON.Tests.pas',
+  FluentQuery.JSON.MethodFactories in '..\FluentQuery.JSON.MethodFactories.pas';
 
 {$R *.RES}
 
