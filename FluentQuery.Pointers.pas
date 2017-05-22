@@ -31,7 +31,7 @@ uses
 type
   IUnboundPointerQuery = interface;
 
-  IBoundPointerQuery = interface(IBaseQuery<Pointer>)
+  IBoundPointerQuery = interface(IBaseBoundQuery<Pointer>)
     function GetEnumerator: IBoundPointerQuery;
     // common operations
     function Map(Transformer : TFunc<Pointer, Pointer>) : IBoundPointerQuery;
@@ -46,11 +46,9 @@ type
     function WhereNot(Predicate : TPredicate<Pointer>) : IBoundPointerQuery; overload;
     // type-specific operations
     function IsAssigned : IBoundPointerQuery;
-    function First : Pointer;
-    function Count : Integer;
   end;
 
-  IUnboundPointerQuery = interface(IBaseQuery<Pointer>)
+  IUnboundPointerQuery = interface(IBaseUnboundQuery<Pointer>)
     function GetEnumerator: IUnboundPointerQuery;
     // common operations
     function From(List : TList) : IBoundPointerQuery; overload;
@@ -68,10 +66,8 @@ type
     // type-specific operations
     function IsAssigned : IUnboundPointerQuery;
     // terminating operations
-    function Predicate : TPredicate<Pointer>;
   end;
 
-  function Query : IUnboundPointerQuery;
   function PointerQuery : IUnboundPointerQuery;
 
 
@@ -135,17 +131,9 @@ type
 
 function PointerQuery : IUnboundPointerQuery;
 begin
-  Result := Query;
-{$IFDEF DEBUG}
-  Result.OperationName := 'PointerQuery';
-{$ENDIF}
-end;
-
-function Query : IUnboundPointerQuery;
-begin
   Result := TPointerQuery.Create(TEnumerationStrategy<Pointer>.Create);
 {$IFDEF DEBUG}
-  Result.OperationName := 'Query';
+  Result.OperationName := 'PointerQuery';
 {$ENDIF}
 end;
 

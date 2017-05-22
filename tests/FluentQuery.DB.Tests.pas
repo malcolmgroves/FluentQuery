@@ -292,7 +292,7 @@ begin
                                       Value.FieldByName('Age').AsInteger := 5;
                                       Value.Cancel;
                                       Result := Value;
-                                    end).Count; // should really have another terminating function called Execute.
+                                    end).Execute;
 
   LPassCount := 0;
   FMemTable.First;
@@ -323,7 +323,7 @@ begin
                                       Value.FieldByName('Age').AsInteger := 5;
                                       Value.Post;
                                       Result := Value;
-                                    end).Count; //should really have an Execute terminating function
+                                    end).Execute;
 
   LPassCount := 0;
   FMemTable.First;

@@ -153,7 +153,7 @@ end;
 
 procedure TestTQueryTList.TestTakeWhileIsAssigned;
 begin
-  CheckEquals(1, Query.From(FList).TakeWhile(PointerQuery.IsAssigned).Count);
+  CheckEquals(1, PointerQuery.From(FList).TakeWhile(PointerQuery.IsAssigned).Count);
 end;
 
 initialization

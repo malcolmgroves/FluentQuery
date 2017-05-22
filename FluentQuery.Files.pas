@@ -36,7 +36,7 @@ type
 
   IUnboundFileSystemQuery = interface;
 
-  IBoundFileSystemQuery = interface(IBaseQuery<String>)
+  IBoundFileSystemQuery = interface(IBaseBoundQuery<String>)
     function GetEnumerator: IBoundFileSystemQuery;
     // query operations
     function Map(Transformer : TFunc<String, String>) : IBoundFileSystemQuery;
@@ -71,12 +71,9 @@ type
     function ModifiedAfter(DateTime : TDateTime) : IBoundFileSystemQuery;
     function LastAccessedBefore(DateTime : TDateTime) : IBoundFileSystemQuery;
     function LastAccessedAfter(DateTime : TDateTime) : IBoundFileSystemQuery;
-    // terminating operations
-    function First : String;
-    function Count : Integer;
   end;
 
-  IUnboundFileSystemQuery = interface(IBaseQuery<String>)
+  IUnboundFileSystemQuery = interface(IBaseUnboundQuery<String>)
 //    function GetEnumerator: IUnboundFileSystemQuery;
     function From(const Directory : string) : IBoundFileSystemQuery;
     function FromRecursive(const Directory : string) : IBoundFileSystemQuery;
@@ -113,8 +110,6 @@ type
     function ModifiedAfter(DateTime : TDateTime) : IUnboundFileSystemQuery;
     function LastAccessedBefore(DateTime : TDateTime) : IUnboundFileSystemQuery;
     function LastAccessedAfter(DateTime : TDateTime) : IUnboundFileSystemQuery;
-    // terminating operations
-    function Predicate : TPredicate<String>;
   end;
 
 

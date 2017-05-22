@@ -42,6 +42,16 @@ type
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>);
   end;
 
+  IBaseBoundQuery<T> = interface(IBaseQuery<T>)
+    procedure Execute;
+    function Count : Integer;
+    function First : T;
+  end;
+
+  IBaseUnboundQuery<T> = interface(IBaseQuery<T>)
+    function Predicate : TPredicate<T>;
+  end;
+
   EFluentQueryException = class(Exception);
     ENilEnumeratorException = class(EFluentQueryException);
     EEmptyResultSetException = class(EFluentQueryException);

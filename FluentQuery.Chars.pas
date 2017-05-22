@@ -29,7 +29,7 @@ uses
 
 type
   IUnboundCharQuery = interface;
-  IBoundCharQuery = interface(IBaseQuery<Char>)
+  IBoundCharQuery = interface(IBaseBoundQuery<Char>)
     function GetEnumerator: IBoundCharQuery;
     // Query Operations
     function Equals(const Value : Char) : IBoundCharQuery;
@@ -48,6 +48,7 @@ type
     function IsSymbol: IBoundCharQuery;
     function IsUpper: IBoundCharQuery;
     function IsWhiteSpace: IBoundCharQuery;
+    function IsNotWhiteSpace: IBoundCharQuery;
     function Map(Transformer : TFunc<Char, Char>) : IBoundCharQuery;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IBoundCharQuery;
     function NotEquals(const Value : Char) : IBoundCharQuery;
@@ -62,12 +63,10 @@ type
     function WhereNot(UnboundQuery : IUnboundCharQuery) : IBoundCharQuery; overload;
     function WhereNot(Predicate : TPredicate<Char>) : IBoundCharQuery; overload;
     // terminating operations
-    function First : Char;
-    function Count : Integer;
     function AsString : String;
   end;
 
-  IUnboundCharQuery = interface(IBaseQuery<Char>)
+  IUnboundCharQuery = interface(IBaseUnboundQuery<Char>)
     function GetEnumerator: IUnboundCharQuery;
     function From(StringValue : String) : IBoundCharQuery; overload;
     function From(Container : TEnumerable<Char>) : IBoundCharQuery; overload;
@@ -88,6 +87,7 @@ type
     function IsSymbol: IUnboundCharQuery;
     function IsUpper: IUnboundCharQuery;
     function IsWhiteSpace: IUnboundCharQuery;
+    function IsNotWhiteSpace: IUnboundCharQuery;
     function Map(Transformer : TFunc<Char, Char>) : IUnboundCharQuery;
     function Matches(const Value : Char; IgnoreCase : Boolean = True) : IUnboundCharQuery;
     function NotEquals(const Value : Char) : IUnboundCharQuery;
@@ -101,8 +101,6 @@ type
     function Where(Predicate : TPredicate<Char>) : IUnboundCharQuery;
     function WhereNot(UnboundQuery : IUnboundCharQuery) : IUnboundCharQuery; overload;
     function WhereNot(Predicate : TPredicate<Char>) : IUnboundCharQuery; overload;
-    // terminating operations
-    function Predicate : TPredicate<Char>;
   end;
 
   function CharQuery : IUnboundCharQuery;
@@ -165,6 +163,7 @@ type
         function IsSymbol: T;
         function IsUpper: T;
         function IsWhiteSpace: T;
+        function IsNotWhiteSpace: T;
         // Terminating Operations
         function Predicate : TPredicate<Char>;
         function AsString : String;
@@ -396,6 +395,21 @@ begin
   Result := Where(LPredicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'IsLowSurrogate';
+{$ENDIF}
+end;
+
+function TCharQuery.TCharQueryImpl<T>.IsNotWhiteSpace: T;
+var
+  LPredicate : TPredicate<char>;
+begin
+  LPredicate := function (CurrentValue : Char) : Boolean
+                begin
+                  Result := not CurrentValue.IsWhiteSpace;
+                end;
+
+  Result := Where(LPredicate);
+{$IFDEF DEBUG}
+  Result.OperationName := 'IsNotWhitespace';
 {$ENDIF}
 end;
 

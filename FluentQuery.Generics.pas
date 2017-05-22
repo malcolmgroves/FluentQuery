@@ -30,7 +30,7 @@ uses
 type
   IUnboundQuery<T> = interface;
 
-  IBoundQuery<T> = interface(IBaseQuery<T>)
+  IBoundQuery<T> = interface(IBaseBoundQuery<T>)
     function GetEnumerator: IBoundQuery<T>;
     // query operations
     function Map(Transformer : TFunc<T, T>) : IBoundQuery<T>;
@@ -45,11 +45,9 @@ type
     function WhereNot(Predicate : TPredicate<T>) : IBoundQuery<T>; overload;
     // terminating operations
     function AsTList : TList<T>;
-    function First : T;
-    function Count : Integer;
   end;
 
-  IUnboundQuery<T> = interface(IBaseQuery<T>)
+  IUnboundQuery<T> = interface(IBaseUnboundQuery<T>)
     function GetEnumerator: IUnboundQuery<T>;
     function From(Container : TEnumerable<T>) : IBoundQuery<T>;
     // query operations
@@ -63,8 +61,6 @@ type
     function Where(Predicate : TPredicate<T>) : IUnboundQuery<T>;
     function WhereNot(UnboundQuery : IUnboundQuery<T>) : IUnboundQuery<T>; overload;
     function WhereNot(Predicate : TPredicate<T>) : IUnboundQuery<T>; overload;
-    // terminating operations
-    function Predicate : TPredicate<T>;
   end;
 
   TQuery<T> = class(TBaseQuery<T>,

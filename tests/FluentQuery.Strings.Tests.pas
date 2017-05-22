@@ -77,6 +77,7 @@ type
     procedure TestValue;
     procedure TestValueNameIsEmpty;
     procedure TestValueNameIsNotFound;
+    procedure TestValues;
   end;
 
   TestFluentStringPredicate = class(TTestCase)
@@ -129,7 +130,7 @@ begin
   PassCount := 0;
 
   ExpectedException := ENilEnumeratorException;
-  for Value in Query.Take(3) do
+  for Value in StringQuery.Take(3) do
     Inc(PassCount);
   StopExpectingException('Enumerating an UnboundQuery should have raised an ENilEnumeratorException');
 
@@ -139,39 +140,39 @@ end;
 procedure TestTQueryTStrings.TestEquals;
 begin
   FNameStrings.Add('jesse');
-  CheckEquals(1, Query.From(FNameStrings).Equals('jesse').Count);
+  CheckEquals(1, StringQuery.From(FNameStrings).Equals('jesse').Count);
 end;
 
 procedure TestTQueryTStrings.TestMatchesCaseInsensitive;
 begin
-  CheckEquals(1, Query.From(FNameStrings).Matches('jesse').Count);
+  CheckEquals(1, StringQuery.From(FNameStrings).Matches('jesse').Count);
 end;
 
 procedure TestTQueryTStrings.TestMatchesCaseSensitive;
 begin
   FNameStrings.Add('jesse');
-  CheckEquals(1, Query.From(FNameStrings).Matches('Jesse', False).Count);
+  CheckEquals(1, StringQuery.From(FNameStrings).Matches('Jesse', False).Count);
 end;
 
 procedure TestTQueryTStrings.TestNoMatchesCaseSensitive;
 begin
-  CheckEquals(0, Query.From(FNameStrings).Matches('jesse', False).Count);
+  CheckEquals(0, StringQuery.From(FNameStrings).Matches('jesse', False).Count);
 end;
 
 procedure TestTQueryTStrings.TestNotEquals;
 begin
   FNameStrings.Add('jesse');
-  CheckEquals(4, Query.From(FNameStrings).NotEquals('jesse').Count);
+  CheckEquals(4, StringQuery.From(FNameStrings).NotEquals('jesse').Count);
 end;
 
 procedure TestTQueryTStrings.TestPassThrough;
 begin
-  CheckEquals(FStrings.Count, Query.From(FStrings).Count);
+  CheckEquals(FStrings.Count, StringQuery.From(FStrings).Count);
 end;
 
 procedure TestTQueryTStrings.TestSkipTake;
 begin
-  CheckExpectedCountWithInnerCheck(Query.From(FStrings).Skip(4).Take(3),
+  CheckExpectedCountWithInnerCheck(StringQuery.From(FStrings).Skip(4).Take(3),
                                    function (Arg : String) : Boolean
                                    begin
                                      Result := (Arg = '5') or (Arg = '6') or (Arg = '7');
@@ -184,7 +185,7 @@ procedure TestTQueryTStrings.TestSkipTakeCreateStrings;
 var
   LStrings : TStrings;
 begin
-  LStrings := Query
+  LStrings := StringQuery
                 .From(FStrings)
                 .Skip(4)
                 .Take(3)
@@ -222,63 +223,70 @@ end;
 
 procedure TestTQueryString.TestContainsCaseInsensitive;
 begin
-  CheckEquals(7, Query.From(FStringCollection).Contains('e').Count);
+  CheckEquals(7, StringQuery.From(FStringCollection).Contains('e').Count);
 end;
 
 procedure TestTQueryString.TestContainsCaseSensitive;
 begin
-  CheckEquals(6, Query.From(FStringCollection).Contains('e', False).Count);
+  CheckEquals(6, StringQuery.From(FStringCollection).Contains('e', False).Count);
 end;
 
 procedure TestTQueryString.TestEndsWithCaseInsensitive;
 begin
   FStringCollection.Add('seventeeN');
-  CheckEquals(3, Query.From(FStringCollection).EndsWith('n').Count);
+  CheckEquals(3, StringQuery.From(FStringCollection).EndsWith('n').Count);
 end;
 
 procedure TestTQueryString.TestEndsWithCaseSensitive;
 begin
-  CheckEquals(2, Query.From(FStringCollection).EndsWith('n', False).Count);
+  CheckEquals(2, StringQuery.From(FStringCollection).EndsWith('n', False).Count);
 end;
 
 procedure TestTQueryString.TestMatchesCaseInsensitive;
 begin
-  CheckEquals(1, Query.From(FStringCollection).Matches('six').Count);
+  CheckEquals(1, StringQuery.From(FStringCollection).Matches('six').Count);
 end;
 
 procedure TestTQueryString.TestMatchesCaseSensitive;
 begin
-  CheckEquals(1, Query.From(FStringCollection).Matches('Six', False).Count);
+  CheckEquals(1, StringQuery.From(FStringCollection).Matches('Six', False).Count);
 end;
 
 procedure TestTQueryString.TestMatchesCaseSensitiveNone;
 begin
-  CheckEquals(0, Query.From(FStringCollection).Matches('six', False).Count);
+  CheckEquals(0, StringQuery.From(FStringCollection).Matches('six', False).Count);
+end;
+
+procedure TestTQueryString.TestValues;
+begin
+  FStringCollection.Add('Param=Hello World');
+  FStringCollection.Add('Name=Fred');
+  CheckEquals(2, StringQuery.From(FStringCollection).Values.Count);
 end;
 
 procedure TestTQueryString.TestContainsCaseSensitiveNone;
 begin
-  CheckEquals(0, Query.From(FStringCollection).Contains('s', False).Count);
+  CheckEquals(0, StringQuery.From(FStringCollection).Contains('s', False).Count);
 end;
 
 procedure TestTQueryString.TestEndsWithCaseSensitiveNone;
 begin
-  CheckEquals(0, Query.From(FStringCollection).EndsWith('N', False).Count);
+  CheckEquals(0, StringQuery.From(FStringCollection).EndsWith('N', False).Count);
 end;
 
 procedure TestTQueryString.TestWhereNotContainsCaseInsensitive;
 begin
-  CheckEquals(3, Query.From(FStringCollection).WhereNot(Query.Contains('e')).Count);
+  CheckEquals(3, StringQuery.From(FStringCollection).WhereNot(StringQuery.Contains('e')).Count);
 end;
 
 procedure TestTQueryString.TestWhereNotPredicateContainsCaseInsensitive;
 begin
-  CheckEquals(3, Query.From(FStringCollection).WhereNot(Query.Contains('e').Predicate).Count);
+  CheckEquals(3, StringQuery.From(FStringCollection).WhereNot(StringQuery.Contains('e').Predicate).Count);
 end;
 
 procedure TestTQueryString.TestStartsWithCaseSensitiveNone;
 begin
-  CheckEquals(0, Query.From(FStringCollection).StartsWith('s', False).Count);
+  CheckEquals(0, StringQuery.From(FStringCollection).StartsWith('s', False).Count);
 end;
 
 procedure TestTQueryString.TestSubstring;
@@ -288,7 +296,7 @@ var
 begin
   LPassCount := 0;
 
-  for LString in Query.From(FStringCollection).SubString(2) do
+  for LString in StringQuery.From(FStringCollection).SubString(2) do
   begin
     case LPassCount of
       0 : CheckEqualsString('e', LString);
@@ -315,7 +323,7 @@ var
 begin
   LPassCount := 0;
 
-  for LString in Query.From(FStringCollection).SubString(99) do
+  for LString in StringQuery.From(FStringCollection).SubString(99) do
   begin
     case LPassCount of
       0..9 : CheckEqualsString('', LString);
@@ -333,7 +341,7 @@ var
 begin
   LPassCount := 0;
 
-  for LString in Query.From(FStringCollection).SubString(2, 1) do
+  for LString in StringQuery.From(FStringCollection).SubString(2, 1) do
   begin
     case LPassCount of
       0 : CheckEqualsString('e', LString);
@@ -356,7 +364,7 @@ end;
 procedure TestTQueryString.TestValue;
 begin
   FStringCollection.Add('Param=Hello World');
-  CheckExpectedCountWithInnerCheck(Query.From(FStringCollection).Value('param'),
+  CheckExpectedCountWithInnerCheck(StringQuery.From(FStringCollection).Value('param'),
                                    function (Arg : String) : Boolean
                                    begin
                                      Result := Arg = 'Hello World';
@@ -366,13 +374,13 @@ end;
 
 procedure TestTQueryString.TestValueNameIsNotFound;
 begin
-  CheckEquals(0, Query.From(FStringCollection).Value('param').Count);
+  CheckEquals(0, StringQuery.From(FStringCollection).Value('param').Count);
 end;
 
 procedure TestTQueryString.TestValueNameIsEmpty;
 begin
   FStringCollection.Add('Param=');
-  CheckExpectedCountWithInnerCheck(Query.From(FStringCollection).Value('param'),
+  CheckExpectedCountWithInnerCheck(StringQuery.From(FStringCollection).Value('param'),
                                    function (Arg : String) : Boolean
                                    begin
                                      Result := Arg = '';
@@ -383,13 +391,13 @@ end;
 procedure TestTQueryString.TestStartsWithCaseInsensitive;
 begin
   FStringCollection.Add('seventeen');
-  CheckEquals(3, Query.From(FStringCollection).StartsWith('S').Count);
+  CheckEquals(3, StringQuery.From(FStringCollection).StartsWith('S').Count);
 end;
 
 procedure TestTQueryString.TestStartsWithCaseSensitive;
 begin
   FStringCollection.Add('seventeen');
-  CheckEquals(2, Query.StartsWith('S', False).From(FStringCollection).Count);
+  CheckEquals(2, StringQuery.StartsWith('S', False).From(FStringCollection).Count);
 end;
 
 
@@ -409,13 +417,13 @@ begin
     Listbox.Items.Add('Six');
     Listbox.Items.Add('seven');
 
-    Listbox.FilterPredicate := Query
+    Listbox.FilterPredicate := StringQuery
                                  .EndsWith('e')
                                  .Predicate;
 
     Check(Listbox.Count = 3, 'Filter on items ending in ''e'' should result in 3 items');
 
-    Listbox.FilterPredicate := Query
+    Listbox.FilterPredicate := StringQuery
                                  .EndsWith('e', False)
                                  .Predicate;
 

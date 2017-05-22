@@ -31,7 +31,7 @@ uses
 type
   IUnboundIntegerQuery = interface;
 
-  IBoundIntegerQuery = interface(IBaseQuery<Integer>)
+  IBoundIntegerQuery = interface(IBaseBoundQuery<Integer>)
     function GetEnumerator: IBoundIntegerQuery;
     // query operations
     function Equals(const Value : Integer) : IBoundIntegerQuery;
@@ -71,11 +71,9 @@ type
     function Average : Double;
     function Max : Integer;
     function Min : Integer;
-    function First : Integer;
-    function Count : Integer;
   end;
 
-  IUnboundIntegerQuery = interface(IBaseQuery<Integer>)
+  IUnboundIntegerQuery = interface(IBaseUnboundQuery<Integer>)
     function GetEnumerator: IUnboundIntegerQuery;
     function From(Container : TEnumerable<Integer>) : IBoundIntegerQuery; overload;
     // query operations
@@ -110,11 +108,8 @@ type
     function WhereNot(UnboundQuery : IUnboundIntegerQuery) : IUnboundIntegerQuery; overload;
     function WhereNot(Predicate : TPredicate<Integer>) : IUnboundIntegerQuery; overload;
     function Zero : IUnboundIntegerQuery;
-    // terminating operations
-    function Predicate : TPredicate<Integer>;
   end;
 
-  function Query : IUnboundIntegerQuery;
   function IntegerQuery : IUnboundIntegerQuery;
 
   function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
@@ -202,19 +197,12 @@ type
 
 function IntegerQuery : IUnboundIntegerQuery;
 begin
-  Result := Query;
+  Result := TIntegerQuery.Create(TEnumerationStrategy<Integer>.Create);
 {$IFDEF DEBUG}
   Result.OperationName := 'IntegerQuery';
 {$ENDIF}
 end;
 
-function Query : IUnboundIntegerQuery;
-begin
-  Result := TIntegerQuery.Create(TEnumerationStrategy<Integer>.Create);
-{$IFDEF DEBUG}
-  Result.OperationName := 'Query';
-{$ENDIF}
-end;
 
 function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
 var
@@ -501,7 +489,7 @@ end;
 function TIntegerQuery.TIntegerQueryImpl<T>.SkipUntil(
   const Value: Integer): T;
 begin
-  Result := SkipWhile(Query.NotEquals(Value).Predicate);
+  Result := SkipWhile(IntegerQuery.NotEquals(Value).Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipUntil(%d)', [Value]);
 {$ENDIF}
@@ -556,7 +544,7 @@ end;
 function TIntegerQuery.TIntegerQueryImpl<T>.TakeBetween(
   const StartValue, EndValue: Integer): T;
 begin
-  Result := TakeBetween(Query.Equals(StartValue).Predicate, Query.Equals(EndValue).Predicate);
+  Result := TakeBetween(IntegerQuery.Equals(StartValue).Predicate, IntegerQuery.Equals(EndValue).Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := 'TakeBetween(StartQuery, EndQuery)';
 {$ENDIF}
@@ -598,7 +586,7 @@ end;
 function TIntegerQuery.TIntegerQueryImpl<T>.TakeUntil(
   const Value: Integer): T;
 begin
-  Result := TakeWhile(Query.NotEquals(Value).Predicate);
+  Result := TakeWhile(IntegerQuery.NotEquals(Value).Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('TakeUntil(%d)', [Value]);
 {$ENDIF}

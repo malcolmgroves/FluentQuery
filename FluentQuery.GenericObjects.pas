@@ -32,7 +32,7 @@ uses
 type
   IUnboundObjectQuery<T : class> = interface;
 
-  IBoundObjectQuery<T : class> = interface(IBaseQuery<T>)
+  IBoundObjectQuery<T : class> = interface(IBaseBoundQuery<T>)
     function GetEnumerator: IBoundObjectQuery<T>;
     // query operations
     function HasProperty(const Name : string; PropertyType : TTypeKind) : IBoundObjectQuery<T>;
@@ -49,12 +49,10 @@ type
     function WhereNot(UnboundQuery : IUnboundObjectQuery<T>) : IBoundObjectQuery<T>; overload;
     function WhereNot(Predicate : TPredicate<T>) : IBoundObjectQuery<T>; overload;
     // terminating operations
-    function First : T;
     function AsTObjectList(AOwnsObjects: Boolean = True) : TObjectList<T>;
-    function Count : Integer;
   end;
 
-  IUnboundObjectQuery<T : class> = interface(IBaseQuery<T>)
+  IUnboundObjectQuery<T : class> = interface(IBaseUnboundQuery<T>)
     function GetEnumerator: IUnboundObjectQuery<T>;
     function From(Container : TEnumerable<T>) : IBoundObjectQuery<T>; overload;
     function From(MinimalEnumerator : IMinimalEnumerator<T>) : IBoundObjectQuery<T>; overload;
@@ -72,8 +70,6 @@ type
     function Where(Predicate : TPredicate<T>) : IUnboundObjectQuery<T>;
     function WhereNot(UnboundQuery : IUnboundObjectQuery<T>) : IUnboundObjectQuery<T>; overload;
     function WhereNot(Predicate : TPredicate<T>) : IUnboundObjectQuery<T>; overload;
-    // terminating operations
-    function Predicate : TPredicate<T>;
   end;
 
   TObjectQuery<T : class> = class(TBaseQuery<T>,

@@ -40,7 +40,7 @@ type
 
   IUnboundDBRecordQuery = interface;
 
-  IBoundDBRecordQuery = interface(IBaseQuery<TDBRecord>)
+  IBoundDBRecordQuery = interface(IBaseBoundQuery<TDBRecord>)
     function GetEnumerator: IBoundDBRecordQuery;
     // common operations
     function Map(Transformer : TFunc<TDBRecord, TDBRecord>) : IBoundDBRecordQuery;
@@ -60,12 +60,9 @@ type
     function IntegerField(const Name : string; Predicate : TPredicate<Integer>) : IBoundDBRecordQuery; overload;
     function Null(const Name : string) : IBoundDBRecordQuery;
     function NotNull(const Name : string) : IBoundDBRecordQuery;
-    // terminating operations
-    function First : TDBRecord;
-    function Count : Integer;
   end;
 
-  IUnboundDBRecordQuery = interface(IBaseQuery<TDBRecord>)
+  IUnboundDBRecordQuery = interface(IBaseUnboundQuery<TDBRecord>)
     function GetEnumerator: IUnboundDBRecordQuery;
     // common operations
     function From(Dataset : TDataset) : IBoundDBRecordQuery; overload;
@@ -86,8 +83,6 @@ type
     function IntegerField(const Name : string; Predicate : TPredicate<Integer>) : IUnboundDBRecordQuery; overload;
     function Null(const Name : string) : IUnboundDBRecordQuery;
     function NotNull(const Name : string) : IUnboundDBRecordQuery;
-    // terminating operations
-    function Predicate : TPredicate<TDBRecord>;
   end;
 
   function DBRecordQuery : IUnboundDBRecordQuery;

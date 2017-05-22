@@ -37,13 +37,9 @@ type
     FOperationName : String;
 {$ENDIF}
     procedure SetSourceData(SourceData : IMinimalEnumerator<T>); virtual;
-  public
+    procedure Execute;
     function GetCurrent: T; virtual;
     function MoveNext: Boolean; virtual;
-    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>;
-                       UpstreamQuery : IBaseQuery<T> = nil;
-                       SourceData : IMinimalEnumerator<T> = nil); virtual;
-    destructor Destroy; override;
     procedure SetUpstreamQuery(UpstreamQuery : IBaseQuery<T>);
 {$IFDEF DEBUG}
     function GetOperationName : String; virtual;
@@ -52,6 +48,11 @@ type
     property OperationName : string read GetOperationName write SetOperationName;
     property OperationPath : string read GetOperationPath;
 {$ENDIF}
+  public
+    constructor Create(EnumerationStrategy : TEnumerationStrategy<T>;
+                       UpstreamQuery : IBaseQuery<T> = nil;
+                       SourceData : IMinimalEnumerator<T> = nil); virtual;
+    destructor Destroy; override;
   end;
 
   TStringsEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<String>)
@@ -59,32 +60,31 @@ type
     FStringsEnumerator : TStringsEnumerator;
     function GetCurrent: String;
     function MoveNext: Boolean;
+    property Current: String read GetCurrent;
   public
     constructor Create(StringsEnumerator : TStringsEnumerator); virtual;
     destructor Destroy; override;
-    property Current: String read GetCurrent;
   end;
 
   TGenericEnumeratorAdapter<T> = class(TInterfacedObject, IMinimalEnumerator<T>)
   protected
     FEnumerator : TEnumerator<T>;
     function GetCurrent: T;
+    function MoveNext: Boolean;
+    property Current: T read GetCurrent;
   public
     constructor Create(Enumerator : TEnumerator<T>); virtual;
     destructor Destroy; override;
-    function MoveNext: Boolean;
-    property Current: T read GetCurrent;
   end;
 
-//  TSuperTypeEnumeratorAdapter<TSuperType : IInterface; TSubType : IInterface> = class(TInterfacedObject, IMinimalEnumerator<TSubType>)
   TSuperTypeEnumeratorAdapter<TSuperType : class; TSubType : class> = class(TInterfacedObject, IMinimalEnumerator<TSubType>)
   protected
     FEnumerator : IMinimalEnumerator<TSuperType>;
     function GetCurrent: TSubType;
-  public
-    constructor Create(Enumerator : IMinimalEnumerator<TSuperType>); virtual;
     function MoveNext: Boolean;
     property Current: TSubType read GetCurrent;
+  public
+    constructor Create(Enumerator : IMinimalEnumerator<TSuperType>); virtual;
   end;
 
 
@@ -94,18 +94,18 @@ type
     FIndex : Integer;
     function GetCurrent: Char;
     function MoveNext: Boolean;
+    property Current: Char read GetCurrent;
   public
     constructor Create(StringValue : String); virtual;
-    property Current: Char read GetCurrent;
   end;
 
   TSingleValueAdapter<T> = class(TInterfacedObject, IMinimalEnumerator<T>)
   private
     FMoveCount: Integer;
     FValue : T;
-  public
     function GetCurrent: T;
     function MoveNext: Boolean;
+  public
     constructor Create(Value : T);
   end;
 
@@ -113,20 +113,20 @@ type
     FListEnumerator : TListEnumerator;
     function GetCurrent: Pointer;
     function MoveNext: Boolean;
+    property Current: Pointer read GetCurrent;
   public
     constructor Create(ListEnumerator : TListEnumerator); virtual;
     destructor Destroy; override;
-    property Current: Pointer read GetCurrent;
   end;
 
   TComponentEnumeratorAdapter = class(TinterfacedObject, IMinimalEnumerator<TComponent>)
     FEnumerator : TComponentEnumerator;
     function GetCurrent: TComponent;
     function MoveNext: Boolean;
+    property Current: TComponent read GetCurrent;
   public
     constructor Create(Enumerator : TComponentEnumerator); virtual;
     destructor Destroy; override;
-    property Current: TComponent read GetCurrent;
   end;
 
 
@@ -175,7 +175,7 @@ end;
 
 function TStringsEnumeratorAdapter.MoveNext: Boolean;
 begin
-  Result := FStringsEnumerator.MoveNext;;
+  Result := FStringsEnumerator.MoveNext;
 end;
 
 
@@ -282,6 +282,12 @@ begin
   FEnumerationStrategy.Free;
   FValues.Free;
   inherited;
+end;
+
+procedure TBaseQuery<T>.Execute;
+begin
+  while MoveNext do
+    GetCurrent;
 end;
 
 function TBaseQuery<T>.GetCurrent: T;

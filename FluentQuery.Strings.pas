@@ -31,7 +31,7 @@ uses
 type
   IUnboundStringQuery = interface;
 
-  IBoundStringQuery = interface(IBaseQuery<String>)
+  IBoundStringQuery = interface(IBaseBoundQuery<String>)
     function GetEnumerator: IBoundStringQuery;
     // common operations
     function Map(Transformer : TFunc<String, String>) : IBoundStringQuery;
@@ -55,13 +55,12 @@ type
     function SubString(const StartIndex : Integer) : IBoundStringQuery; overload;
     function SubString(const StartIndex : Integer; Length : Integer) : IBoundStringQuery; overload;
     function Value(const Name : String; IgnoreCase : Boolean = True) : IBoundStringQuery;
+    function Values: IBoundStringQuery;
     // terminating operations
     function AsTStrings : TStrings;
-    function First : String;
-    function Count : Integer;
   end;
 
-  IUnboundStringQuery = interface(IBaseQuery<String>)
+  IUnboundStringQuery = interface(IBaseUnboundQuery<String>)
     function GetEnumerator: IUnboundStringQuery;
     // common operations
     function From(Container : TEnumerable<String>) : IBoundStringQuery; overload;
@@ -87,11 +86,9 @@ type
     function SubString(const StartIndex : Integer) : IUnboundStringQuery; overload;
     function SubString(const StartIndex : Integer; Length : Integer) : IUnboundStringQuery; overload;
     function Value(const Name : String; IgnoreCase : Boolean = True) : IUnboundStringQuery;
-    // terminating operations
-    function Predicate : TPredicate<string>;
+    function Values : IUnboundStringQuery;
   end;
 
-  function Query : IUnboundStringQuery;
   function StringQuery : IUnboundStringQuery;
 
 const
@@ -145,6 +142,7 @@ type
         function SubString(const StartIndex : Integer) : T; overload;
         function SubString(const StartIndex : Integer; Length : Integer) : T; overload;
         function Value(const Name : String; IgnoreCase : Boolean = True) : T;
+        function Values : T;
         // Terminating Operations
         function AsTStrings : TStrings;
         function First : String;
@@ -171,19 +169,12 @@ type
 
 function StringQuery : IUnboundStringQuery;
 begin
-  Result := Query;
+  Result := TStringQuery.Create(TEnumerationStrategy<String>.Create);
 {$IFDEF DEBUG}
   Result.OperationName := 'StringQuery';
 {$ENDIF}
 end;
 
-function Query : IUnboundStringQuery;
-begin
-  Result := TStringQuery.Create(TEnumerationStrategy<String>.Create);
-{$IFDEF DEBUG}
-  Result.OperationName := 'Query';
-{$ENDIF}
-end;
 
 { TStringQueryEnumerator }
 
@@ -326,6 +317,19 @@ begin
 
 {$IFDEF DEBUG}
   Result.OperationName := Format('Value(%s, %s)', [Name, IgnoreCase.ToString]);
+{$ENDIF}
+end;
+
+function TStringQuery.TStringQueryImpl<T>.Values: T;
+begin
+  Result := TStringQuery.Create(
+              TIsomorphicTransformEnumerationStrategy<String>.Create(TStringMethodFactory.SubStringAfter('=', -1)),
+              TStringQuery.Create(
+                TWhereEnumerationStrategy<String>.Create(TStringMethodFactory.Contains('=', False)),
+                IBaseQuery<String>(FQuery)));
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'Values';
 {$ENDIF}
 end;
 
