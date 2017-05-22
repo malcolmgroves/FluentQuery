@@ -46,6 +46,8 @@ type
     function Value(const Name : string) : IBoundJSONPairQuery;
     function StringValue : IBoundJSONPairQuery;
     function NumberValue : IBoundJSONPairQuery;
+    function BooleanValue : IBoundJSONPairQuery;
+    function NullValue : IBoundJSONPairQuery;
   end;
 
   IUnboundJSONPairQuery = interface(IBaseUnboundQuery<TJSONPair>)
@@ -66,6 +68,8 @@ type
     function Value(const Name : string) : IUnboundJSONPairQuery;
     function StringValue : IUnboundJSONPairQuery;
     function NumberValue : IUnboundJSONPairQuery;
+    function BooleanValue : IUnboundJSONPairQuery;
+    function NullValue : IUnboundJSONPairQuery;
   end;
 
   function JSONPairQuery : IUnboundJSONPairQuery;
@@ -123,6 +127,8 @@ type
         function Value(const Name : string) : T;
         function StringValue : T;
         function NumberValue : T;
+        function BooleanValue : T;
+        function NullValue : T;
         // Terminating Operations
         function Count : Integer;
         function Predicate : TPredicate<TJSONPair>;
@@ -174,6 +180,14 @@ begin
 end;
 
 { TJSONObjectQuery.TJSONObjectQueryImpl<T> }
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.BooleanValue: T;
+begin
+  Result := Where(TJSONPairMethodFactory.ValueIs<TJSONBool>());
+{$IFDEF DEBUG}
+  Result.OperationName := 'BooleanValue';
+{$ENDIF}
+end;
 
 function TJSONObjectQuery.TJSONObjectQueryImpl<T>.Count: Integer;
 begin
@@ -241,14 +255,20 @@ begin
 {$ENDIF}
 end;
 
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.NullValue: T;
+begin
+  Result := Where(TJSONPairMethodFactory.ValueIs<TJSONNull>());
+{$IFDEF DEBUG}
+  Result.OperationName := 'NullValue';
+{$ENDIF}
+
+end;
+
 function TJSONObjectQuery.TJSONObjectQueryImpl<T>.NumberValue: T;
 begin
   Result := Where(TJSONPairMethodFactory.ValueIs<TJSONNumber>());
-//  Result := Where(TJSONPairMEthodFactory.Or(TJSONPairMethodFactory.ValueIs<Integer>(),
-//                                            TJSONPairMethodFactory.ValueIs<Double>()));
-
 {$IFDEF DEBUG}
-  Result.OperationName := 'StringValue';
+  Result.OperationName := 'NumberValue';
 {$ENDIF}
 end;
 

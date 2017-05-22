@@ -21,8 +21,8 @@ type
     procedure TestStringValue;
 //    procedure TestObjectValue;
 //    procedure TestArrayValue;
-//    procedure TestOBooleanValue;
-//    procedure TestNullValue;
+    procedure TestBooleanValue;
+    procedure TestNullValue;
   end;
 
 implementation
@@ -32,8 +32,8 @@ procedure TestTJSONObjectQuery.SetUp;
 var
   LJSON : string;
 begin
-  LJSON := '{ "name":"John", "age":31, "city":"New York" }';
-  FJSONObject := TJSONObject.ParseJSONValue(LJSON) as TJSONObject;
+  LJSON := '{ "name":"John", "age":31, "city":"New York", "alien":false, "priors":null }';
+  FJSONObject := TJSONObject.ParseJSONValue(LJSON, True) as TJSONObject;
 end;
 
 procedure TestTJSONObjectQuery.TearDown;
@@ -42,6 +42,16 @@ begin
 end;
 
 
+procedure TestTJSONObjectQuery.TestBooleanValue;
+begin
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).BooleanValue.Count);
+end;
+
+procedure TestTJSONObjectQuery.TestNullValue;
+begin
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).NullValue.Count);
+end;
+
 procedure TestTJSONObjectQuery.TestNumberValue;
 begin
   CheckEquals(1, JSONPairQuery.From(FJSONObject).NumberValue.Count);
@@ -49,7 +59,7 @@ end;
 
 procedure TestTJSONObjectQuery.TestPassthrough;
 begin
-  CheckEquals(3, JSONPairQuery.From(FJSONObject).Count);
+  CheckEquals(5, JSONPairQuery.From(FJSONObject).Count);
 end;
 
 procedure TestTJSONObjectQuery.TestStringValue;
