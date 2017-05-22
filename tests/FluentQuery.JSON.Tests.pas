@@ -19,6 +19,7 @@ type
     procedure TestNumberValue;
     procedure TestValueByName;
     procedure TestStringValue;
+    procedure TestStringValueByName;
 //    procedure TestObjectValue;
 //    procedure TestArrayValue;
     procedure TestBooleanValue;
@@ -65,6 +66,11 @@ end;
 procedure TestTJSONObjectQuery.TestStringValue;
 begin
   CheckEquals(2, JSONPairQuery.From(FJSONObject).StringValue.Count);
+end;
+
+procedure TestTJSONObjectQuery.TestStringValueByName;
+begin
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).StringValue('city').Count);
 end;
 
 procedure TestTJSONObjectQuery.TestValueByName;

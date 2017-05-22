@@ -44,7 +44,8 @@ type
     function WhereNot(Predicate : TPredicate<TJSONPair>) : IBoundJSONPairQuery; overload;
     // type-specific operations
     function Value(const Name : string) : IBoundJSONPairQuery;
-    function StringValue : IBoundJSONPairQuery;
+    function StringValue : IBoundJSONPairQuery; overload;
+    function StringValue(const Name : string) : IBoundJSONPairQuery; overload;
     function NumberValue : IBoundJSONPairQuery;
     function BooleanValue : IBoundJSONPairQuery;
     function NullValue : IBoundJSONPairQuery;
@@ -66,7 +67,8 @@ type
     function WhereNot(Predicate : TPredicate<TJSONPair>) : IUnboundJSONPairQuery; overload;
     // type-specific operations
     function Value(const Name : string) : IUnboundJSONPairQuery;
-    function StringValue : IUnboundJSONPairQuery;
+    function StringValue : IUnboundJSONPairQuery; overload;
+    function StringValue(const Name : string) : IUnboundJSONPairQuery; overload;
     function NumberValue : IUnboundJSONPairQuery;
     function BooleanValue : IUnboundJSONPairQuery;
     function NullValue : IUnboundJSONPairQuery;
@@ -125,7 +127,8 @@ type
         function WhereNot(Predicate : TPredicate<TJSONPair>) : T; overload;
         // type-specific operations
         function Value(const Name : string) : T;
-        function StringValue : T;
+        function StringValue : T; overload;
+        function StringValue(const Name : string) : T; overload;
         function NumberValue : T;
         function BooleanValue : T;
         function NullValue : T;
@@ -301,6 +304,17 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.StringValue(
+  const Name: string): T;
+begin
+  Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.IsNamed(Name),
+                                             TJSONPairMethodFactory.ValueIs<TJSONString>()));
+
+{$IFDEF DEBUG}
+  Result.OperationName := Format('StringValue(%s)', [Name]);
 {$ENDIF}
 end;
 
