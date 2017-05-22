@@ -310,7 +310,7 @@ end;
 function TPointerQuery.TPointerQueryImpl<T>.WhereNot(
   Predicate: TPredicate<Pointer>): T;
 begin
-  Result := Where(TMethodFactory<Pointer>.&Not(Predicate));
+  Result := Where(TMethodFactory<Pointer>.Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

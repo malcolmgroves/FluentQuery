@@ -61,9 +61,6 @@ implementation
 uses
   SysUtils;
 
-var
-  DummyPointer : Pointer; // used to suppress warnings in tests about unused loop variables
-
 { TestTQueryPointer }
 
 procedure TestTQueryPointer.SetUp;

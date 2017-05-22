@@ -75,6 +75,6 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest('DB', TestTJSONObjectQuery.Suite);
+  RegisterTest('JSON', TestTJSONObjectQuery.Suite);
 end.
 

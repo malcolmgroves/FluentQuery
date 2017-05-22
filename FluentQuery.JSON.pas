@@ -74,7 +74,8 @@ type
 implementation
 uses
   FluentQuery.Core.EnumerationStrategies, FluentQuery.Core.Enumerators,
-  FluentQuery.Core.Reduce, FluentQuery.Core.MethodFactories, FluentQuery.JSON.MethodFactories;
+  FluentQuery.Core.Reduce, FluentQuery.Core.MethodFactories, FluentQuery.JSON.MethodFactories,
+  Generics.Collections;
 
 type
   TJSONPairEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<TJSONPair>)
@@ -351,7 +352,7 @@ end;
 function TJSONObjectQuery.TJSONObjectQueryImpl<T>.WhereNot(
   Predicate: TPredicate<TJSONPair>): T;
 begin
-  Result := Where(TMethodFactory<TJSONPair>.&Not(Predicate));
+  Result := Where(TMethodFactory<TJSONPair>.Not(Predicate));
 
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';

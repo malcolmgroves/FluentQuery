@@ -638,7 +638,7 @@ end;
 function TCharQuery.TCharQueryImpl<T>.WhereNot(
   Predicate: TPredicate<Char>): T;
 begin
-  Result := Where(TCharPredicateFactory.&Not(Predicate));
+  Result := Where(TCharPredicateFactory.Not(Predicate));
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
 {$ENDIF}

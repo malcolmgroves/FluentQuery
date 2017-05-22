@@ -470,7 +470,7 @@ end;
 function TStringQuery.TStringQueryImpl<T>.WhereNot(
   Predicate: TPredicate<String>): T;
 begin
-  Result := Where(TStringMethodFactory.&Not(Predicate));
+  Result := Where(TStringMethodFactory.Not(Predicate));
 
 {$IFDEF DEBUG}
   Result.OperationName := 'WhereNot(Predicate)';
