@@ -16,17 +16,19 @@ type
   published
     procedure TestPassthrough;
     procedure TestWherePredicate;
-    procedure TestNumberValue;
-    procedure TestNumberValueByName;
-    procedure TestValueByName;
-    procedure TestStringValue;
-    procedure TestStringValueByName;
-//    procedure TestObjectValue;
+    procedure TestJSONNumber;
+    procedure TestJSONNumberByName;
+    procedure TestNamed;
+    procedure TestJSONString;
+    procedure TestJSONStringByName;
+    procedure TestJSONObject;
+    procedure TestDescendIntoNamedJSONObject;
+    procedure TestJSONStringByNameInChildObject;
 //    procedure TestArrayValue;
-    procedure TestBooleanValue;
-    procedure TestBooleanValueByName;
-    procedure TestNullValue;
-    procedure TestNullValueByName;
+    procedure TestJSONBool;
+    procedure TestJSONBoolByName;
+    procedure TestJSONNull;
+    procedure TestJSONNullByName;
   end;
 
 implementation
@@ -36,7 +38,15 @@ procedure TestTJSONObjectQuery.SetUp;
 var
   LJSON : string;
 begin
-  LJSON := '{ "name":"John", "age":31, "city":"New York", "alien":false, "priors":null }';
+  LJSON := '{ "name":"John",' +
+              '"age":31,' +
+              '"city":"New York",' +
+              '"alien":false,' +
+              '"priors":null,' +
+              '"address": {' +
+                '"address1" : "1313 Mockingbird Lane"' +
+                '"city" : "Sydney"' +
+                '"phone" : "0416264200"}}';
   FJSONObject := TJSONObject.ParseJSONValue(LJSON, True) as TJSONObject;
 end;
 
@@ -46,56 +56,71 @@ begin
 end;
 
 
-procedure TestTJSONObjectQuery.TestBooleanValue;
+procedure TestTJSONObjectQuery.TestJSONBool;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).BooleanValue.Count);
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONBool.Count);
 end;
 
-procedure TestTJSONObjectQuery.TestBooleanValueByName;
+procedure TestTJSONObjectQuery.TestJSONBoolByName;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).BooleanValue('alien').Count);
-  CheckEquals(0, JSONPairQuery.From(FJSONObject).BooleanValue('city').Count);
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONBool('alien').Count);
+  CheckEquals(0, JSONPairQuery.From(FJSONObject).JSONBool('city').Count);
 end;
 
-procedure TestTJSONObjectQuery.TestNullValue;
+procedure TestTJSONObjectQuery.TestDescendIntoNamedJSONObject;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).NullValue.Count);
+  CheckEquals(3, JSONPairQuery.From(FJSONObject).JSONObject('Address').JSONString.Count);
 end;
 
-procedure TestTJSONObjectQuery.TestNullValueByName;
+procedure TestTJSONObjectQuery.TestJSONNull;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).NullValue('Priors').Count);
-  CheckEquals(0, JSONPairQuery.From(FJSONObject).NullValue('alien').Count);
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONNull.Count);
 end;
 
-procedure TestTJSONObjectQuery.TestNumberValue;
+procedure TestTJSONObjectQuery.TestJSONNullByName;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).NumberValue.Count);
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONNull('Priors').Count);
+  CheckEquals(0, JSONPairQuery.From(FJSONObject).JSONNull('alien').Count);
 end;
 
-procedure TestTJSONObjectQuery.TestNumberValueByName;
+procedure TestTJSONObjectQuery.TestJSONNumber;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).NumberValue('age').Count);
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONNumber.Count);
+end;
+
+procedure TestTJSONObjectQuery.TestJSONNumberByName;
+begin
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONNumber('age').Count);
+end;
+
+procedure TestTJSONObjectQuery.TestJSONObject;
+begin
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONObject.Count);
 end;
 
 procedure TestTJSONObjectQuery.TestPassthrough;
 begin
-  CheckEquals(5, JSONPairQuery.From(FJSONObject).Count);
+  CheckEquals(6, JSONPairQuery.From(FJSONObject).Count);
 end;
 
-procedure TestTJSONObjectQuery.TestStringValue;
+procedure TestTJSONObjectQuery.TestJSONString;
 begin
-  CheckEquals(2, JSONPairQuery.From(FJSONObject).StringValue.Count);
+  CheckEquals(2, JSONPairQuery.From(FJSONObject).JSONString.Count);
 end;
 
-procedure TestTJSONObjectQuery.TestStringValueByName;
+procedure TestTJSONObjectQuery.TestJSONStringByName;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).StringValue('city').Count);
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONString('city').Count);
 end;
 
-procedure TestTJSONObjectQuery.TestValueByName;
+procedure TestTJSONObjectQuery.TestJSONStringByNameInChildObject;
 begin
-  CheckEquals('age', JSONPairQuery.From(FJSONObject).Value('age').First.JsonString.Value);
+  CheckEquals('Sydney', JSONPairQuery.From(FJSONObject).JSONObject('Address').JSONString('City').First.JsonValue.Value);
+end;
+
+procedure TestTJSONObjectQuery.TestNamed;
+begin
+  CheckEquals('age', JSONPairQuery.From(FJSONObject).Named('age').First.JsonString.Value);
 end;
 
 procedure TestTJSONObjectQuery.TestWherePredicate;

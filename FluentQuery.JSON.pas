@@ -43,15 +43,17 @@ type
     function WhereNot(UnboundQuery : IUnboundJSONPairQuery) : IBoundJSONPairQuery; overload;
     function WhereNot(Predicate : TPredicate<TJSONPair>) : IBoundJSONPairQuery; overload;
     // type-specific operations
-    function Value(const Name : string) : IBoundJSONPairQuery;
-    function StringValue : IBoundJSONPairQuery; overload;
-    function StringValue(const Name : string) : IBoundJSONPairQuery; overload;
-    function NumberValue : IBoundJSONPairQuery; overload;
-    function NumberValue(const Name : string) : IBoundJSONPairQuery; overload;
-    function BooleanValue : IBoundJSONPairQuery; overload;
-    function BooleanValue(const Name : string) : IBoundJSONPairQuery; overload;
-    function NullValue : IBoundJSONPairQuery; overload;
-    function NullValue(const Name : string) : IBoundJSONPairQuery; overload;
+    function Named(const Name : string) : IBoundJSONPairQuery;
+    function JSONString : IBoundJSONPairQuery; overload;
+    function JSONString(const Name : string) : IBoundJSONPairQuery; overload;
+    function JSONNumber : IBoundJSONPairQuery; overload;
+    function JSONNumber(const Name : string) : IBoundJSONPairQuery; overload;
+    function JSONBool : IBoundJSONPairQuery; overload;
+    function JSONBool(const Name : string) : IBoundJSONPairQuery; overload;
+    function JSONNull : IBoundJSONPairQuery; overload;
+    function JSONNull(const Name : string) : IBoundJSONPairQuery; overload;
+    function JSONObject : IBoundJSONPairQuery; overload;
+    function JSONObject(const Name : string) : IBoundJSONPairQuery; overload;
   end;
 
   IUnboundJSONPairQuery = interface(IBaseUnboundQuery<TJSONPair>)
@@ -69,15 +71,17 @@ type
     function WhereNot(UnboundQuery : IUnboundJSONPairQuery) : IUnboundJSONPairQuery; overload;
     function WhereNot(Predicate : TPredicate<TJSONPair>) : IUnboundJSONPairQuery; overload;
     // type-specific operations
-    function Value(const Name : string) : IUnboundJSONPairQuery;
-    function StringValue : IUnboundJSONPairQuery; overload;
-    function StringValue(const Name : string) : IUnboundJSONPairQuery; overload;
-    function NumberValue : IUnboundJSONPairQuery; overload;
-    function NumberValue(const Name : string) : IUnboundJSONPairQuery; overload;
-    function BooleanValue : IUnboundJSONPairQuery; overload;
-    function BooleanValue(const Name : string) : IUnboundJSONPairQuery; overload;
-    function NullValue : IUnboundJSONPairQuery; overload;
-    function NullValue(const Name : string) : IUnboundJSONPairQuery; overload;
+    function Named(const Name : string) : IUnboundJSONPairQuery;
+    function JSONString : IUnboundJSONPairQuery; overload;
+    function JSONString(const Name : string) : IUnboundJSONPairQuery; overload;
+    function JSONNumber : IUnboundJSONPairQuery; overload;
+    function JSONNumber(const Name : string) : IUnboundJSONPairQuery; overload;
+    function JSONBool : IUnboundJSONPairQuery; overload;
+    function JSONBool(const Name : string) : IUnboundJSONPairQuery; overload;
+    function JSONNull : IUnboundJSONPairQuery; overload;
+    function JSONNull(const Name : string) : IUnboundJSONPairQuery; overload;
+    function JSONObject : IUnboundJSONPairQuery; overload;
+    function JSONObject(const Name : string) : IUnboundJSONPairQuery; overload;
   end;
 
   function JSONPairQuery : IUnboundJSONPairQuery;
@@ -132,15 +136,17 @@ type
         function WhereNot(UnboundQuery : IUnboundJSONPairQuery) : T; overload;
         function WhereNot(Predicate : TPredicate<TJSONPair>) : T; overload;
         // type-specific operations
-        function Value(const Name : string) : T;
-        function StringValue : T; overload;
-        function StringValue(const Name : string) : T; overload;
-        function NumberValue : T; overload;
-        function NumberValue(const Name : string) : T; overload;
-        function BooleanValue : T; overload;
-        function BooleanValue(const Name : string) : T; overload;
-        function NullValue : T; overload;
-        function NullValue(const Name : string) : T; overload;
+        function Named(const Name : string) : T;
+        function JSONString : T; overload;
+        function JSONString(const Name : string) : T; overload;
+        function JSONNumber : T; overload;
+        function JSONNumber(const Name : string) : T; overload;
+        function JSONBool : T; overload;
+        function JSONBool(const Name : string) : T; overload;
+        function JSONNull : T; overload;
+        function JSONNull(const Name : string) : T; overload;
+        function JSONObject : T; overload;
+        function JSONObject(const Name : string) : T; overload;
         // Terminating Operations
         function Count : Integer;
         function Predicate : TPredicate<TJSONPair>;
@@ -193,22 +199,22 @@ end;
 
 { TJSONObjectQuery.TJSONObjectQueryImpl<T> }
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.BooleanValue: T;
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONBool: T;
 begin
   Result := Where(TJSONPairMethodFactory.ValueIs<TJSONBool>());
 {$IFDEF DEBUG}
-  Result.OperationName := 'BooleanValue';
+  Result.OperationName := 'JSONBool';
 {$ENDIF}
 end;
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.BooleanValue(
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONBool(
   const Name: string): T;
 begin
   Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.IsNamed(Name),
                                              TJSONPairMethodFactory.ValueIs<TJSONBool>()));
 
 {$IFDEF DEBUG}
-  Result.OperationName := Format('BooleanValue(%s)', [Name]);
+  Result.OperationName := Format('JSONBool(%s)', [Name]);
 {$ENDIF}
 end;
 
@@ -278,20 +284,20 @@ begin
 {$ENDIF}
 end;
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.NullValue: T;
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONNull: T;
 begin
   Result := Where(TJSONPairMethodFactory.ValueIs<TJSONNull>());
 {$IFDEF DEBUG}
-  Result.OperationName := 'NullValue';
+  Result.OperationName := 'JSONNull';
 {$ENDIF}
 
 end;
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.NumberValue: T;
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONNumber: T;
 begin
   Result := Where(TJSONPairMethodFactory.ValueIs<TJSONNumber>());
 {$IFDEF DEBUG}
-  Result.OperationName := 'NumberValue';
+  Result.OperationName := 'JSONNumber';
 {$ENDIF}
 end;
 
@@ -327,23 +333,23 @@ begin
 {$ENDIF}
 end;
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.StringValue(
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONString(
   const Name: string): T;
 begin
   Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.IsNamed(Name),
                                              TJSONPairMethodFactory.ValueIs<TJSONString>()));
 
 {$IFDEF DEBUG}
-  Result.OperationName := Format('StringValue(%s)', [Name]);
+  Result.OperationName := Format('JSONString(%s)', [Name]);
 {$ENDIF}
 end;
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.StringValue: T;
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONString: T;
 begin
   Result := Where(TJSONPairMethodFactory.ValueIs<TJSONString>());
 
 {$IFDEF DEBUG}
-  Result.OperationName := 'StringValue';
+  Result.OperationName := 'JSONString';
 {$ENDIF}
 end;
 
@@ -375,12 +381,12 @@ begin
 end;
 
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.Value(const Name: string): T;
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.Named(const Name: string): T;
 begin
   Result := Where(TJSONPairMethodFactory.IsNamed(Name));
 
 {$IFDEF DEBUG}
-  Result.OperationName := Format('Value(%s)', [Name]);
+  Result.OperationName := Format('Named(%s)', [Name]);
 {$ENDIF}
 end;
 
@@ -413,25 +419,55 @@ begin
 {$ENDIF}
 end;
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.NullValue(
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONNull(
   const Name: string): T;
 begin
   Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.IsNamed(Name),
                                              TJSONPairMethodFactory.ValueIs<TJSONNull>()));
 
 {$IFDEF DEBUG}
-  Result.OperationName := Format('NullValue(%s)', [Name]);
+  Result.OperationName := Format('JSONNull(%s)', [Name]);
 {$ENDIF}
 end;
 
-function TJSONObjectQuery.TJSONObjectQueryImpl<T>.NumberValue(
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONNumber(
   const Name: string): T;
 begin
   Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.IsNamed(Name),
                                              TJSONPairMethodFactory.ValueIs<TJSONNumber>()));
 
 {$IFDEF DEBUG}
-  Result.OperationName := Format('NumberValue(%s)', [Name]);
+  Result.OperationName := Format('JSONNumber(%s)', [Name]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONObject(
+  const Name: string): T;
+var
+  LQuery : T;
+  LObject : TJSONObject;
+  EnumeratorAdapter : IMinimalEnumerator<TJSONPair>;
+begin
+  LQuery := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.IsNamed(Name),
+                                              TJSONPairMethodFactory.ValueIs<TJSONObject>()));
+  if LQuery.MoveNext then
+  begin
+    EnumeratorAdapter := TJSONPairEnumeratorAdapter.Create(TJSONObject(LQuery.GetCurrent.JsonValue).GetEnumerator);
+    Result := TJSONObjectQuery.Create(TEnumerationStrategy<TJSONPair>.Create,
+                                      IBaseQuery<TJSONPair>(FQuery),
+                                      EnumeratorAdapter);
+  end;
+  // what happens in else block? For unboundQueries?
+{$IFDEF DEBUG}
+  Result.OperationName := Format('JSONObject(%s)', [Name]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T>.JSONObject: T;
+begin
+  Result := Where(TJSONPairMethodFactory.ValueIs<TJSONObject>());
+{$IFDEF DEBUG}
+  Result.OperationName := 'JSONObject';
 {$ENDIF}
 end;
 
