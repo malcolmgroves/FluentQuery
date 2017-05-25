@@ -17,13 +17,16 @@ type
     procedure TestPassthrough;
     procedure TestWherePredicate;
     procedure TestNumberValue;
+    procedure TestNumberValueByName;
     procedure TestValueByName;
     procedure TestStringValue;
     procedure TestStringValueByName;
 //    procedure TestObjectValue;
 //    procedure TestArrayValue;
     procedure TestBooleanValue;
+    procedure TestBooleanValueByName;
     procedure TestNullValue;
+    procedure TestNullValueByName;
   end;
 
 implementation
@@ -48,14 +51,31 @@ begin
   CheckEquals(1, JSONPairQuery.From(FJSONObject).BooleanValue.Count);
 end;
 
+procedure TestTJSONObjectQuery.TestBooleanValueByName;
+begin
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).BooleanValue('alien').Count);
+  CheckEquals(0, JSONPairQuery.From(FJSONObject).BooleanValue('city').Count);
+end;
+
 procedure TestTJSONObjectQuery.TestNullValue;
 begin
   CheckEquals(1, JSONPairQuery.From(FJSONObject).NullValue.Count);
 end;
 
+procedure TestTJSONObjectQuery.TestNullValueByName;
+begin
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).NullValue('Priors').Count);
+  CheckEquals(0, JSONPairQuery.From(FJSONObject).NullValue('alien').Count);
+end;
+
 procedure TestTJSONObjectQuery.TestNumberValue;
 begin
   CheckEquals(1, JSONPairQuery.From(FJSONObject).NumberValue.Count);
+end;
+
+procedure TestTJSONObjectQuery.TestNumberValueByName;
+begin
+  CheckEquals(1, JSONPairQuery.From(FJSONObject).NumberValue('age').Count);
 end;
 
 procedure TestTJSONObjectQuery.TestPassthrough;
