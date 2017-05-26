@@ -30,6 +30,11 @@ type
     class function ValueIs<T : class> : TPredicate<TJSonPair>;
   end;
 
+  TJSONValueMethodFactory = class(TMethodFactory<TJSONValue>)
+  public
+    // predicates
+    class function ValueIs<T : class> : TPredicate<TJSonValue>;
+  end;
 
 implementation
 
@@ -51,6 +56,16 @@ begin
               LValue : T;
             begin
               Result := Pair.JsonValue.ClassType = T;
+            end;
+end;
+
+{ TJSONValueMethodFactory }
+
+class function TJSONValueMethodFactory.ValueIs<T>: TPredicate<TJSonValue>;
+begin
+  Result := function (Value : TJsonValue) : Boolean
+            begin
+              Result := Value.ClassType = T;
             end;
 end;
 

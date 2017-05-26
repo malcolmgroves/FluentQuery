@@ -31,6 +31,26 @@ type
     procedure TestJSONNullByName;
   end;
 
+  TTestJSONArrayQuery = class(TFluentQueryTestCase<TJSONValue>)
+  strict private
+    FJSONArray : TJSONArray;
+    FJSONObject : TJSONObject;
+    FQuery : IUnboundJSONValueQuery;
+  public
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestPassthrough;
+    procedure TestFirst;
+    procedure TestSkip;
+    procedure TestJSONString;
+    procedure TestJSONNumber;
+    procedure TestJSONObject;
+    procedure TestJSONBool;
+    procedure TestJSONNull;
+//    procedure TestJSONArray;
+  end;
+
 implementation
 
 
@@ -58,69 +78,69 @@ end;
 
 procedure TestTJSONObjectQuery.TestJSONBool;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONBool.Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).JSONBool.Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONBoolByName;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONBool('alien').Count);
-  CheckEquals(0, JSONPairQuery.From(FJSONObject).JSONBool('city').Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).JSONBool('alien').Count);
+  CheckEquals(0, JSONQuery.From(FJSONObject).JSONBool('city').Count);
 end;
 
 procedure TestTJSONObjectQuery.TestDescendIntoNamedJSONObject;
 begin
-  CheckEquals(3, JSONPairQuery.From(FJSONObject).JSONObject('Address').JSONString.Count);
+  CheckEquals(3, JSONQuery.From(FJSONObject).JSONObject('Address').JSONString.Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONNull;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONNull.Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).JSONNull.Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONNullByName;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONNull('Priors').Count);
-  CheckEquals(0, JSONPairQuery.From(FJSONObject).JSONNull('alien').Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).JSONNull('Priors').Count);
+  CheckEquals(0, JSONQuery.From(FJSONObject).JSONNull('alien').Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONNumber;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONNumber.Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).JSONNumber.Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONNumberByName;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONNumber('age').Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).JSONNumber('age').Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONObject;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONObject.Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).JSONObject.Count);
 end;
 
 procedure TestTJSONObjectQuery.TestPassthrough;
 begin
-  CheckEquals(6, JSONPairQuery.From(FJSONObject).Count);
+  CheckEquals(6, JSONQuery.From(FJSONObject).Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONString;
 begin
-  CheckEquals(2, JSONPairQuery.From(FJSONObject).JSONString.Count);
+  CheckEquals(2, JSONQuery.From(FJSONObject).JSONString.Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONStringByName;
 begin
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).JSONString('city').Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).JSONString('city').Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONStringByNameInChildObject;
 begin
-  CheckEquals('Sydney', JSONPairQuery.From(FJSONObject).JSONObject('Address').JSONString('City').First.JsonValue.Value);
+  CheckEquals('Sydney', JSONQuery.From(FJSONObject).JSONObject('Address').JSONString('City').First.JsonValue.Value);
 end;
 
 procedure TestTJSONObjectQuery.TestNamed;
 begin
-  CheckEquals('age', JSONPairQuery.From(FJSONObject).Named('age').First.JsonString.Value);
+  CheckEquals('age', JSONQuery.From(FJSONObject).Named('age').First.JsonString.Value);
 end;
 
 procedure TestTJSONObjectQuery.TestWherePredicate;
@@ -131,11 +151,84 @@ begin
                 begin
                   Result := LowerCase(Pair.JsonString.Value) = 'age';
                 end;
-  CheckEquals(1, JSONPairQuery.From(FJSONObject).Where(LIsAgePair).Count);
+  CheckEquals(1, JSONQuery.From(FJSONObject).Where(LIsAgePair).Count);
+end;
+
+{ TTestJSONArrayQuery }
+
+procedure TTestJSONArrayQuery.SetUp;
+var
+  LJSON : string;
+begin
+  LJSON :=  '{"array": [' +
+                        '"Belinda",' +
+                        '"Kevin",' +
+                        '1991,' +
+                        'false,' +
+                        'null,' +
+                        '{' +
+                          '"address1": "1313 Mockingbird Lane",' +
+                          '"city": "Sydney",' +
+                          '"phone": "0416264200"' +
+                        '}' +
+                      ']' +
+            '}';
+
+  FJSONObject := TJSONObject.ParseJSONValue(LJSON, True) as TJSONObject;
+  FJSONArray := FJSONObject.GetValue('array') as TJSONArray;
+  FQuery := JSONArrayQuery;
+end;
+
+procedure TTestJSONArrayQuery.TearDown;
+begin
+  inherited;
+  FQuery := nil;
+  FJSONObject.Free;
+end;
+
+procedure TTestJSONArrayQuery.TestFirst;
+begin
+  CheckEquals('Belinda', FQuery.From(FJSONArray).First.Value);
+end;
+
+procedure TTestJSONArrayQuery.TestJSONBool;
+begin
+  CheckEquals(1, FQuery.From(FJSONArray).JSONBool.Count);
+end;
+
+procedure TTestJSONArrayQuery.TestJSONNull;
+begin
+  CheckEquals(1, FQuery.From(FJSONArray).JSONNull.Count);
+end;
+
+procedure TTestJSONArrayQuery.TestJSONNumber;
+begin
+  CheckEquals(1, FQuery.From(FJSONArray).JSONNumber.Count);
+end;
+
+procedure TTestJSONArrayQuery.TestJSONObject;
+begin
+  CheckEquals(1, FQuery.From(FJSONArray).JSONObject.Count);
+end;
+
+procedure TTestJSONArrayQuery.TestJSONString;
+begin
+  CheckEquals(2, FQuery.From(FJSONArray).JSONString.Count);
+end;
+
+procedure TTestJSONArrayQuery.TestPassthrough;
+begin
+  CheckEquals(6, FQuery.From(FJSONArray).Count);
+end;
+
+procedure TTestJSONArrayQuery.TestSkip;
+begin
+  CheckEquals('Kevin', FQuery.From(FJSONArray).Skip(1).First.Value);
 end;
 
 initialization
   // Register any test cases with the test runner
   RegisterTest('JSON', TestTJSONObjectQuery.Suite);
+  RegisterTest('JSON', TTestJSONArrayQuery.Suite);
 end.
 

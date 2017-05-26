@@ -27,6 +27,11 @@ uses
   FluentQuery.Integers;
 
 type
+{ TODO : Should the items that return all items of type be pluralised? ie. JSONStrings, JSONObjects,
+ while items that "select" a specific one be singular, ie. JSONObject('fred').
+ Alternatively, maybe the former should be TakeJSONStrings, while the latter remains as they are.
+ Question becomes important when you think about nested Objects/Arrays. If JSONArray "descends"
+ into an array, and then you want to "descend" into a subarray (which is not named), it could become confusing }
   IUnboundJSONPairQuery = interface;
 
   IBoundJSONPairQuery = interface(IBaseBoundQuery<TJSONPair>)
@@ -84,7 +89,55 @@ type
     function JSONObject(const Name : string) : IUnboundJSONPairQuery; overload;
   end;
 
-  function JSONPairQuery : IUnboundJSONPairQuery;
+  IUnboundJSONValueQuery = interface;
+
+  IBoundJSONValueQuery = interface(IBaseBoundQuery<TJSONValue>)
+    function GetEnumerator: IBoundJSONValueQuery;
+    // common operations
+    function Map(Transformer : TFunc<TJSONValue, TJSONValue>) : IBoundJSONValueQuery;
+    function Skip(Count : Integer): IBoundJSONValueQuery;
+    function SkipWhile(Predicate : TPredicate<TJSONValue>) : IBoundJSONValueQuery; overload;
+    function SkipWhile(UnboundQuery : IUnboundJSONValueQuery) : IBoundJSONValueQuery; overload;
+    function Take(Count : Integer): IBoundJSONValueQuery;
+    function TakeWhile(Predicate : TPredicate<TJSONValue>): IBoundJSONValueQuery; overload;
+    function TakeWhile(UnboundQuery : IUnboundJSONValueQuery): IBoundJSONValueQuery; overload;
+    function Where(Predicate : TPredicate<TJSONValue>) : IBoundJSONValueQuery;
+    function WhereNot(UnboundQuery : IUnboundJSONValueQuery) : IBoundJSONValueQuery; overload;
+    function WhereNot(Predicate : TPredicate<TJSONValue>) : IBoundJSONValueQuery; overload;
+    // type-specific operations
+    function JSONString : IBoundJSONValueQuery;
+    function JSONNumber : IBoundJSONValueQuery;
+    function JSONNull : IBoundJSONValueQuery;
+    function JSONBool : IBoundJSONValueQuery;
+    function JSONObject : IBoundJSONValueQuery;
+  end;
+
+  IUnboundJSONValueQuery = interface(IBaseUnboundQuery<TJSONValue>)
+    function GetEnumerator: IUnboundJSONValueQuery;
+    // common operations
+    function From(JSONArray : TJSONArray) : IBoundJSONValueQuery; overload;
+    function Map(Transformer : TFunc<TJSONValue, TJSONValue>) : IUnboundJSONValueQuery;
+    function Skip(Count : Integer): IUnboundJSONValueQuery;
+    function SkipWhile(Predicate : TPredicate<TJSONValue>) : IUnboundJSONValueQuery; overload;
+    function SkipWhile(UnboundQuery : IUnboundJSONValueQuery) : IUnboundJSONValueQuery; overload;
+    function Take(Count : Integer): IUnboundJSONValueQuery;
+    function TakeWhile(Predicate : TPredicate<TJSONValue>): IUnboundJSONValueQuery; overload;
+    function TakeWhile(UnboundQuery : IUnboundJSONValueQuery): IUnboundJSONValueQuery; overload;
+    function Where(Predicate : TPredicate<TJSONValue>) : IUnboundJSONValueQuery;
+    function WhereNot(UnboundQuery : IUnboundJSONValueQuery) : IUnboundJSONValueQuery; overload;
+    function WhereNot(Predicate : TPredicate<TJSONValue>) : IUnboundJSONValueQuery; overload;
+    // type-specific operations
+    function JSONString : IUnboundJSONValueQuery;
+    function JSONNumber : IUnboundJSONValueQuery;
+    function JSONNull : IUnboundJSONValueQuery;
+    function JSONBool : IUnboundJSONValueQuery;
+    function JSONObject : IUnboundJSONValueQuery;
+  end;
+
+  function JSONQuery : IUnboundJSONPairQuery;
+
+  // temp access
+  function JSONArrayQuery : IUnboundJSONValueQuery;
 
 
 implementation
@@ -102,6 +155,17 @@ type
     property Current: TJSONPair read GetCurrent;
   public
     constructor Create(JSONPairEnumerator : TJSONPairEnumerator); virtual;
+    destructor Destroy; override;
+  end;
+
+  TJSONValueEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<TJSONValue>)
+  protected
+    FJSONArrayEnumerator : TJSONArrayEnumerator;
+    function GetCurrent: TJSONValue;
+    function MoveNext: Boolean;
+    property Current: TJSONValue read GetCurrent;
+  public
+    constructor Create(JSONArrayEnumerator : TJSONArrayEnumerator); virtual;
     destructor Destroy; override;
   end;
 
@@ -167,8 +231,64 @@ type
                                        read FUnboundQuery implements IUnboundJSONPairQuery;
   end;
 
+  TJSONArrayQuery = class(TBaseQuery<TJSONValue>,
+                                 IBoundJSONValueQuery,
+                                 IUnboundJSONValueQuery)
+  protected
+    type
+      TJSONArrayQueryImpl<T : IBaseQuery<TJSONValue>> = class
+      private
+        FQuery : TJSONArrayQuery;
+      public
+        constructor Create(Query : TJSONArrayQuery); virtual;
+        function GetEnumerator: T;
+{$IFDEF DEBUG}
+        function GetOperationName : String;
+        function GetOperationPath : String;
+        property OperationName : String read GetOperationName;
+        property OperationPath : String read GetOperationPath;
+{$ENDIF}
+        function From(JSONArray : TJSONArray) : IBoundJSONValueQuery; overload;
+        // Primitive Operations
+        function Map(Transformer : TFunc<TJSONValue, TJSONValue>) : T;
+        function SkipWhile(Predicate : TPredicate<TJSONValue>) : T; overload;
+        function TakeWhile(Predicate : TPredicate<TJSONValue>): T; overload;
+        function Where(Predicate : TPredicate<TJSONValue>) : T;
+        // Derivative Operations
+        function Skip(Count : Integer): T;
+        function SkipWhile(UnboundQuery : IUnboundJSONValueQuery) : T; overload;
+        function Take(Count : Integer): T;
+        function TakeWhile(UnboundQuery : IUnboundJSONValueQuery): T; overload;
+        function WhereNot(UnboundQuery : IUnboundJSONValueQuery) : T; overload;
+        function WhereNot(Predicate : TPredicate<TJSONValue>) : T; overload;
+        // type-specific operations
+        function JSONString : T;
+        function JSONNumber : T;
+        function JSONNull : T;
+        function JSONBool : T;
+        function JSONObject : T;
+        // Terminating Operations
+        function Count : Integer;
+        function Predicate : TPredicate<TJSONValue>;
+        function First : TJSONValue;
+      end;
+  protected
+    FBoundQuery : TJSONArrayQueryImpl<IBoundJSONValueQuery>;
+    FUnboundQuery : TJSONArrayQueryImpl<IUnboundJSONValueQuery>;
+  public
+    constructor Create(EnumerationStrategy : TEnumerationStrategy<TJSONValue>;
+                       UpstreamQuery : IBaseQuery<TJSONValue> = nil;
+                       SourceData : IMinimalEnumerator<TJSONValue> = nil
+                       ); override;
+    destructor Destroy; override;
+    property BoundQuery : TJSONArrayQueryImpl<IBoundJSONValueQuery>
+                                       read FBoundQuery implements IBoundJSONValueQuery;
+    property UnboundQuery : TJSONArrayQueryImpl<IUnboundJSONValueQuery>
+                                       read FUnboundQuery implements IUnboundJSONValueQuery;
+  end;
 
-function JSONPairQuery : IUnboundJSONPairQuery;
+
+function JSONQuery : IUnboundJSONPairQuery;
 begin
   Result := TJSONObjectQuery.Create(TEnumerationStrategy<TJSONPair>.Create);
 {$IFDEF DEBUG}
@@ -176,6 +296,13 @@ begin
 {$ENDIF}
 end;
 
+function JSONArrayQuery : IUnboundJSONValueQuery;
+begin
+  Result := TJSONArrayQuery.Create(TEnumerationStrategy<TJSONValue>.Create);
+{$IFDEF DEBUG}
+  Result.OperationName := 'JSONArrayQuery';
+{$ENDIF}
+end;
 
 
 { TJSONObjectQuery }
@@ -493,6 +620,248 @@ end;
 function TJSONPairEnumeratorAdapter.MoveNext: Boolean;
 begin
   Result := FJSONPairEnumerator.MoveNext;
+end;
+
+{ TJSONValueEnumeratorAdapter }
+
+constructor TJSONValueEnumeratorAdapter.Create(
+  JSONArrayEnumerator: TJSONArrayEnumerator);
+begin
+  FJSONArrayEnumerator := JSONArrayEnumerator;
+
+end;
+
+destructor TJSONValueEnumeratorAdapter.Destroy;
+begin
+  FJSONArrayEnumerator.Free;
+  inherited;
+end;
+
+function TJSONValueEnumeratorAdapter.GetCurrent: TJSONValue;
+begin
+  Result := FJSONArrayEnumerator.GetCurrent;
+end;
+
+function TJSONValueEnumeratorAdapter.MoveNext: Boolean;
+begin
+  Result := FJSONArrayEnumerator.MoveNext;
+end;
+
+{ TJSONArrayQuery.TJSONArrayQueryImpl<T> }
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.Count: Integer;
+begin
+  Result := TReducer<TJSONValue,Integer>.Reduce( FQuery,
+                                                0,
+                                                function(Accumulator : Integer; NextValue : TJSONValue): Integer
+                                                begin
+                                                  Result := Accumulator + 1;
+                                                end);
+end;
+
+constructor TJSONArrayQuery.TJSONArrayQueryImpl<T>.Create(
+  Query: TJSONArrayQuery);
+begin
+  FQuery := Query;
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.First: TJSONValue;
+begin
+  if FQuery.MoveNext then
+    Result := FQuery.GetCurrent
+  else
+    raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.From(
+  JSONArray: TJSONArray): IBoundJSONValueQuery;
+var
+  EnumeratorAdapter : IMinimalEnumerator<TJSONValue>;
+begin
+  EnumeratorAdapter := TJSONValueEnumeratorAdapter.Create(JSONArray.GetEnumerator);
+  Result := TJSONArrayQuery.Create(TEnumerationStrategy<TJSONValue>.Create,
+                                  IBaseQuery<TJSONValue>(FQuery),
+                                  EnumeratorAdapter);
+{$IFDEF DEBUG}
+  Result.OperationName := 'From(JSONArray)';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.GetEnumerator: T;
+begin
+  Result := FQuery;
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.GetOperationName: String;
+begin
+  Result := FQuery.OperationName;
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.GetOperationPath: String;
+begin
+  Result := FQuery.OperationPath;
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.JSONBool: T;
+begin
+  Result := Where(TJSONValueMethodFactory.ValueIs<TJSONBool>());
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'JSONBool';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.JSONNull: T;
+begin
+  Result := Where(TJSONValueMethodFactory.ValueIs<TJSONNull>());
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'JSONNull';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.JSONNumber: T;
+begin
+  Result := Where(TJSONValueMethodFactory.ValueIs<TJSONNumber>());
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'JSONNumber';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.JSONObject: T;
+begin
+  Result := Where(TJSONValueMethodFactory.ValueIs<TJSONObject>());
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'JSONObject';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.JSONString: T;
+begin
+  Result := Where(TJSONValueMethodFactory.ValueIs<TJSONString>());
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'JSONString';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.Map(
+  Transformer: TFunc<TJSONValue, TJSONValue>): T;
+begin
+  Result := TJSONArrayQuery.Create(TIsomorphicTransformEnumerationStrategy<TJSONValue>.Create(Transformer),
+                                          IBaseQuery<TJSONValue>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Map(Transformer)';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.Predicate: TPredicate<TJSONValue>;
+begin
+  Result := TMethodFactory<TJSONValue>.QuerySingleValue(FQuery);
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.Skip(Count: Integer): T;
+begin
+  Result := SkipWhile(TMethodFactory<TJSONValue>.UpToNumberOfTimes(Count));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Skip(%d)', [Count]);
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.SkipWhile(
+  Predicate: TPredicate<TJSONValue>): T;
+begin
+  Result := TJSONArrayQuery.Create(TSkipWhileEnumerationStrategy<TJSONValue>.Create(Predicate),
+                                          IBaseQuery<TJSONValue>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'SkipWhile(Predicate)';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.SkipWhile(
+  UnboundQuery: IUnboundJSONValueQuery): T;
+begin
+  Result := SkipWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.Take(Count: Integer): T;
+begin
+  Result := TakeWhile(TMethodFactory<TJSONValue>.UpToNumberOfTimes(Count));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Take(%d)', [Count]);
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.TakeWhile(
+  UnboundQuery: IUnboundJSONValueQuery): T;
+begin
+  Result := TakeWhile(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('TakeWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.TakeWhile(
+  Predicate: TPredicate<TJSONValue>): T;
+begin
+  Result := TJSONArrayQuery.Create(TTakeWhileEnumerationStrategy<TJSONValue>.Create(Predicate),
+                                          IBaseQuery<TJSONValue>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'TakeWhile(Predicate)';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.Where(
+  Predicate: TPredicate<TJSONValue>): T;
+begin
+  Result := TJSONArrayQuery.Create(TWhereEnumerationStrategy<TJSONValue>.Create(Predicate),
+                                          IBaseQuery<TJSONValue>(FQuery));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Where(Predicate)';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.WhereNot(
+  Predicate: TPredicate<TJSONValue>): T;
+begin
+  Result := Where(TMethodFactory<TJSONValue>.Not(Predicate));
+
+{$IFDEF DEBUG}
+  Result.OperationName := 'WhereNot(Predicate)';
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.WhereNot(
+  UnboundQuery: IUnboundJSONValueQuery): T;
+begin
+  Result := WhereNot(UnboundQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('WhereNot(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+{ TJSONArrayQuery }
+
+constructor TJSONArrayQuery.Create(
+  EnumerationStrategy: TEnumerationStrategy<TJSONValue>;
+  UpstreamQuery: IBaseQuery<TJSONValue>;
+  SourceData: IMinimalEnumerator<TJSONValue>);
+begin
+  inherited Create(EnumerationStrategy, UpstreamQuery, SourceData);
+  FBoundQuery := TJSONArrayQueryImpl<IBoundJSONValueQuery>.Create(self);
+  FUnboundQuery := TJSONArrayQueryImpl<IUnboundJSONValueQuery>.Create(self);
+end;
+
+destructor TJSONArrayQuery.Destroy;
+begin
+  FBoundQuery.Free;
+  FUnboundQuery.Free;
+  inherited;
 end;
 
 end.
