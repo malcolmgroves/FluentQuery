@@ -29,7 +29,7 @@ uses
 type
 { TODO : Should the items that return all items of type be pluralised? ie. JSONStrings, JSONObjects,
  while items that "select" a specific one be singular, ie. JSONObject('fred').
- Alternatively, maybe the former should be TakeJSONStrings, while the latter remains as they are.
+ Alternatively, maybe the former should be TakeJSONStrings or IsJSONString, while the latter remains as they are.
  Question becomes important when you think about nested Objects/Arrays. If JSONArray "descends"
  into an array, and then you want to "descend" into a subarray (which is not named), it could become confusing }
   IUnboundJSONPairQuery = interface;
@@ -110,6 +110,9 @@ type
     function JSONNull : IBoundJSONValueQuery;
     function JSONBool : IBoundJSONValueQuery;
     function JSONObject : IBoundJSONValueQuery;
+    // terminating operations
+    function GetItem(Index : Integer) : TJSONValue;
+    property Item[Index : Integer] : TJSONValue read GetItem; default;
   end;
 
   IUnboundJSONValueQuery = interface(IBaseUnboundQuery<TJSONValue>)
@@ -271,6 +274,8 @@ type
         function Count : Integer;
         function Predicate : TPredicate<TJSONValue>;
         function First : TJSONValue;
+        function GetItem(Index : Integer) : TJSONValue;
+        property Item[Index : Integer] : TJSONValue read GetItem; default;
       end;
   protected
     FBoundQuery : TJSONArrayQueryImpl<IBoundJSONValueQuery>;
@@ -386,6 +391,7 @@ function TJSONObjectQuery.TJSONObjectQueryImpl<T>.GetEnumerator: T;
 begin
   Result := FQuery;
 end;
+
 
 
 {$IFDEF DEBUG}
@@ -690,6 +696,12 @@ end;
 function TJSONArrayQuery.TJSONArrayQueryImpl<T>.GetEnumerator: T;
 begin
   Result := FQuery;
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.GetItem(
+  Index: Integer): TJSONValue;
+begin
+  Result := IBoundJSONValueQuery(Skip(Index)).First;
 end;
 
 function TJSONArrayQuery.TJSONArrayQueryImpl<T>.GetOperationName: String;

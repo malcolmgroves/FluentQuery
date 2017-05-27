@@ -48,6 +48,7 @@ type
     procedure TestJSONObject;
     procedure TestJSONBool;
     procedure TestJSONNull;
+    procedure TestIndex;
 //    procedure TestJSONArray;
   end;
 
@@ -189,6 +190,12 @@ end;
 procedure TTestJSONArrayQuery.TestFirst;
 begin
   CheckEquals('Belinda', FQuery.From(FJSONArray).First.Value);
+end;
+
+procedure TTestJSONArrayQuery.TestIndex;
+begin
+  CheckEquals('false', FQuery.From(FJSONArray).Item[3].Value);
+  CheckEquals('1991', FQuery.From(FJSONArray)[2].Value);
 end;
 
 procedure TTestJSONArrayQuery.TestJSONBool;
