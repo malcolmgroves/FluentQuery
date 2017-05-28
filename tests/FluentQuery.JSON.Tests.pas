@@ -49,7 +49,7 @@ type
     procedure TestJSONBool;
     procedure TestJSONNull;
     procedure TestIndex;
-//    procedure TestJSONArray;
+    procedure TestJSONArray;
   end;
 
 implementation
@@ -171,7 +171,8 @@ begin
                           '"address1": "1313 Mockingbird Lane",' +
                           '"city": "Sydney",' +
                           '"phone": "0416264200"' +
-                        '}' +
+                        '},' +
+                        '[0,1,2,3]' +
                       ']' +
             '}';
 
@@ -196,6 +197,11 @@ procedure TTestJSONArrayQuery.TestIndex;
 begin
   CheckEquals('false', FQuery.From(FJSONArray).Item[3].Value);
   CheckEquals('1991', FQuery.From(FJSONArray)[2].Value);
+end;
+
+procedure TTestJSONArrayQuery.TestJSONArray;
+begin
+  CheckEquals(4, FQuery.From(FJSONArray).JSONArray.Count);
 end;
 
 procedure TTestJSONArrayQuery.TestJSONBool;
@@ -225,7 +231,7 @@ end;
 
 procedure TTestJSONArrayQuery.TestPassthrough;
 begin
-  CheckEquals(6, FQuery.From(FJSONArray).Count);
+  CheckEquals(7, FQuery.From(FJSONArray).Count);
 end;
 
 procedure TTestJSONArrayQuery.TestSkip;

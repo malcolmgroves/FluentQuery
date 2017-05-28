@@ -110,6 +110,7 @@ type
     function JSONNull : IBoundJSONValueQuery;
     function JSONBool : IBoundJSONValueQuery;
     function JSONObject : IBoundJSONValueQuery;
+    function JSONArray : IBoundJSONValueQuery;
     // terminating operations
     function GetItem(Index : Integer) : TJSONValue;
     property Item[Index : Integer] : TJSONValue read GetItem; default;
@@ -135,6 +136,7 @@ type
     function JSONNull : IUnboundJSONValueQuery;
     function JSONBool : IUnboundJSONValueQuery;
     function JSONObject : IUnboundJSONValueQuery;
+    function JSONArray : IUnboundJSONValueQuery;
   end;
 
   function JSONQuery : IUnboundJSONPairQuery;
@@ -270,6 +272,7 @@ type
         function JSONNull : T;
         function JSONBool : T;
         function JSONObject : T;
+        function JSONArray : T;
         // Terminating Operations
         function Count : Integer;
         function Predicate : TPredicate<TJSONValue>;
@@ -712,6 +715,26 @@ end;
 function TJSONArrayQuery.TJSONArrayQueryImpl<T>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T>.JSONArray: T;
+var
+  LQuery : T;
+  LObject : TJSONObject;
+  EnumeratorAdapter : IMinimalEnumerator<TJSONValue>;
+begin
+  LQuery := Where(TJSONValueMethodFactory.ValueIs<TJSONArray>());
+  if LQuery.MoveNext then
+  begin
+    EnumeratorAdapter := TJSONValueEnumeratorAdapter.Create(TJSONArray(LQuery.GetCurrent).GetEnumerator);
+    Result := TJSONArrayQuery.Create(TEnumerationStrategy<TJSONValue>.Create,
+                                      IBaseQuery<TJSONValue>(FQuery),
+                                      EnumeratorAdapter);
+  end;
+  // what happens in else block? For unboundQueries?
+{$IFDEF DEBUG}
+  Result.OperationName := 'JSONArray';
+{$ENDIF}
 end;
 
 function TJSONArrayQuery.TJSONArrayQueryImpl<T>.JSONBool: T;
