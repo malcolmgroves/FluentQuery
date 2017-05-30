@@ -10,6 +10,7 @@ type
   TestTJSONObjectQuery = class(TFluentQueryTestCase<TJSONPair>)
   strict private
     FJSONObject : TJSONObject;
+    FJSONString : string;
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -66,20 +67,18 @@ implementation
 
 
 procedure TestTJSONObjectQuery.SetUp;
-var
-  LJSON : string;
 begin
-  LJSON := '{ "name":"John",' +
-              '"age":31,' +
-              '"city":"New York",' +
-              '"alien":false,' +
-              '"priors":null,' +
-              '"numbers" : [0,1,2,3,4],' +
-              '"address": {' +
-                '"address1" : "1313 Mockingbird Lane"' +
-                '"city" : "Sydney"' +
-                '"phone" : "0416264200"}}';
-  FJSONObject := TJSONObject.ParseJSONValue(LJSON, True) as TJSONObject;
+  FJSONString := '{ "name":"John",' +
+                    '"age":31,' +
+                    '"city":"New York",' +
+                    '"alien":false,' +
+                    '"priors":null,' +
+                    '"numbers" : [0,1,2,3,4],' +
+                    '"address": {' +
+                      '"address1" : "1313 Mockingbird Lane"' +
+                      '"city" : "Sydney"' +
+                      '"phone" : "0416264200"}}';
+  FJSONObject := TJSONObject.ParseJSONValue(FJSONString, True) as TJSONObject;
 end;
 
 procedure TestTJSONObjectQuery.TearDown;
@@ -90,7 +89,7 @@ end;
 
 procedure TestTJSONObjectQuery.TestIsJSONArray;
 begin
-  CheckEquals(1, JSONQuery.From(FJSONObject).IsJSONArray.Count);
+  CheckEquals(1, JSONQuery.From(FJSONString).IsJSONArray.Count);
 end;
 
 procedure TestTJSONObjectQuery.TestIsJSONArrayByName;
@@ -173,17 +172,17 @@ end;
 procedure TestTJSONObjectQuery.TestIsJSONStringByName;
 begin
   CheckEquals(1, JSONQuery.From(FJSONObject).IsJSONString('city').Count);
-  CheckEquals('New York', JSONQuery.From(FJSONObject).IsJSONString('city').First.JSONValue.Value);
+  CheckEquals('New York', JSONQuery.From(FJSONObject).IsJSONString('city').ValueAsString);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONStringByNameInChildObject;
 begin
-  CheckEquals('Sydney', JSONQuery.From(FJSONObject).JSONObject('Address').IsJSONString('City').First.JsonValue.Value);
+  CheckEquals('Sydney', JSONQuery.From(FJSONObject).JSONObject('Address').IsJSONString('City').ValueAsString);
 end;
 
 procedure TestTJSONObjectQuery.TestNamed;
 begin
-  CheckEquals('age', JSONQuery.From(FJSONObject).Named('age').First.JsonString.Value);
+  CheckEquals('age', JSONQuery.From(FJSONObject).Named('age').Name);
 end;
 
 procedure TestTJSONObjectQuery.TestWhereUnboundPredicate;
@@ -283,7 +282,7 @@ end;
 
 procedure TTestJSONArrayQuery.TestJSONStringByNameInChildObject;
 begin
-  CheckEquals('Sydney', FQuery.From(FJSONArray).JSONObject.IsJSONString('City').First.JSONValue.Value);
+  CheckEquals('Sydney', FQuery.From(FJSONArray).JSONObject.IsJSONString('City').ValueAsString);
 end;
 
 procedure TTestJSONArrayQuery.TestJSONStrings;

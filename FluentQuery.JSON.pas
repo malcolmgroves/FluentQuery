@@ -27,12 +27,6 @@ uses
   FluentQuery.Integers;
 
 type
-{
-  Should the Unbound versions of these query support descending into child objects?
-  Or more specifically, maybe it is only the those where we descend into a different
-  type of enumerator. WHen you do this, the late call to From will actually be on the
-  wrong type. Need to test prior to release.
-}
   IUnboundJSONPairQuery = interface;
   IUnboundJSONValueQuery = interface;
   IBoundJSONValueQuery = interface;
@@ -66,12 +60,16 @@ type
     function IsJSONObject(const Name : string) : IBoundJSONPairQuery; overload;
     function JSONArray(const Name : string) : IBoundJSONValueQuery;
     function JSONObject(const Name : string) : IBoundJSONPairQuery;
+    // terminating operations
+    function Name : string;
+    function ValueAsString : string;
   end;
 
   IUnboundJSONPairQuery = interface(IBaseUnboundQuery<TJSONPair>)
     function GetEnumerator: IUnboundJSONPairQuery;
     // common operations
     function From(JSONObject : TJSONObject) : IBoundJSONPairQuery; overload;
+    function From(const JSOnString : string) : IBoundJSONPairQuery; overload;
     function Map(Transformer : TFunc<TJSONPair, TJSONPair>) : IUnboundJSONPairQuery;
     function Skip(Count : Integer): IUnboundJSONPairQuery;
     function SkipWhile(Predicate : TPredicate<TJSONPair>) : IUnboundJSONPairQuery; overload;
@@ -96,8 +94,6 @@ type
     function IsJSONBool(const Name : string) : IUnboundJSONPairQuery; overload;
     function IsJSONNull(const Name : string) : IUnboundJSONPairQuery; overload;
     function IsJSONObject(const Name : string) : IUnboundJSONPairQuery; overload;
-    function JSONArray(const Name : string) : IUnboundJSONValueQuery;
-    function JSONObject(const Name : string) : IUnboundJSONPairQuery;
   end;
 
   IBoundJSONValueQuery = interface(IBaseBoundQuery<TJSONValue>)
@@ -148,13 +144,10 @@ type
     function IsJSONBool : IUnboundJSONValueQuery;
     function IsJSONObject : IUnboundJSONValueQuery;
     function IsJSONArray : IUnboundJSONValueQuery;
-    function JSONArray : IUnboundJSONValueQuery;
-    function JSONObject : IUnboundJSONPairQuery;
   end;
 
   function JSONQuery : IUnboundJSONPairQuery;
 
-  // temp access
   function JSONArrayQuery : IUnboundJSONValueQuery;
 
 
@@ -195,8 +188,10 @@ type
       TJSONObjectQueryImpl<T : IBaseQuery<TJSONPair>; T2 : IBaseQuery<TJSONValue>> = class
       private
         FQuery : TJSONObjectQuery;
+        FJSONObject : TJSONObject;
       public
         constructor Create(Query : TJSONObjectQuery); virtual;
+        destructor Destroy; override;
         function GetEnumerator: T;
 {$IFDEF DEBUG}
         function GetOperationName : String;
@@ -205,6 +200,7 @@ type
         property OperationPath : String read GetOperationPath;
 {$ENDIF}
         function From(JSONObject : TJSONObject) : IBoundJSONPairQuery; overload;
+        function From(const JSONString : string) : IBoundJSONPairQuery; overload;
         // Primitive Operations
         function Map(Transformer : TFunc<TJSONPair, TJSONPair>) : T;
         function SkipWhile(Predicate : TPredicate<TJSONPair>) : T; overload;
@@ -237,6 +233,8 @@ type
         function Count : Integer;
         function Predicate : TPredicate<TJSONPair>;
         function First : TJSONPair;
+        function Name : string;
+        function ValueAsString : String;
       end;
   protected
     FBoundQuery : TJSONObjectQueryImpl<IBoundJSONPairQuery, IBoundJSONValueQuery>;
@@ -427,6 +425,13 @@ end;
 constructor TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.Create(Query: TJSONObjectQuery);
 begin
   FQuery := Query;
+  FJSONObject := nil;
+end;
+
+destructor TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.Destroy;
+begin
+  FJSONObject.Free;
+  inherited;
 end;
 
 function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.First: TJSONPair;
@@ -435,6 +440,16 @@ begin
     Result := FQuery.GetCurrent
   else
     raise EEmptyResultSetException.Create('Can''t call First on an empty Result Set');
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.From(
+  const JSONString: string): IBoundJSONPairQuery;
+begin
+  FJSONObject := TJSONObject.ParseJSONValue(JSONString, True) as TJSONObject;
+  Result := From(FJSONObject);
+{$IFDEF DEBUG}
+  Result.OperationName := 'From(JSONString)';
+{$ENDIF}
 end;
 
 function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.From(
@@ -447,7 +462,7 @@ begin
                                   IBaseQuery<TJSONPair>(FQuery),
                                   EnumeratorAdapter);
 {$IFDEF DEBUG}
-  Result.OperationName := Format('From(%s)', [JSONObject.ToString]);
+  Result.OperationName := 'From(JSONObject)';
 {$ENDIF}
 end;
 
@@ -577,6 +592,16 @@ begin
 {$ENDIF}
 end;
 
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.Name: string;
+begin
+  Result := First.JsonString.Value;
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.ValueAsString: string;
+begin
+  Result := First.JsonValue.Value;
+end;
 
 function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.Named(const Name: string): T;
 begin
