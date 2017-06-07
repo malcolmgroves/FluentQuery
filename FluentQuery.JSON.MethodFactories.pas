@@ -26,6 +26,7 @@ type
   TJSONPairMethodFactory = class(TMethodFactory<TJSONPair>)
   public
     // predicates
+    class function NameMatchesPredicate(Predicate : TPredicate<string>) : TPredicate<TJSONPair>;
     class function IsNamed(const Name : string): TPredicate<TJSONPair>;
     class function ValueIs<T : class> : TPredicate<TJSonPair>;
   end;
@@ -37,15 +38,23 @@ type
   end;
 
 implementation
+uses
+  FluentQuery.Strings.MethodFactories;
 
 { TJSONPairMethodFactory }
 
 class function TJSONPairMethodFactory.IsNamed(
   const Name: string): TPredicate<TJSONPair>;
 begin
+  Result := NameMatchesPredicate(TStringMethodFactory.Matches(Name, True));
+end;
+
+class function TJSONPairMethodFactory.NameMatchesPredicate(
+  Predicate: TPredicate<string>): TPredicate<TJSONPair>;
+begin
   Result := function (Pair : TJsonPair) : Boolean
             begin
-              Result := CompareText(Pair.JsonString.Value, Name) = 0;
+              Result := Predicate(Pair.JsonString.Value);
             end;
 end;
 

@@ -45,19 +45,33 @@ type
     function WhereNot(UnboundQuery : IUnboundJSONPairQuery) : IBoundJSONPairQuery; overload;
     function WhereNot(Predicate : TPredicate<TJSONPair>) : IBoundJSONPairQuery; overload;
     // type-specific operations
-    function Named(const Name : string) : IBoundJSONPairQuery;
+    function Named(const Name : string) : IBoundJSONPairQuery; overload;
+    function Named(StringQuery : IUnboundStringQuery) : IBoundJSONPairQuery; overload;
+    function Named(Predicate : TPredicate<string>) : IBoundJSONPairQuery; overload;
     function IsJSONString : IBoundJSONPairQuery; overload;
-    function IsJSONArray : IBoundJSONPairQuery; overload;
-    function IsJSONNumber : IBoundJSONPairQuery; overload;
-    function IsJSONBool : IBoundJSONPairQuery; overload;
-    function IsJSONNull : IBoundJSONPairQuery; overload;
-    function IsJSONObject : IBoundJSONPairQuery; overload;
     function IsJSONString(const Name : string) : IBoundJSONPairQuery; overload;
+    function IsJSONString(StringQuery : IUnboundStringQuery) : IBoundJSONPairQuery; overload;
+    function IsJSONString(Predicate : TPredicate<string>) : IBoundJSONPairQuery; overload;
+    function IsJSONArray : IBoundJSONPairQuery; overload;
     function IsJSONArray(const Name : string) : IBoundJSONPairQuery; overload;
+    function IsJSONArray(StringQuery : IUnboundStringQuery) : IBoundJSONPairQuery; overload;
+    function IsJSONArray(Predicate : TPredicate<string>) : IBoundJSONPairQuery; overload;
+    function IsJSONNumber : IBoundJSONPairQuery; overload;
     function IsJSONNumber(const Name : string) : IBoundJSONPairQuery; overload;
+    function IsJSONNumber(StringQuery : IUnboundStringQuery) : IBoundJSONPairQuery; overload;
+    function IsJSONNumber(Predicate : TPredicate<string>) : IBoundJSONPairQuery; overload;
+    function IsJSONBool : IBoundJSONPairQuery; overload;
     function IsJSONBool(const Name : string) : IBoundJSONPairQuery; overload;
+    function IsJSONBool(StringQuery : IUnboundStringQuery) : IBoundJSONPairQuery; overload;
+    function IsJSONBool(Predicate : TPredicate<string>) : IBoundJSONPairQuery; overload;
+    function IsJSONNull : IBoundJSONPairQuery; overload;
     function IsJSONNull(const Name : string) : IBoundJSONPairQuery; overload;
+    function IsJSONNull(StringQuery : IUnboundStringQuery) : IBoundJSONPairQuery; overload;
+    function IsJSONNull(Predicate : TPredicate<string>) : IBoundJSONPairQuery; overload;
+    function IsJSONObject : IBoundJSONPairQuery; overload;
     function IsJSONObject(const Name : string) : IBoundJSONPairQuery; overload;
+    function IsJSONObject(StringQuery : IUnboundStringQuery) : IBoundJSONPairQuery; overload;
+    function IsJSONObject(Predicate : TPredicate<string>) : IBoundJSONPairQuery; overload;
     function JSONArray(const Name : string) : IBoundJSONValueQuery;
     function JSONObject(const Name : string) : IBoundJSONPairQuery;
     // terminating operations
@@ -81,19 +95,33 @@ type
     function WhereNot(UnboundQuery : IUnboundJSONPairQuery) : IUnboundJSONPairQuery; overload;
     function WhereNot(Predicate : TPredicate<TJSONPair>) : IUnboundJSONPairQuery; overload;
     // type-specific operations
-    function Named(const Name : string) : IUnboundJSONPairQuery;
+    function Named(const Name : string) : IUnboundJSONPairQuery; overload;
+    function Named(StringQuery : IUnboundStringQuery) : IUnboundJSONPairQuery; overload;
+    function Named(Predicate : TPredicate<string>) : IUnboundJSONPairQuery; overload;
     function IsJSONString : IUnboundJSONPairQuery; overload;
-    function IsJSONArray : IUnboundJSONPairQuery; overload;
-    function IsJSONNumber : IUnboundJSONPairQuery; overload;
-    function IsJSONBool : IUnboundJSONPairQuery; overload;
-    function IsJSONNull : IUnboundJSONPairQuery; overload;
-    function IsJSONObject : IUnboundJSONPairQuery; overload;
     function IsJSONString(const Name : string) : IUnboundJSONPairQuery; overload;
+    function IsJSONString(StringQuery : IUnboundStringQuery) : IUnboundJSONPairQuery; overload;
+    function IsJSONString(Predicate : TPredicate<string>) : IUnboundJSONPairQuery; overload;
+    function IsJSONArray : IUnboundJSONPairQuery; overload;
     function IsJSONArray(const Name : string) : IUnboundJSONPairQuery; overload;
+    function IsJSONArray(StringQuery : IUnboundStringQuery) : IUnboundJSONPairQuery; overload;
+    function IsJSONArray(Predicate : TPredicate<string>) : IUnboundJSONPairQuery; overload;
+    function IsJSONNumber : IUnboundJSONPairQuery; overload;
     function IsJSONNumber(const Name : string) : IUnboundJSONPairQuery; overload;
+    function IsJSONNumber(StringQuery : IUnboundStringQuery) : IUnboundJSONPairQuery; overload;
+    function IsJSONNumber(Predicate : TPredicate<string>) : IUnboundJSONPairQuery; overload;
+    function IsJSONBool : IUnboundJSONPairQuery; overload;
     function IsJSONBool(const Name : string) : IUnboundJSONPairQuery; overload;
+    function IsJSONBool(StringQuery : IUnboundStringQuery) : IUnboundJSONPairQuery; overload;
+    function IsJSONBool(Predicate : TPredicate<string>) : IUnboundJSONPairQuery; overload;
+    function IsJSONNull : IUnboundJSONPairQuery; overload;
     function IsJSONNull(const Name : string) : IUnboundJSONPairQuery; overload;
+    function IsJSONNull(StringQuery : IUnboundStringQuery) : IUnboundJSONPairQuery; overload;
+    function IsJSONNull(Predicate : TPredicate<string>) : IUnboundJSONPairQuery; overload;
+    function IsJSONObject : IUnboundJSONPairQuery; overload;
     function IsJSONObject(const Name : string) : IUnboundJSONPairQuery; overload;
+    function IsJSONObject(StringQuery : IUnboundStringQuery) : IUnboundJSONPairQuery; overload;
+    function IsJSONObject(Predicate : TPredicate<string>) : IUnboundJSONPairQuery; overload;
   end;
 
   IBoundJSONValueQuery = interface(IBaseBoundQuery<TJSONValue>)
@@ -214,19 +242,33 @@ type
         function WhereNot(UnboundQuery : IUnboundJSONPairQuery) : T; overload;
         function WhereNot(Predicate : TPredicate<TJSONPair>) : T; overload;
         // type-specific operations
-        function Named(const Name : string) : T;
+        function Named(const Name : string) : T;  overload;
+        function Named(StringQuery : IUnboundStringQuery) : T; overload;
+        function Named(Predicate : TPredicate<string>) : T; overload;
         function IsJSONString : T; overload;
-        function IsJSONArray : T; overload;
-        function IsJSONNumber : T; overload;
-        function IsJSONBool : T; overload;
-        function IsJSONNull : T; overload;
-        function IsJSONObject : T; overload;
         function IsJSONString(const Name : string) : T; overload;
+        function IsJSONString(StringQuery : IUnboundStringQuery) : T; overload;
+        function IsJSONString(Predicate : TPredicate<string>) : T; overload;
+        function IsJSONArray : T; overload;
         function IsJSONArray(const Name : string) : T; overload;
+        function IsJSONArray(StringQuery : IUnboundStringQuery) : T; overload;
+        function IsJSONArray(Predicate : TPredicate<string>) : T; overload;
+        function IsJSONNumber : T; overload;
         function IsJSONNumber(const Name : string) : T; overload;
+        function IsJSONNumber(StringQuery : IUnboundStringQuery) : T; overload;
+        function IsJSONNumber(Predicate : TPredicate<string>) : T; overload;
+        function IsJSONBool : T; overload;
         function IsJSONBool(const Name : string) : T; overload;
+        function IsJSONBool(StringQuery : IUnboundStringQuery) : T; overload;
+        function IsJSONBool(Predicate : TPredicate<string>) : T; overload;
+        function IsJSONNull : T; overload;
         function IsJSONNull(const Name : string) : T; overload;
+        function IsJSONNull(StringQuery : IUnboundStringQuery) : T; overload;
+        function IsJSONNull(Predicate : TPredicate<string>) : T; overload;
+        function IsJSONObject : T; overload;
         function IsJSONObject(const Name : string) : T; overload;
+        function IsJSONObject(StringQuery : IUnboundStringQuery) : T; overload;
+        function IsJSONObject(Predicate : TPredicate<string>) : T; overload;
         function JSONArray(const Name : string) : T2;
         function JSONObject(const Name : string) : T;
         // Terminating Operations
@@ -598,6 +640,24 @@ begin
   Result := First.JsonString.Value;
 end;
 
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.Named(
+  Predicate: TPredicate<string>): T;
+begin
+  Result := Where(TJSONPairMethodFactory.NameMatchesPredicate(Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Named(Predicate)';
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.Named(
+  StringQuery: IUnboundStringQuery): T;
+begin
+  Result := Named(StringQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Named(%s)', [StringQuery.OperationPath]);
+{$ENDIF}
+end;
+
 function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.ValueAsString: string;
 begin
   Result := First.JsonValue.Value;
@@ -701,6 +761,126 @@ begin
   Result := Where(TJSONPairMethodFactory.ValueIs<TJSONObject>());
 {$IFDEF DEBUG}
   Result.OperationName := 'IsJSONObject';
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONArray(
+  Predicate: TPredicate<string>): T;
+begin
+  Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.NameMatchesPredicate(Predicate),
+                                             TJSONPairMethodFactory.ValueIs<TJSONArray>()));
+
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONArray(%s)', ['Predicate']);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONArray(
+  StringQuery: IUnboundStringQuery): T;
+begin
+  Result := IsJSONArray(StringQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONArray(%s)', [StringQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONBool(
+  Predicate: TPredicate<string>): T;
+begin
+  Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.NameMatchesPredicate(Predicate),
+                                             TJSONPairMethodFactory.ValueIs<TJSONBool>()));
+
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONBool(%s)', ['Predicate']);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONBool(
+  StringQuery: IUnboundStringQuery): T;
+begin
+  Result := IsJSONBool(StringQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONBool(%s)', [StringQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONNull(
+  StringQuery: IUnboundStringQuery): T;
+begin
+  Result := IsJSONNull(StringQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONNull(%s)', [StringQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONNull(
+  Predicate: TPredicate<string>): T;
+begin
+  Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.NameMatchesPredicate(Predicate),
+                                               TJSONPairMethodFactory.ValueIs<TJSONNull>()));
+
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONNull(%s)', ['Predicate']);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONNumber(
+  StringQuery: IUnboundStringQuery): T;
+begin
+  Result := IsJSONNumber(StringQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONNumber(%s)', [StringQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONNumber(
+  Predicate: TPredicate<string>): T;
+begin
+  Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.NameMatchesPredicate(Predicate),
+                                             TJSONPairMethodFactory.ValueIs<TJSONNumber>()));
+
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONNumber(%s)', ['Predicate']);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONObject(
+  StringQuery: IUnboundStringQuery): T;
+begin
+  Result := IsJSONObject(StringQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONObject(%s)', [StringQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONObject(
+  Predicate: TPredicate<string>): T;
+begin
+  Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.NameMatchesPredicate(Predicate),
+                                               TJSONPairMethodFactory.ValueIs<TJSONObject>()));
+
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONObject(%s)', ['Predicate']);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONString(
+  StringQuery: IUnboundStringQuery): T;
+begin
+  Result := IsJSONString(StringQuery.Predicate);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONString(%s)', [StringQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.IsJSONString(
+  Predicate: TPredicate<string>): T;
+begin
+  Result := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.NameMatchesPredicate(Predicate),
+                                             TJSONPairMethodFactory.ValueIs<TJSONString>()));
+
+{$IFDEF DEBUG}
+  Result.OperationName := Format('IsJSONString(%s)', ['Predicate']);
 {$ENDIF}
 end;
 
