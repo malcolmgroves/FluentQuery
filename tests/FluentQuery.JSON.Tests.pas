@@ -24,6 +24,7 @@ type
     procedure TestNamed;
     procedure TestIsJSONString;
     procedure TestIsJSONStringByName;
+    procedure TestIsJSONStringNameMatchesStringQuery;
     procedure TestIsJSONObject;
     procedure TestIsJSONObjectByName;
     procedure TestDescendIntoNamedJSONObject;
@@ -64,6 +65,8 @@ type
   end;
 
 implementation
+uses
+  FLuentQuery.Strings;
 
 
 procedure TestTJSONObjectQuery.SetUp;
@@ -173,6 +176,11 @@ procedure TestTJSONObjectQuery.TestIsJSONStringByName;
 begin
   CheckEquals(1, JSONQuery.From(FJSONObject).IsJSONString('city').Count);
   CheckEquals('New York', JSONQuery.From(FJSONObject).IsJSONString('city').ValueAsString);
+end;
+
+procedure TestTJSONObjectQuery.TestIsJSONStringNameMatchesStringQuery;
+begin
+  CheckEquals(1, JSONQuery.From(FJSONObject).IsJSONString(StringQuery.StartsWith('C')).Count);
 end;
 
 procedure TestTJSONObjectQuery.TestJSONStringByNameInChildObject;
