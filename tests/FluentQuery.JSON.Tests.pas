@@ -25,6 +25,7 @@ type
     procedure TestIsJSONString;
     procedure TestIsJSONStringByName;
     procedure TestIsJSONStringNameMatchesStringQuery;
+    procedure TestIsJSONStringNameMatchesPredicate;
     procedure TestIsJSONObject;
     procedure TestIsJSONObjectByName;
     procedure TestDescendIntoNamedJSONObject;
@@ -176,6 +177,17 @@ procedure TestTJSONObjectQuery.TestIsJSONStringByName;
 begin
   CheckEquals(1, JSONQuery.From(FJSONObject).IsJSONString('city').Count);
   CheckEquals('New York', JSONQuery.From(FJSONObject).IsJSONString('city').ValueAsString);
+end;
+
+procedure TestTJSONObjectQuery.TestIsJSONStringNameMatchesPredicate;
+var
+  LengthAtLeast4 : TPredicate<String>;
+begin
+  LengthAtLeast4 := function (Value : string) : boolean
+                     begin
+                       Result := Length(Value) >= 4;
+                     end;
+  CheckEquals(2, JSONQuery.From(FJSONObject).IsJSONString(LengthAtLeast4).Count);
 end;
 
 procedure TestTJSONObjectQuery.TestIsJSONStringNameMatchesStringQuery;
