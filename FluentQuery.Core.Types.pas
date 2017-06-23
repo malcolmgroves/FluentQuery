@@ -55,6 +55,7 @@ type
   EFluentQueryException = class(Exception);
     ENilEnumeratorException = class(EFluentQueryException);
     EEmptyResultSetException = class(EFluentQueryException);
+    ENilSourceException = class(EFLuentQueryException);
 implementation
 
 end.

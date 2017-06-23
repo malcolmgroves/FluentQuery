@@ -27,6 +27,8 @@ uses
   FluentQuery.Integers;
 
 type
+  EJSONParseFailure = class(EFluentQueryException);
+
   IUnboundJSONPairQuery = interface;
   IUnboundJSONValueQuery = interface;
   IBoundJSONValueQuery = interface;
@@ -488,6 +490,9 @@ function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.From(
   const JSONString: string): IBoundJSONPairQuery;
 begin
   FJSONObject := TJSONObject.ParseJSONValue(JSONString, True) as TJSONObject;
+  if FJSONObject = nil then
+    raise EJSONParseFailure.Create('TJONObject.ParseJSONValue failed');
+
   Result := From(FJSONObject);
 {$IFDEF DEBUG}
   Result.OperationName := 'From(JSONString)';
@@ -499,6 +504,9 @@ function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.From(
 var
   EnumeratorAdapter : IMinimalEnumerator<TJSONPair>;
 begin
+  if not Assigned(JSONObject) then
+    raise ENilSourceException.Create('JSONObject param is not Assigned');
+
   EnumeratorAdapter := TJSONPairEnumeratorAdapter.Create(JSONObject.GetEnumerator);
   Result := TJSONObjectQuery.Create(TEnumerationStrategy<TJSONPair>.Create,
                                   IBaseQuery<TJSONPair>(FQuery),

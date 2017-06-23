@@ -15,10 +15,10 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
   published
+    procedure TestInvalidJSON;
     procedure TestPassthrough;
     procedure TestWherePredicate;
     procedure TestWhereUnboundPredicate;
-//    procedure TestUnboundChildObjectPredicate;
     procedure TestIsJSONNumber;
     procedure TestIsJSONNumberByName;
     procedure TestNamed;
@@ -90,6 +90,26 @@ begin
   FJSONObject.Free;
 end;
 
+
+procedure TestTJSONObjectQuery.TestInvalidJSON;
+var
+    LJSONString : string;
+begin
+  LJSONString := '{ "name":"John",' +
+                    '"age":31,' +
+                    '"city":"New York",' +
+                    '"alien":false,' +
+                    '"priors":null,' +
+                    '"numbers : [0,1,2,3,4],' +  // missing closing quote on name
+                    '"address": {' +
+                      '"address1" : "1313 Mockingbird Lane"' +
+                      '"city" : "Sydney"' +
+                      '"phone" : "0416264200"}}';
+
+  ExpectedException := EJSONParseFailure;
+  CheckEquals(7, JSONQuery.From(LJSONString).Count);
+  StopExpectingException;
+end;
 
 procedure TestTJSONObjectQuery.TestIsJSONArray;
 begin
