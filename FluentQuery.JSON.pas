@@ -972,6 +972,9 @@ function TJSONArrayQuery.TJSONArrayQueryImpl<T, T2>.From(
 var
   EnumeratorAdapter : IMinimalEnumerator<TJSONValue>;
 begin
+  if not Assigned(JSONArray) then
+    raise ENilSourceException.Create('JSONArray param is not Assigned');
+
   EnumeratorAdapter := TJSONValueEnumeratorAdapter.Create(JSONArray.GetEnumerator);
   Result := TJSONArrayQuery.Create(TEnumerationStrategy<TJSONValue>.Create,
                                   IBaseQuery<TJSONValue>(FQuery),
