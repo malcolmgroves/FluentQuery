@@ -124,6 +124,7 @@ FluentQuery currently supports querying over a bunch of different containers, in
 - JSON Objects in a JSON document
 - Records in a TDataset
 - Components on a Form
+- Files/Folders in a folder/subfolders
 
 A larger list is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Supported-Containers), but ultimately, check the source.
 
