@@ -15,7 +15,9 @@ program FluentQueryTests;
 {$ENDIF}
 
 uses
-  DUnitTestRunner,
+// Only one of the next two lines should be uncommented.
+//  DUnitTestRunner, // uncomment to use DUnit, or
+  TestInsight.Dunit, // uncomment to use TestInsight
   FluentQuery.Core.EnumerationStrategies in '..\FluentQuery.Core.EnumerationStrategies.pas',
   FluentQuery.Core.Enumerators in '..\FluentQuery.Core.Enumerators.pas',
   FluentQuery.Core.Types in '..\FluentQuery.Core.Types.pas',
@@ -53,6 +55,6 @@ uses
 
 begin
   ReportMemoryLeaksOnShutdown := True;
-  DUnitTestRunner.RunRegisteredTests;
+  RunRegisteredTests;
 end.
 

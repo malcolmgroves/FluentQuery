@@ -79,8 +79,8 @@ begin
                     '"priors":null,' +
                     '"numbers" : [0,1,2,3,4],' +
                     '"address": {' +
-                      '"address1" : "1313 Mockingbird Lane"' +
-                      '"city" : "Sydney"' +
+                      '"address1" : "1313 Mockingbird Lane",' +
+                      '"city" : "Sydney",' +
                       '"phone" : "0416264200"}}';
   FJSONObject := TJSONObject.ParseJSONValue(FJSONString, True) as TJSONObject;
 end;

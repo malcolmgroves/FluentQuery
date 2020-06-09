@@ -148,6 +148,8 @@ type
         function First : String;
         function Count : Integer;
         function Predicate : TPredicate<string>;
+//        function IsEmpty : Boolean;
+//        function IsNotEmpty : Boolean;
       end;
   protected
     FBoundQuery : TStringQueryImpl<IBoundStringQuery>;
@@ -284,6 +286,7 @@ function TStringQuery.TStringQueryImpl<T>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
+
 {$ENDIF}
 
 function TStringQuery.TStringQueryImpl<T>.Map(

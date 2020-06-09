@@ -188,6 +188,7 @@ uses
   Generics.Collections;
 
 type
+  TJSONPairEnumerator = TJSONObject.TEnumerator deprecated;
   TJSONPairEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<TJSONPair>)
   protected
     FJSONPairEnumerator : TJSONPairEnumerator;
@@ -199,6 +200,7 @@ type
     destructor Destroy; override;
   end;
 
+  TJSONArrayEnumerator = TJSONArray.TEnumerator deprecated;
   TJSONValueEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<TJSONValue>)
   protected
     FJSONArrayEnumerator : TJSONArrayEnumerator;
@@ -416,7 +418,6 @@ function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.JSONArray(
   const Name: string): T2;
 var
   LQuery : T;
-//  LObject : TJSONObject;
   EnumeratorAdapter : IMinimalEnumerator<TJSONValue>;
 begin
   LQuery := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.IsNamed(Name),
@@ -746,7 +747,6 @@ function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.JSONObject(
   const Name: string): T;
 var
   LQuery : T;
-  LObject : TJSONObject;
   EnumeratorAdapter : IMinimalEnumerator<TJSONPair>;
 begin
   LQuery := Where(TJSONPairMEthodFactory.And(TJSONPairMethodFactory.IsNamed(Name),
@@ -1008,7 +1008,6 @@ end;
 function TJSONArrayQuery.TJSONArrayQueryImpl<T, T2>.JSONArray: T;
 var
   LQuery : T;
-  LObject : TJSONObject;
   EnumeratorAdapter : IMinimalEnumerator<TJSONValue>;
 begin
   LQuery := Where(TJSONValueMethodFactory.ValueIs<TJSONArray>());
@@ -1064,7 +1063,6 @@ end;
 function TJSONArrayQuery.TJSONArrayQueryImpl<T, T2>.JSONObject: T2;
 var
   LQuery : T;
-  LObject : TJSONObject;
   EnumeratorAdapter : IMinimalEnumerator<TJSONPair>;
 begin
   LQuery := Where(TJSONValueMethodFactory.ValueIs<TJSONObject>());
