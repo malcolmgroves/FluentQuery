@@ -1,6 +1,6 @@
 What is FluentQuery?
 ====================
-FluentQuery allows you to operate on containers of items in Delphi and AppMethod in a fluent, declarative fashion. 
+FluentQuery allows you to operate on containers of items in Delphi in a fluent, declarative fashion. 
 
 
 Huh?
@@ -114,22 +114,25 @@ The goal is to define a declarative query language for any Delphi container.
 
 Containers
 ----------
-FluentQuery currently supports querying over the following types of containers:
+FluentQuery currently supports querying over a bunch of different containers, including:
 
 - Anything with a TEnumerator&lt;T>, such as TList&lt;T>, TObjectList&lt;T>, etc 
 - Strings in a TStrings, such as TStringList, etc
 - Chars in a String
 - Integers in a generic container, such as a TList&lt;Integer>, etc
 - Pointers in a TList
+- JSON Objects in a JSON document
+- Records in a TDataset
+- Components on a Form
 
-The latest list is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Supported-Containers).
+A larger list is on the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/Supported-Containers), but ultimately, check the source.
 
 
 Query Operations
 ----------------
 FluentQuery determines which query operations are available to you by looking at the type for which you are querying. For example, if you are querying for strings, you have operations such as StartsWith, EndsWith, Contains, etc.
 
-For the latest details of the operations available for different types, check the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/query-operations)
+For a larger list of operations available for different types, check the [wiki](https://github.com/malcolmgroves/FluentQuery/wiki/query-operations) or even better, check the source
 
 
 Back Story
