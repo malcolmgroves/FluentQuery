@@ -188,7 +188,9 @@ uses
   Generics.Collections;
 
 type
+{$IF CompilerVersion >= 33} // TJSONPairEnumerator removed in Rio
   TJSONPairEnumerator = TJSONObject.TEnumerator deprecated;
+{$ENDIF}
   TJSONPairEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<TJSONPair>)
   protected
     FJSONPairEnumerator : TJSONPairEnumerator;
@@ -200,7 +202,9 @@ type
     destructor Destroy; override;
   end;
 
+{$IF CompilerVersion >= 33}  // TJSONArrayEnumerator removed in Rio
   TJSONArrayEnumerator = TJSONArray.TEnumerator deprecated;
+{$ENDIF}
   TJSONValueEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<TJSONValue>)
   protected
     FJSONArrayEnumerator : TJSONArrayEnumerator;

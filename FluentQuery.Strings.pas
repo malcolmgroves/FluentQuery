@@ -148,8 +148,6 @@ type
         function First : String;
         function Count : Integer;
         function Predicate : TPredicate<string>;
-//        function IsEmpty : Boolean;
-//        function IsNotEmpty : Boolean;
       end;
   protected
     FBoundQuery : TStringQueryImpl<IBoundStringQuery>;
