@@ -28,9 +28,12 @@ type
     function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IBoundComponentQuery<T>; overload;
     function StringProperty(const Name : string; Query : IUnboundStringQuery) : IBoundComponentQuery<T>; overload;
     function BooleanProperty(const Name : string; const Value : Boolean) : IBoundComponentQuery<T>;
+    function Name(const Name : string; IgnoreCase : Boolean = True) : IBoundComponentQuery<T>; overload;
+    function Name(Query : IUnboundStringQuery) : IBoundComponentQuery<T>; overload;
     function Skip(Count : Integer): IBoundComponentQuery<T>;
     function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : IBoundComponentQuery<T>; overload;
-    function TagEquals(const TagValue : NativeInt) : IBoundComponentQuery<T>;
+    function Tag(const TagValue : NativeInt) : IBoundComponentQuery<T>; overload;
+    function Tag( Query : IUnboundIntegerQuery) : IBoundComponentQuery<T>; overload;
     function Take(Count : Integer): IBoundComponentQuery<T>;
     function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): IBoundComponentQuery<T>; overload;
     function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : IBoundComponentQuery<T>; overload;
@@ -55,9 +58,12 @@ type
     function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : IUnboundComponentQuery<T>; overload;
     function StringProperty(const Name : string; Query : IUnboundStringQuery) : IUnboundComponentQuery<T>; overload;
     function BooleanProperty(const Name : string; const Value : Boolean) : IUnboundComponentQuery<T>;
+    function Name(const Name : string; IgnoreCase : Boolean = True) : IUnboundComponentQuery<T>; overload;
+    function Name(Query : IUnboundStringQuery) : IUnboundComponentQuery<T>; overload;
     function Skip(Count : Integer): IUnboundComponentQuery<T>;
     function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : IUnboundComponentQuery<T>; overload;
-    function TagEquals(const TagValue : NativeInt) : IUnboundComponentQuery<T>;
+    function Tag(const TagValue : NativeInt) : IUnboundComponentQuery<T>; overload;
+    function Tag( Query : IUnboundIntegerQuery) : IUnboundComponentQuery<T>; overload;
     function Take(Count : Integer): IUnboundComponentQuery<T>;
     function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): IUnboundComponentQuery<T>; overload;
     function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : IUnboundComponentQuery<T>; overload;
@@ -96,10 +102,13 @@ type
         function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : TReturnType; overload;
         function StringProperty(const Name : string; Query : IUnboundStringQuery) : TReturnType; overload;
         function BooleanProperty(const Name : string; const Value : Boolean) : TReturnType;
+        function Name(const Name : string; IgnoreCase : Boolean = True) : TReturnType; overload;
+        function Name(Query : IUnboundStringQuery) : TReturnType; overload;
         function IsA(AClass : TClass) : TReturnType;
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : TReturnType; overload;
-        function TagEquals(const TagValue : NativeInt) : TReturnType;
+        function Tag(const TagValue : NativeInt) : TReturnType; overload;
+        function Tag(Query : IUnboundIntegerQuery) : TReturnType; overload;
         function Take(Count : Integer): TReturnType;
         function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : TReturnType; overload;
@@ -271,6 +280,26 @@ begin
 {$ENDIF}
 end;
 
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Name(
+  Query: IUnboundStringQuery): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue('Name',
+                                                                          Query.Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Name(Query)';
+{$ENDIF}
+end;
+
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Name(
+  const Name: string; IgnoreCase : Boolean = True): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue('Name',
+                                                                          TStringMethodFactory.Matches(Name, IgnoreCase)));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Name(Name)';
+{$ENDIF}
+end;
+
 function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Predicate: TPredicate<T>;
 begin
   Result := TComponentMethodFactory<T>.QuerySingleValue(FQuery);
@@ -291,7 +320,7 @@ begin
   Result := Where(TComponentMethodFactory<T>.StringPropertyNamedWithValue(Name,
                                                                           Query.Predicate));
 {$IFDEF DEBUG}
-  Result.OperationName := 'StringProperty(Name, Value)';
+  Result.OperationName := 'StringProperty(Name, Query)';
 {$ENDIF}
 end;
 
@@ -344,12 +373,21 @@ begin
 {$ENDIF}
 end;
 
-function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.TagEquals(
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Tag(
   const TagValue: NativeInt): TReturnType;
 begin
   Result := Where(TComponentMethodFactory<T>.TagEquals(TagValue));
 {$IFDEF DEBUG}
-  Result.OperationName := Format('Skip(%d)', [TagValue]);
+  Result.OperationName := Format('Tag(%d)', [TagValue]);
+{$ENDIF}
+end;
+
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Tag(
+  Query: IUnboundIntegerQuery): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.IntegerPropertyNamedWithValue('Tag', Query.Predicate));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Tag(Query)';
 {$ENDIF}
 end;
 

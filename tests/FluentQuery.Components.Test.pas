@@ -37,14 +37,19 @@ type
     procedure TestVisual;
     procedure TestNonVisual;
     procedure TestNonExistant;
-    procedure TestTagEquals;
-    procedure TestTagEqualsTagNotFound;
+    procedure TestTag;
+    procedure TestTagNotFound;
     procedure TestHasPropertyColor;
     procedure TestHasTagEquals1;
     procedure TestHasTagGreaterThanZero;
     procedure TestHasCaptionEqualsHello;
     procedure TestHasCaptionStartingWithHel;
     procedure TestIsAWinControlHasEnabledFalse;
+    procedure TestIsAWinControlHasEnabledFalseAlternative;
+    procedure TestNameStartsWithString;
+    procedure TestNameIs;
+    procedure TestTagGreaterThanZero;
+
   end;
 
 
@@ -114,6 +119,15 @@ begin
                   .Count);
 end;
 
+procedure TestTQueryComponent.TestIsAWinControlHasEnabledFalseAlternative;
+begin
+  CheckEquals(2, ComponentQuery<TWinControl>
+                  .Select
+                  .From(FTestForm)
+                  .BooleanProperty('Enabled', False)
+                  .Count);
+end;
+
 procedure TestTQueryComponent.TestHasCaptionEqualsHello;
 begin
   CheckEquals(2, ComponentQuery<TComponent>
@@ -132,6 +146,24 @@ begin
                   .Count);
 end;
 
+procedure TestTQueryComponent.TestNameIs;
+begin
+  CheckEquals(1, ComponentQuery<TComponent>
+                    .Select
+                    .From(FTestForm)
+                    .Name('Button1')
+                    .Count);
+end;
+
+procedure TestTQueryComponent.TestNameStartsWithString;
+begin
+  CheckEquals(2, ComponentQuery<TComponent>
+                    .Select
+                    .From(FTestForm)
+                    .Name(StringQuery.StartsWith('Butt'))
+                    .Count);
+end;
+
 procedure TestTQueryComponent.TestNonExistant;
 begin
   CheckEquals(0, ComponentQuery<TMemo>.Select.From(FTestForm).Count);
@@ -142,21 +174,31 @@ begin
   CheckEquals(FTestForm.ComponentCount, ComponentQuery<TComponent>.Select.From(FTestForm).Count);
 end;
 
-procedure TestTQueryComponent.TestTagEquals;
+procedure TestTQueryComponent.TestTag;
 begin
   CheckEquals(4, ComponentQuery<TComponent>
                   .Select
                   .From(FTestForm)
-                  .TagEquals(1)
+                  .Tag(1)
                   .Count);
 end;
 
-procedure TestTQueryComponent.TestTagEqualsTagNotFound;
+procedure TestTQueryComponent.TestTagNotFound;
 begin
   CheckEquals(0, ComponentQuery<TComponent>
                   .Select
                   .From(FTestForm)
-                  .TagEquals(32)
+                  .Tag(32)
+                  .Count);
+end;
+
+
+procedure TestTQueryComponent.TestTagGreaterThanZero;
+begin
+  CheckEquals(5, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .Tag(IntegerQuery.GreaterThan(0))
                   .Count);
 end;
 
