@@ -155,6 +155,11 @@
         <DCCReference Include="..\FluentQuery.JSON.pas"/>
         <DCCReference Include="FluentQuery.JSON.Tests.pas"/>
         <DCCReference Include="..\FluentQuery.JSON.MethodFactories.pas"/>
+        <DCCReference Include="FluentQuery.Components.Test.DataModule.pas">
+            <Form>DataModule1</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
         <None Include="ModelSupport_FluentQueryTests\default.txvpck"/>
         <None Include="ModelSupport_FluentQueryTests\FluentQueryTests\default.txvpck"/>

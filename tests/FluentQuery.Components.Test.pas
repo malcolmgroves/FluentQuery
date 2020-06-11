@@ -22,13 +22,15 @@ interface
 uses
   TestFramework,
   FluentQuery.Components,
-  FluentQuery.Components.Test.Form;
+  FluentQuery.Components.Test.Form,
+  FluentQuery.Components.Test.DataModule;
 
 
 type
   TestTQueryComponent = class(TTestCase)
   private
     FTestForm : TFQComponentTestForm;
+    FTestDataModule : TFQComponentTestDataModule;
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -67,12 +69,14 @@ procedure TestTQueryComponent.SetUp;
 begin
   inherited;
   FTestForm := TFQComponentTestForm.Create(nil);
+  FTestDataModule := TFQComponentTestDataModule.Create(nil);
 end;
 
 procedure TestTQueryComponent.TearDown;
 begin
   inherited;
   FTestForm.Free;
+  FTestDataModule.Free;
 end;
 
 procedure TestTQueryComponent.TestNonVisual;
@@ -114,9 +118,9 @@ end;
 
 procedure TestTQueryComponent.TestInactive;
 begin
-  CheckEquals(0, ComponentQuery<TComponent>
+  CheckEquals(2, ComponentQuery<TComponent>
                   .Select
-                  .From(FTestForm)
+                  .From(FTestDataModule)
                   .Inactive
                   .Count);
 end;
@@ -144,7 +148,7 @@ procedure TestTQueryComponent.TestActive;
 begin
   CheckEquals(0, ComponentQuery<TComponent>
                   .Select
-                  .From(FTestForm)
+                  .From(FTestDataModule)
                   .Active
                   .Count);
 end;

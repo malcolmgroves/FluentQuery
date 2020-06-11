@@ -15,9 +15,7 @@ program FluentQueryTests;
 {$ENDIF}
 
 uses
-// Only one of the next two lines should be uncommented.
-//  DUnitTestRunner, // uncomment to use DUnit, or
-  TestInsight.Dunit, // uncomment to use TestInsight
+  TestInsight.Dunit,
   FluentQuery.Core.EnumerationStrategies in '..\FluentQuery.Core.EnumerationStrategies.pas',
   FluentQuery.Core.Enumerators in '..\FluentQuery.Core.Enumerators.pas',
   FluentQuery.Core.Types in '..\FluentQuery.Core.Types.pas',
@@ -49,7 +47,8 @@ uses
   FluentQuery.Tests.Base in 'FluentQuery.Tests.Base.pas',
   FluentQuery.JSON in '..\FluentQuery.JSON.pas',
   FluentQuery.JSON.Tests in 'FluentQuery.JSON.Tests.pas',
-  FluentQuery.JSON.MethodFactories in '..\FluentQuery.JSON.MethodFactories.pas';
+  FluentQuery.JSON.MethodFactories in '..\FluentQuery.JSON.MethodFactories.pas',
+  FluentQuery.Components.Test.DataModule in 'FluentQuery.Components.Test.DataModule.pas' {DataModule1: TDataModule};
 
 {$R *.RES}
 
