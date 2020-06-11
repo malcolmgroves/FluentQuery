@@ -156,8 +156,7 @@
         <DCCReference Include="FluentQuery.JSON.Tests.pas"/>
         <DCCReference Include="..\FluentQuery.JSON.MethodFactories.pas"/>
         <DCCReference Include="FluentQuery.Components.Test.DataModule.pas">
-            <Form>DataModule1</Form>
-            <FormType>dfm</FormType>
+            <Form>FQComponentTestDataModule</Form>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
@@ -256,13 +255,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="ModelSupport_FluentQueryTests\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="ModelSupport_FluentQueryTests\FluentQuery\Enumerators\Strings\default.txvpck" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="ModelSupport_FluentQueryTests\FluentQuery\Enumerators\Strings\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="ModelSupport_FluentQueryTests\default.txaPackage" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
