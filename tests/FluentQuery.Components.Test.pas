@@ -49,7 +49,10 @@ type
     procedure TestNameStartsWithString;
     procedure TestNameIs;
     procedure TestTagGreaterThanZero;
-
+    procedure TestEnabled;
+    procedure TestDisabled;
+    procedure TestActive;
+    procedure TestInactive;
   end;
 
 
@@ -109,6 +112,15 @@ begin
                   .Count);
 end;
 
+procedure TestTQueryComponent.TestInactive;
+begin
+  CheckEquals(0, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .Inactive
+                  .Count);
+end;
+
 procedure TestTQueryComponent.TestIsAWinControlHasEnabledFalse;
 begin
   CheckEquals(2, ComponentQuery<TComponent>
@@ -125,6 +137,33 @@ begin
                   .Select
                   .From(FTestForm)
                   .BooleanProperty('Enabled', False)
+                  .Count);
+end;
+
+procedure TestTQueryComponent.TestActive;
+begin
+  CheckEquals(0, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .Active
+                  .Count);
+end;
+
+procedure TestTQueryComponent.TestDisabled;
+begin
+  CheckEquals(3, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .Disabled
+                  .Count);
+end;
+
+procedure TestTQueryComponent.TestEnabled;
+begin
+  CheckEquals(6, ComponentQuery<TComponent>
+                  .Select
+                  .From(FTestForm)
+                  .Enabled
                   .Count);
 end;
 

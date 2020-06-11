@@ -38,6 +38,10 @@ type
     function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): IBoundComponentQuery<T>; overload;
     function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : IBoundComponentQuery<T>; overload;
     function WhereNot(Predicate : TPredicate<T>) : IBoundComponentQuery<T>; overload;
+    function Enabled : IBoundComponentQuery<T>;
+    function Disabled : IBoundComponentQuery<T>;
+    function Active : IBoundComponentQuery<T>;
+    function Inactive : IBoundComponentQuery<T>;
     // terminating operations
     function First : T;
     function Count : Integer;
@@ -68,6 +72,10 @@ type
     function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): IUnboundComponentQuery<T>; overload;
     function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : IUnboundComponentQuery<T>; overload;
     function WhereNot(Predicate : TPredicate<T>) : IUnboundComponentQuery<T>; overload;
+    function Enabled : IUnboundComponentQuery<T>;
+    function Disabled : IUnboundComponentQuery<T>;
+    function Active : IUnboundComponentQuery<T>;
+    function Inactive : IUnboundComponentQuery<T>;
     // terminating operations
     function Predicate : TPredicate<T>;
   end;
@@ -102,17 +110,21 @@ type
         function StringProperty(const Name : string; const Value : String; IgnoreCase : Boolean = True) : TReturnType; overload;
         function StringProperty(const Name : string; Query : IUnboundStringQuery) : TReturnType; overload;
         function BooleanProperty(const Name : string; const Value : Boolean) : TReturnType;
-        function Name(const Name : string; IgnoreCase : Boolean = True) : TReturnType; overload;
-        function Name(Query : IUnboundStringQuery) : TReturnType; overload;
         function IsA(AClass : TClass) : TReturnType;
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : TReturnType; overload;
-        function Tag(const TagValue : NativeInt) : TReturnType; overload;
-        function Tag(Query : IUnboundIntegerQuery) : TReturnType; overload;
         function Take(Count : Integer): TReturnType;
         function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : TReturnType; overload;
         function WhereNot(Predicate : TPredicate<T>) : TReturnType; overload;
+        function Name(const Name : string; IgnoreCase : Boolean = True) : TReturnType; overload;
+        function Name(Query : IUnboundStringQuery) : TReturnType; overload;
+        function Tag(const TagValue : NativeInt) : TReturnType; overload;
+        function Tag(Query : IUnboundIntegerQuery) : TReturnType; overload;
+        function Enabled : TReturnType;
+        function Disabled : TReturnType;
+        function Active : TReturnType;
+        function Inactive : TReturnType;
         // Terminating Operations
         function Predicate : TPredicate<T>;
         function First : T;
@@ -165,6 +177,14 @@ end;
 
 { TComponentQueryEnumerator<T>.TComponentQueryEnumeratorImpl<TReturnType> }
 
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Active: TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.BooleanPropertyNamedWithValue('Active', True));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Active';
+{$ENDIF}
+end;
+
 function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.BooleanProperty(
   const Name: string; const Value: Boolean): TReturnType;
 begin
@@ -188,6 +208,22 @@ constructor TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Create(
   Query: TComponentQuery<T>);
 begin
   FQuery := Query;
+end;
+
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Disabled: TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.BooleanPropertyNamedWithValue('Enabled', False));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Disabled';
+{$ENDIF}
+end;
+
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Enabled: TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.BooleanPropertyNamedWithValue('Enabled', True));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Enabled';
+{$ENDIF}
 end;
 
 function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.First: T;
@@ -247,6 +283,14 @@ begin
   Result := Where(TComponentMethodFactory<T>.IntegerPropertyNamedWithValue(Name, TIntegerMethodFactory.Equals(Value)));
 {$IFDEF DEBUG}
   Result.OperationName := 'IntegerProperty(Name, Value)';
+{$ENDIF}
+end;
+
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Inactive: TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.BooleanPropertyNamedWithValue('Active', False));
+{$IFDEF DEBUG}
+  Result.OperationName := 'Inactive';
 {$ENDIF}
 end;
 
