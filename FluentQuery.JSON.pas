@@ -85,7 +85,7 @@ type
     function GetEnumerator: IUnboundJSONPairQuery;
     // common operations
     function From(JSONObject : TJSONObject) : IBoundJSONPairQuery; overload;
-    function From(const JSOnString : string) : IBoundJSONPairQuery; overload;
+    function From(const JSONString : string) : IBoundJSONPairQuery; overload;
     function Map(Transformer : TFunc<TJSONPair, TJSONPair>) : IUnboundJSONPairQuery;
     function Skip(Count : Integer): IUnboundJSONPairQuery;
     function SkipWhile(Predicate : TPredicate<TJSONPair>) : IUnboundJSONPairQuery; overload;
