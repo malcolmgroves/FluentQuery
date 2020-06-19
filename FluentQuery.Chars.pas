@@ -56,6 +56,7 @@ type
     function Skip(Count : Integer): IBoundCharQuery;
     function SkipWhile(Predicate : TPredicate<Char>) : IBoundCharQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundCharQuery) : IBoundCharQuery; overload;
+    function Step(const StepSize : Integer) : IBoundCharQuery;
     function Take(Count : Integer): IBoundCharQuery;
     function TakeWhile(Predicate : TPredicate<Char>): IBoundCharQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundCharQuery): IBoundCharQuery; overload;
@@ -95,6 +96,7 @@ type
     function Skip(Count : Integer): IUnboundCharQuery;
     function SkipWhile(Predicate : TPredicate<Char>) : IUnboundCharQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundCharQuery) : IUnboundCharQuery; overload;
+    function Step(const StepSize : Integer) : IUnboundCharQuery;
     function Take(Count : Integer): IUnboundCharQuery;
     function TakeWhile(Predicate : TPredicate<Char>): IUnboundCharQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundCharQuery): IUnboundCharQuery; overload;
@@ -142,6 +144,7 @@ type
         function NotEquals(const Value : Char) : T;
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundCharQuery) : T; overload;
+        function Step(const StepSize : Integer) : T;
         function Take(Count : Integer): T;
         function TakeWhile(UnboundQuery : IUnboundCharQuery): T; overload;
         function WhereNot(UnboundQuery : IUnboundCharQuery) : T; overload;
@@ -575,6 +578,14 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TCharQuery.TCharQueryImpl<T>.Step(const StepSize: Integer): T;
+begin
+  Result := Where(TCharPredicateFactory.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

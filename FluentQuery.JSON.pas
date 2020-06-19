@@ -40,6 +40,7 @@ type
     function Skip(Count : Integer): IBoundJSONPairQuery;
     function SkipWhile(Predicate : TPredicate<TJSONPair>) : IBoundJSONPairQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundJSONPairQuery) : IBoundJSONPairQuery; overload;
+    function Step(const StepSize : Integer) : IBoundJSONPairQuery;
     function Take(Count : Integer): IBoundJSONPairQuery;
     function TakeWhile(Predicate : TPredicate<TJSONPair>): IBoundJSONPairQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundJSONPairQuery): IBoundJSONPairQuery; overload;
@@ -90,6 +91,7 @@ type
     function Skip(Count : Integer): IUnboundJSONPairQuery;
     function SkipWhile(Predicate : TPredicate<TJSONPair>) : IUnboundJSONPairQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundJSONPairQuery) : IUnboundJSONPairQuery; overload;
+    function Step(const StepSize : Integer) : IUnboundJSONPairQuery;
     function Take(Count : Integer): IUnboundJSONPairQuery;
     function TakeWhile(Predicate : TPredicate<TJSONPair>): IUnboundJSONPairQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundJSONPairQuery): IUnboundJSONPairQuery; overload;
@@ -133,6 +135,7 @@ type
     function Skip(Count : Integer): IBoundJSONValueQuery;
     function SkipWhile(Predicate : TPredicate<TJSONValue>) : IBoundJSONValueQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundJSONValueQuery) : IBoundJSONValueQuery; overload;
+    function Step(const StepSize : Integer) : IBoundJSONValueQuery;
     function Take(Count : Integer): IBoundJSONValueQuery;
     function TakeWhile(Predicate : TPredicate<TJSONValue>): IBoundJSONValueQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundJSONValueQuery): IBoundJSONValueQuery; overload;
@@ -161,6 +164,7 @@ type
     function Skip(Count : Integer): IUnboundJSONValueQuery;
     function SkipWhile(Predicate : TPredicate<TJSONValue>) : IUnboundJSONValueQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundJSONValueQuery) : IUnboundJSONValueQuery; overload;
+    function Step(const StepSize : Integer) : IUnboundJSONValueQuery;
     function Take(Count : Integer): IUnboundJSONValueQuery;
     function TakeWhile(Predicate : TPredicate<TJSONValue>): IUnboundJSONValueQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundJSONValueQuery): IUnboundJSONValueQuery; overload;
@@ -245,6 +249,7 @@ type
         // Derivative Operations
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundJSONPairQuery) : T; overload;
+        function Step(const StepSize : Integer) : T;
         function Take(Count : Integer): T;
         function TakeWhile(UnboundQuery : IUnboundJSONPairQuery): T; overload;
         function WhereNot(UnboundQuery : IUnboundJSONPairQuery) : T; overload;
@@ -327,6 +332,7 @@ type
         // Derivative Operations
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundJSONValueQuery) : T; overload;
+        function Step(const StepSize : Integer) : T;
         function Take(Count : Integer): T;
         function TakeWhile(UnboundQuery : IUnboundJSONValueQuery): T; overload;
         function WhereNot(UnboundQuery : IUnboundJSONValueQuery) : T; overload;
@@ -597,6 +603,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONObjectQuery.TJSONObjectQueryImpl<T, T2>.Step(
+  const StepSize: Integer): T;
+begin
+  Result := Where(TMethodFactory<TJSONPair>.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 
@@ -1141,6 +1156,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TJSONArrayQuery.TJSONArrayQueryImpl<T, T2>.Step(
+  const StepSize: Integer): T;
+begin
+  Result := Where(TMethodFactory<TJSONValue>.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

@@ -32,6 +32,7 @@ type
     function Name(Query : IUnboundStringQuery) : IBoundComponentQuery<T>; overload;
     function Skip(Count : Integer): IBoundComponentQuery<T>;
     function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : IBoundComponentQuery<T>; overload;
+    function Step(const StepSize : Integer) : IBoundComponentQuery<T>;
     function Tag(const TagValue : NativeInt) : IBoundComponentQuery<T>; overload;
     function Tag( Query : IUnboundIntegerQuery) : IBoundComponentQuery<T>; overload;
     function Take(Count : Integer): IBoundComponentQuery<T>;
@@ -66,6 +67,7 @@ type
     function Name(Query : IUnboundStringQuery) : IUnboundComponentQuery<T>; overload;
     function Skip(Count : Integer): IUnboundComponentQuery<T>;
     function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : IUnboundComponentQuery<T>; overload;
+    function Step(const StepSize : Integer) : IUnboundComponentQuery<T>;
     function Tag(const TagValue : NativeInt) : IUnboundComponentQuery<T>; overload;
     function Tag( Query : IUnboundIntegerQuery) : IUnboundComponentQuery<T>; overload;
     function Take(Count : Integer): IUnboundComponentQuery<T>;
@@ -113,6 +115,7 @@ type
         function IsA(AClass : TClass) : TReturnType;
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundComponentQuery<T>) : TReturnType; overload;
+        function Step(const StepSize : Integer) : TReturnType;
         function Take(Count : Integer): TReturnType;
         function TakeWhile(UnboundQuery : IUnboundComponentQuery<T>): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundComponentQuery<T>) : TReturnType; overload;
@@ -355,6 +358,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.Step(
+  const StepSize: Integer): TReturnType;
+begin
+  Result := Where(TComponentMethodFactory<T>.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

@@ -42,6 +42,7 @@ type
     function Skip(Count : Integer): IBoundObjectQuery<T>;
     function SkipWhile(Predicate : TPredicate<T>) : IBoundObjectQuery<T>; overload;
     function SkipWhile(UnboundQuery : IUnboundObjectQuery<T>) : IBoundObjectQuery<T>; overload;
+    function Step(const StepSize : Integer) : IBoundObjectQuery<T>;
     function Take(Count : Integer): IBoundObjectQuery<T>;
     function TakeWhile(Predicate : TPredicate<T>): IBoundObjectQuery<T>; overload;
     function TakeWhile(UnboundQuery : IUnboundObjectQuery<T>): IBoundObjectQuery<T>; overload;
@@ -64,6 +65,7 @@ type
     function Skip(Count : Integer): IUnboundObjectQuery<T>;
     function SkipWhile(Predicate : TPredicate<T>) : IUnboundObjectQuery<T>; overload;
     function SkipWhile(UnboundQuery : IUnboundObjectQuery<T>) : IUnboundObjectQuery<T>; overload;
+    function Step(const StepSize : Integer) : IUnboundObjectQuery<T>;
     function Take(Count : Integer): IUnboundObjectQuery<T>;
     function TakeWhile(Predicate : TPredicate<T>): IUnboundObjectQuery<T>; overload;
     function TakeWhile(UnboundQuery : IUnboundObjectQuery<T>): IUnboundObjectQuery<T>; overload;
@@ -102,6 +104,7 @@ type
         function IsAssigned : TReturnType;
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundObjectQuery<T>) : TReturnType; overload;
+        function Step(const StepSize : Integer) : TReturnType;
         function Take(Count : Integer): TReturnType;
         function TakeWhile(UnboundQuery : IUnboundObjectQuery<T>): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundObjectQuery<T>) : TReturnType; overload;
@@ -252,6 +255,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TObjectQuery<T>.TObjectQueryImpl<TReturnType>.Step(
+  const StepSize: Integer): TReturnType;
+begin
+  Result := Where(TGenericObjectMethodFactory<T>.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

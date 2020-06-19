@@ -37,6 +37,7 @@ type
     function Skip(Count : Integer): IBoundQuery<T>;
     function SkipWhile(Predicate : TPredicate<T>) : IBoundQuery<T>; overload;
     function SkipWhile(UnboundQuery : IUnboundQuery<T>) : IBoundQuery<T>; overload;
+    function Step(const StepSize : Integer) : IBoundQuery<T>;
     function Take(Count : Integer): IBoundQuery<T>;
     function TakeWhile(Predicate : TPredicate<T>): IBoundQuery<T>; overload;
     function TakeWhile(UnboundQuery : IUnboundQuery<T>): IBoundQuery<T>; overload;
@@ -55,6 +56,7 @@ type
     function Skip(Count : Integer): IUnboundQuery<T>;
     function SkipWhile(Predicate : TPredicate<T>) : IUnboundQuery<T>; overload;
     function SkipWhile(UnboundQuery : IUnboundQuery<T>) : IUnboundQuery<T>; overload;
+    function Step(const StepSize : Integer) : IUnboundQuery<T>;
     function Take(Count : Integer): IUnboundQuery<T>;
     function TakeWhile(Predicate : TPredicate<T>): IUnboundQuery<T>; overload;
     function TakeWhile(UnboundQuery : IUnboundQuery<T>): IUnboundQuery<T>; overload;
@@ -89,6 +91,7 @@ type
         // Derivative Operations
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundQuery<T>) : TReturnType; overload;
+        function Step(const StepSize : Integer) : TReturnType;
         function Take(Count : Integer): TReturnType;
         function TakeWhile(UnboundQuery : IUnboundQuery<T>): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundQuery<T>) : TReturnType; overload;
@@ -220,6 +223,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TQuery<T>.TQueryImpl<TReturnType>.Step(
+  const StepSize: Integer): TReturnType;
+begin
+  Result := Where(TMethodFactory<T>.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

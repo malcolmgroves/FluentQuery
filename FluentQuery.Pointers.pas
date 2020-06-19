@@ -38,6 +38,7 @@ type
     function Skip(Count : Integer): IBoundPointerQuery;
     function SkipWhile(Predicate : TPredicate<Pointer>) : IBoundPointerQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundPointerQuery) : IBoundPointerQuery; overload;
+    function Step(const StepSize : Integer) : IBoundPointerQuery;
     function Take(Count : Integer): IBoundPointerQuery;
     function TakeWhile(Predicate : TPredicate<Pointer>): IBoundPointerQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundPointerQuery): IBoundPointerQuery; overload;
@@ -57,6 +58,7 @@ type
     function Skip(Count : Integer): IUnboundPointerQuery;
     function SkipWhile(Predicate : TPredicate<Pointer>) : IUnboundPointerQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundPointerQuery) : IUnboundPointerQuery; overload;
+    function Step(const StepSize : Integer) : IUnboundPointerQuery;
     function Take(Count : Integer): IUnboundPointerQuery;
     function TakeWhile(Predicate : TPredicate<Pointer>): IUnboundPointerQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundPointerQuery): IUnboundPointerQuery; overload;
@@ -104,6 +106,7 @@ type
         // Derivative Operations
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundPointerQuery) : T; overload;
+        function Step(const StepSize : Integer) : T;
         function Take(Count : Integer): T;
         function TakeWhile(UnboundQuery : IUnboundPointerQuery): T; overload;
         function WhereNot(UnboundQuery : IUnboundPointerQuery) : T; overload;
@@ -248,6 +251,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TPointerQuery.TPointerQueryImpl<T>.Step(
+  const StepSize: Integer): T;
+begin
+  Result := Where(TMethodFactory<Pointer>.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

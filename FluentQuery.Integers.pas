@@ -52,6 +52,7 @@ type
     function SkipUntil(UnboundQuery : IUnboundIntegerQuery): IBoundIntegerQuery; overload;
     function SkipWhile(Predicate : TPredicate<Integer>) : IBoundIntegerQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundIntegerQuery) : IBoundIntegerQuery; overload;
+    function Step(const StepSize : Integer) : IBoundIntegerQuery;
     function Take(Count : Integer): IBoundIntegerQuery;
     function TakeBetween(StartPredicate, EndPredicate : TPredicate<Integer>) : IBoundIntegerQuery; overload;
     function TakeBetween(StartQuery, EndQuery : IUnboundIntegerQuery) : IBoundIntegerQuery; overload;
@@ -95,6 +96,7 @@ type
     function SkipUntil(UnboundQuery : IUnboundIntegerQuery): IUnboundIntegerQuery; overload;
     function SkipWhile(Predicate : TPredicate<Integer>) : IUnboundIntegerQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundIntegerQuery) : IUnboundIntegerQuery; overload;
+    function Step(const StepSize : Integer) : IUnboundIntegerQuery;
     function Take(Count : Integer): IUnboundIntegerQuery;
     function TakeBetween(StartPredicate, EndPredicate : TPredicate<Integer>) : IUnboundIntegerQuery; overload;
     function TakeBetween(StartQuery, EndQuery : IUnboundIntegerQuery) : IUnboundIntegerQuery; overload;
@@ -112,7 +114,8 @@ type
 
   function IntegerQuery : IUnboundIntegerQuery;
 
-  function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
+  function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery; deprecated; // Range is deprecated. Use IntegerRange instead
+  function IntegerRange(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
 
 implementation
 
@@ -170,6 +173,7 @@ type
         function GreaterThan(const Value : Integer) : T;
         function LessThanOrEquals(const Value : Integer) : T;
         function GreaterThanOrEquals(const Value : Integer) : T;
+        function Step(const StepSize : Integer) : T;
         // Terminating Operations
         function AsTList : TList<Integer>;
         function Predicate : TPredicate<Integer>;
@@ -205,6 +209,14 @@ end;
 
 
 function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
+begin
+  Result := IntegerRange(Start, Finish);
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Range(%d, %d)', [Start, Finish]);
+{$ENDIF}
+end;
+
+function IntegerRange(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
 var
   RangeEnumerator : IMinimalEnumerator<Integer>;
 begin
@@ -221,7 +233,7 @@ begin
 
 
 {$IFDEF DEBUG}
-  Result.OperationName := 'Range';
+  Result.OperationName := Format('IntegerRange(%d, %d)', [Start, Finish]);
 {$ENDIF}
 end;
 
@@ -501,6 +513,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TIntegerQuery.TIntegerQueryImpl<T>.Step(
+  const StepSize: Integer): T;
+begin
+  Result := Where(TIntegerMethodFactory.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

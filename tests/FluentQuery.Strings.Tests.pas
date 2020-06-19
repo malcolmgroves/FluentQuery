@@ -41,6 +41,7 @@ type
   published
     procedure TestPassThrough;
     procedure TestSkipTake;
+    procedure TestStep;
     procedure TestMatchesCaseSensitive;
     procedure TestEquals;
     procedure TestNotEquals;
@@ -195,6 +196,11 @@ begin
   finally
     LStrings.Free;
   end;
+end;
+
+procedure TestTQueryTStrings.TestStep;
+begin
+  CheckEquals(4, StringQuery.From(FStrings).Step(3).Count);
 end;
 
 { TestTQueryString }

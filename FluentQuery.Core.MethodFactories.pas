@@ -32,6 +32,7 @@ type
     class function InPlaceTransformer(TransformProc : TProc<T>) : TFunc<T, T>;
     class function &Or(PredicateA, PredicateB : TPredicate<T>) : TPredicate<T>;
     class function &And(PredicateA, PredicateB : TPredicate<T>) : TPredicate<T>;
+    class function Step(StepSize : Integer) : TPredicate<T>;
   end;
 
 implementation
@@ -97,6 +98,26 @@ begin
             begin
               UnboundQuery.SetSourceData(TSingleValueAdapter<T>.Create(CurrentValue));
               Result := UnboundQuery.MoveNext;
+            end;
+end;
+
+class function TMethodFactory<T>.Step(StepSize: Integer): TPredicate<T>;
+var
+  LCounter : Integer;
+begin
+  LCounter := 1;
+  Result := function (Value : T) : Boolean
+            begin
+              if LCounter > 1 then
+              begin
+                Result := False;
+                Dec(LCounter);
+              end
+              else
+              begin
+                Result := True;
+                LCounter := StepSize;
+              end;
             end;
 end;
 

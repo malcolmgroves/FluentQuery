@@ -78,6 +78,7 @@ type
     procedure TestTakeWhileFalse;
     procedure TestTakeWhileTrue;
     procedure TestTakeWhile;
+    procedure TestStep;
     procedure TestFirst;
     procedure TestNameMatchesAll;
     procedure TestNameMatchesSome;
@@ -705,6 +706,11 @@ begin
                 .Files
                 .SmallerThan(0)
                 .Count);
+end;
+
+procedure TestFileQuery.TestStep;
+begin
+  CheckEquals(4, FileSystemQuery.From(FTestDirectory).Step(3).Count);
 end;
 
 procedure TestFileQuery.TestWhereEven;

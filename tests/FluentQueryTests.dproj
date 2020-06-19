@@ -129,7 +129,7 @@
         <DCCReference Include="..\FluentQuery.Chars.pas"/>
         <DCCReference Include="..\FluentQuery.Pointers.pas"/>
         <DCCReference Include="FluentQuery.Pointers.Tests.pas"/>
-        <DCCReference Include="FluentQuery.Integers.Tests.pas"/>
+        <DCCReference Include="FluentQuery.Performance.Tests.pas"/>
         <DCCReference Include="FluentQuery.Chars.Tests.pas"/>
         <DCCReference Include="FluentQuery.GenericObjects.Tests.pas"/>
         <DCCReference Include="FluentQuery.Strings.Tests.pas"/>
@@ -159,6 +159,7 @@
             <Form>FQComponentTestDataModule</Form>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="FluentQuery.Integers.Tests.pas"/>
         <None Include="ModelSupport_FluentQueryTests\default.txaPackage"/>
         <None Include="ModelSupport_FluentQueryTests\default.txvpck"/>
         <None Include="ModelSupport_FluentQueryTests\FluentQueryTests\default.txvpck"/>
@@ -249,6 +250,12 @@
                 </Source>
             </Delphi.Personality>
             <Deployment Version="3">
+                <DeployFile LocalName="ModelSupport_FluentQueryTests\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="ModelSupport_FluentQueryTests\FluentQuery\EnumerationDelegates\default.txaPackage" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
@@ -256,12 +263,6 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="ModelSupport_FluentQueryTests\FluentQuery\Enumerators\Strings\default.txvpck" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="ModelSupport_FluentQueryTests\default.txaPackage" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

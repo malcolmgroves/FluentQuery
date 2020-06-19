@@ -105,16 +105,18 @@ type
     procedure TestReverseStartAtMaxIntPassThrough;
     procedure TestReverseEndAtNegativeMaxIntPassThrough;
     procedure Test1To10Evens;
-//    procedure TestPerf;
+    procedure TestSteppedRange;
+    procedure TestSteppedRangeReverse;
+    procedure TestSteppedRangeSmallerThanStepSize;
   end;
 
 
 implementation
 uses
-  Math, FluentQuery.Core.Types, System.Diagnostics;
+  Math, FluentQuery.Core.Types;
 
 var
-  DummyInt : Integer; // used ot suppress warnings about unused Loop variable
+  DummyInt : Integer; // used to suppress warnings about unused Loop variable
   DummyDouble : Double;
 
 
@@ -533,27 +535,27 @@ end;
 
 procedure TestIntegerRange.Test0To0PassThrough;
 begin
-  CheckEquals(1, Range(0, 0).Count);
+  CheckEquals(1, IntegerRange(0, 0).Count);
 end;
 
 procedure TestIntegerRange.Test0To10PassThrough;
 begin
-  CheckEquals(11, Range(0, 10).Count);
+  CheckEquals(11, IntegerRange(0, 10).Count);
 end;
 
 procedure TestIntegerRange.Test1To10Evens;
 begin
-  CheckEquals(5, Range(1, 10).Even.Count);
+  CheckEquals(5, IntegerRange(1, 10).Even.Count);
 end;
 
 procedure TestIntegerRange.Test1To10PassThrough;
 begin
-  CheckEquals(10, Range(1, 10).Count);
+  CheckEquals(10, IntegerRange(1, 10).Count);
 end;
 
 procedure TestIntegerRange.TestEndAtMaxIntPassThrough;
 begin
-  CheckEquals(11, Range(MaxInt - 10).Count);
+  CheckEquals(11, IntegerRange(MaxInt - 10).Count);
 end;
 
 procedure TestIntegerRange.TestMinGreaterThanMax;
@@ -563,7 +565,7 @@ begin
   LPassCount := 0;
   LPreviousI := MaxInt;
 
-  for I in Range(10, 1) do
+  for I in IntegerRange(10, 1) do
   begin
     Inc(LPassCount);
     Check(I < LPreviousI, 'Should be counting down');
@@ -574,47 +576,42 @@ end;
 
 procedure TestIntegerRange.TestNegativeTo0PassThrough;
 begin
-  CheckEquals(11, Range(-10, 0).Count);
+  CheckEquals(11, IntegerRange(-10, 0).Count);
 end;
 
 procedure TestIntegerRange.TestNegativeToPositivePassThrough;
 begin
-  CheckEquals(21, Range(-10, 10).Count);
+  CheckEquals(21, IntegerRange(-10, 10).Count);
 end;
-
-//procedure TestIntegerRange.TestPerf;
-//var
-//  LPassCount, I : Integer;
-//  LStopWatch : TStopWatch;
-//begin
-//  LPassCount := 0;
-//
-//  LStopWatch := TStopwatch.StartNew;
-//  try
-//    for I in Range(-1000000, 1000000).Positive.Even.GreaterThan(3000) do
-//    begin
-//      Inc(LPassCount);
-//      DummyInt := i;   // just to suppress warning about not using I
-//    end;
-//  finally
-//    LStopWatch.Stop;
-//  end;
-//  Check(LStopWatch.ElapsedMilliseconds < 0, Format('Slow! Expected %d Actual %d', [0, LStopWatch.ElapsedMilliseconds]));
-//end;
 
 procedure TestIntegerRange.TestReverseEndAtNegativeMaxIntPassThrough;
 begin
-  CheckEquals(11, Range(-MaxInt + 10, -MaxInt).Count);
+  CheckEquals(11, IntegerRange(-MaxInt + 10, -MaxInt).Count);
 end;
 
 procedure TestIntegerRange.TestReverseStartAtMaxIntPassThrough;
 begin
-  CheckEquals(11, Range(MaxInt, MaxInt - 10).Count);
+  CheckEquals(11, IntegerRange(MaxInt, MaxInt - 10).Count);
 end;
 
 procedure TestIntegerRange.TestStartAtNegativeMaxIntPassThrough;
 begin
-  CheckEquals(11, Range(-MaxInt, -MaxInt + 10).Count);
+  CheckEquals(11, IntegerRange(-MaxInt, -MaxInt + 10).Count);
+end;
+
+procedure TestIntegerRange.TestSteppedRange;
+begin
+  CheckEquals(5, IntegerRange(10, 19).Step(2).Count);
+end;
+
+procedure TestIntegerRange.TestSteppedRangeReverse;
+begin
+  CheckEquals(5, IntegerRange(19, 10).Step(2).Count);
+end;
+
+procedure TestIntegerRange.TestSteppedRangeSmallerThanStepSize;
+begin
+  CheckEquals(1, IntegerRange(10, 12).Step(3).Count);
 end;
 
 initialization

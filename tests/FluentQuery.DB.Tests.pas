@@ -55,6 +55,7 @@ type
     procedure TestTakeZero;
     procedure TestSkipOne;
     procedure TestSkipZero;
+    procedure TestStep;
     procedure TestMapResetAge;
     procedure TestNullFields;
     procedure TestNotNullFields;
@@ -218,6 +219,23 @@ end;
 procedure TestTDBRecordQuery.TestSkipZero;
 begin
   CheckEquals(2, DBRecordQuery.From(FMemTable).Skip(0).Count);
+end;
+
+procedure TestTDBRecordQuery.TestStep;
+begin
+  FMemTable.Append;
+  FMemTable.Fields[0].AsString := 'Jesse';
+  FMemTable.Fields[1].AsInteger := 12;
+  FMemTable.Fields[2].AsString := 'whatevs';
+  FMemTable.Post;
+
+  FMemTable.Append;
+  FMemTable.Fields[0].AsString := 'Lauren';
+  FMemTable.Fields[1].AsInteger := 10;
+  FMemTable.Fields[2].AsString := 'whatevs';
+  FMemTable.Post;
+
+  CheckEquals(2, DBRecordQuery.From(FMemTable).Step(2).Count);
 end;
 
 procedure TestTDBRecordQuery.TestStringField;

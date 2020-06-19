@@ -43,6 +43,7 @@ type
     function Skip(Count : Integer): IBoundFileSystemQuery;
     function SkipWhile(Predicate : TPredicate<String>) : IBoundFileSystemQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundFileSystemQuery) : IBoundFileSystemQuery; overload;
+    function Step(const StepSize : Integer) : IBoundFileSystemQuery;
     function Take(Count : Integer): IBoundFileSystemQuery;
     function TakeWhile(Predicate : TPredicate<String>): IBoundFileSystemQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundFileSystemQuery): IBoundFileSystemQuery; overload;
@@ -82,6 +83,7 @@ type
     function Skip(Count : Integer): IUnboundFileSystemQuery;
     function SkipWhile(Predicate : TPredicate<String>) : IUnboundFileSystemQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundFileSystemQuery) : IUnboundFileSystemQuery; overload;
+    function Step(const StepSize : Integer) : IUnboundFileSystemQuery;
     function Take(Count : Integer): IUnboundFileSystemQuery;
     function TakeWhile(Predicate : TPredicate<String>): IUnboundFileSystemQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundFileSystemQuery): IUnboundFileSystemQuery; overload;
@@ -157,6 +159,7 @@ type
         // Derivative Operations
         function Skip(Count : Integer): TReturnType;
         function SkipWhile(UnboundQuery : IUnboundFileSystemQuery) : TReturnType; overload;
+        function Step(const StepSize : Integer) : TReturnType;
         function Take(Count : Integer): TReturnType;
         function TakeWhile(UnboundQuery : IUnboundFileSystemQuery): TReturnType; overload;
         function WhereNot(UnboundQuery : IUnboundFileSystemQuery) : TReturnType; overload;
@@ -690,6 +693,15 @@ begin
   Result := Where(LSmallerThan);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SmallerThan(''%d'')', [Bytes]);
+{$ENDIF}
+end;
+
+function TFileSystemQuery.TQueryImpl<TReturnType>.Step(
+  const StepSize: Integer): TReturnType;
+begin
+  Result := Where(TStringMethodFactory.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

@@ -38,6 +38,7 @@ type
     function Skip(Count : Integer): IBoundStringQuery;
     function SkipWhile(Predicate : TPredicate<String>) : IBoundStringQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundStringQuery) : IBoundStringQuery; overload;
+    function Step(const StepSize : Integer): IBoundStringQuery;
     function Take(Count : Integer): IBoundStringQuery;
     function TakeWhile(Predicate : TPredicate<String>): IBoundStringQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundStringQuery): IBoundStringQuery; overload;
@@ -69,6 +70,7 @@ type
     function Skip(Count : Integer): IUnboundStringQuery;
     function SkipWhile(Predicate : TPredicate<String>) : IUnboundStringQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundStringQuery) : IUnboundStringQuery; overload;
+    function Step(const StepSize : Integer): IUnboundStringQuery;
     function Take(Count : Integer): IUnboundStringQuery;
     function TakeWhile(Predicate : TPredicate<String>): IUnboundStringQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundStringQuery): IUnboundStringQuery; overload;
@@ -128,6 +130,7 @@ type
         // Derivative Operations
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundStringQuery) : T; overload;
+        function Step(const StepSize : Integer): T;
         function Take(Count : Integer): T;
         function TakeWhile(UnboundQuery : IUnboundStringQuery): T; overload;
         function WhereNot(UnboundQuery : IUnboundStringQuery) : T; overload;
@@ -390,6 +393,14 @@ begin
   Result := Where(TStringMethodFactory.StartsWith(Value, IgnoreCase));
 {$IFDEF DEBUG}
   Result.OperationName := Format('StartsWith(''%s'', %s)', [Value, IgnoreCase.ToString]);
+{$ENDIF}
+end;
+
+function TStringQuery.TStringQueryImpl<T>.Step(const StepSize: Integer): T;
+begin
+  Result := Where(TStringMethodFactory.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

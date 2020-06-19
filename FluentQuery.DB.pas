@@ -47,6 +47,7 @@ type
     function Skip(Count : Integer): IBoundDBRecordQuery;
     function SkipWhile(Predicate : TPredicate<TDBRecord>) : IBoundDBRecordQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : IBoundDBRecordQuery; overload;
+    function Step(const StepSize : Integer) : IBoundDBRecordQuery;
     function Take(Count : Integer): IBoundDBRecordQuery;
     function TakeWhile(Predicate : TPredicate<TDBRecord>): IBoundDBRecordQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): IBoundDBRecordQuery; overload;
@@ -70,6 +71,7 @@ type
     function Skip(Count : Integer): IUnboundDBRecordQuery;
     function SkipWhile(Predicate : TPredicate<TDBRecord>) : IUnboundDBRecordQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : IUnboundDBRecordQuery; overload;
+    function Step(const StepSize : Integer) : IUnboundDBRecordQuery;
     function Take(Count : Integer): IUnboundDBRecordQuery;
     function TakeWhile(Predicate : TPredicate<TDBRecord>): IUnboundDBRecordQuery; overload;
     function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): IUnboundDBRecordQuery; overload;
@@ -133,6 +135,7 @@ type
         // Derivative Operations
         function Skip(Count : Integer): T;
         function SkipWhile(UnboundQuery : IUnboundDBRecordQuery) : T; overload;
+        function Step(const StepSize : Integer) : T;
         function Take(Count : Integer): T;
         function TakeWhile(UnboundQuery : IUnboundDBRecordQuery): T; overload;
         function WhereNot(UnboundQuery : IUnboundDBRecordQuery) : T; overload;
@@ -427,6 +430,15 @@ begin
   Result := SkipWhile(UnboundQuery.Predicate);
 {$IFDEF DEBUG}
   Result.OperationName := Format('SkipWhile(%s)', [UnboundQuery.OperationPath]);
+{$ENDIF}
+end;
+
+function TDBRecordQuery.TDBRecordQueryImpl<T>.Step(
+  const StepSize: Integer): T;
+begin
+  Result := Where(TMethodFactory<TDBRecord>.Step(StepSize));
+{$IFDEF DEBUG}
+  Result.OperationName := Format('Step(%d)', [StepSize]);
 {$ENDIF}
 end;
 

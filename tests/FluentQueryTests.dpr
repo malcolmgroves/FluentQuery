@@ -15,9 +15,7 @@ program FluentQueryTests;
 {$ENDIF}
 
 uses
-// Only one of the next two lines should be uncommented.
-//  DUnitTestRunner, // uncomment to use DUnit, or
-  TestInsight.Dunit, // uncomment to use TestInsight
+  TestInsight.Dunit,
   FluentQuery.Core.EnumerationStrategies in '..\FluentQuery.Core.EnumerationStrategies.pas',
   FluentQuery.Core.Enumerators in '..\FluentQuery.Core.Enumerators.pas',
   FluentQuery.Core.Types in '..\FluentQuery.Core.Types.pas',
@@ -26,7 +24,7 @@ uses
   FluentQuery.Chars in '..\FluentQuery.Chars.pas',
   FluentQuery.Pointers in '..\FluentQuery.Pointers.pas',
   FluentQuery.Pointers.Tests in 'FluentQuery.Pointers.Tests.pas',
-  FluentQuery.Integers.Tests in 'FluentQuery.Integers.Tests.pas',
+  FluentQuery.Performance.Tests in 'FluentQuery.Performance.Tests.pas',
   FluentQuery.Chars.Tests in 'FluentQuery.Chars.Tests.pas',
   FluentQuery.GenericObjects.Tests in 'FluentQuery.GenericObjects.Tests.pas',
   FluentQuery.Strings.Tests in 'FluentQuery.Strings.Tests.pas',
@@ -50,7 +48,8 @@ uses
   FluentQuery.JSON in '..\FluentQuery.JSON.pas',
   FluentQuery.JSON.Tests in 'FluentQuery.JSON.Tests.pas',
   FluentQuery.JSON.MethodFactories in '..\FluentQuery.JSON.MethodFactories.pas',
-  FluentQuery.Components.Test.DataModule in 'FluentQuery.Components.Test.DataModule.pas' {FQComponentTestDataModule: TDataModule};
+  FluentQuery.Components.Test.DataModule in 'FluentQuery.Components.Test.DataModule.pas' {FQComponentTestDataModule: TDataModule},
+  FluentQuery.Integers.Tests in 'FluentQuery.Integers.Tests.pas';
 
 {$R *.RES}
 
