@@ -24,7 +24,6 @@ uses
   FluentQuery.Chars in '..\FluentQuery.Chars.pas',
   FluentQuery.Pointers in '..\FluentQuery.Pointers.pas',
   FluentQuery.Pointers.Tests in 'FluentQuery.Pointers.Tests.pas',
-  FluentQuery.Performance.Tests in 'FluentQuery.Performance.Tests.pas',
   FluentQuery.Chars.Tests in 'FluentQuery.Chars.Tests.pas',
   FluentQuery.GenericObjects.Tests in 'FluentQuery.GenericObjects.Tests.pas',
   FluentQuery.Strings.Tests in 'FluentQuery.Strings.Tests.pas',

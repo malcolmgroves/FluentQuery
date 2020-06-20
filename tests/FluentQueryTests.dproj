@@ -129,7 +129,6 @@
         <DCCReference Include="..\FluentQuery.Chars.pas"/>
         <DCCReference Include="..\FluentQuery.Pointers.pas"/>
         <DCCReference Include="FluentQuery.Pointers.Tests.pas"/>
-        <DCCReference Include="FluentQuery.Performance.Tests.pas"/>
         <DCCReference Include="FluentQuery.Chars.Tests.pas"/>
         <DCCReference Include="FluentQuery.GenericObjects.Tests.pas"/>
         <DCCReference Include="FluentQuery.Strings.Tests.pas"/>
@@ -256,13 +255,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="ModelSupport_FluentQueryTests\FluentQuery\EnumerationDelegates\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="ModelSupport_FluentQueryTests\FluentQuery\Enumerators\Strings\default.txvpck" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="ModelSupport_FluentQueryTests\FluentQuery\Enumerators\Strings\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="ModelSupport_FluentQueryTests\FluentQuery\EnumerationDelegates\default.txaPackage" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

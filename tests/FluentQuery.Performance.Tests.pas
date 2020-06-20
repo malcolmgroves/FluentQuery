@@ -88,7 +88,9 @@ begin
   end;
 
   LSpeedPercentage := LStopWatch.ElapsedMilliseconds / LOldStyleStopWatch.ElapsedMilliseconds;
-  Check(LSpeedPercentage < 300, Format('If this fails consistently, you''ve done somehting to slow everythig down Malcolm', [LSpeedPercentage]));
+  Check(LSpeedPercentage < 270, Format('%f percent. If this fails consistently, you''ve done something to slow everything down Malcolm', [LSpeedPercentage]));
+//  Check(LSpeedPercentage > 170, Format('%f percent. If this fails consistently, you''ve done something to speed everything up Malcolm.', [LSpeedPercentage]));
+  Check(LSpeedPercentage > 270, Format('%f percent. If this fails consistently, you''ve done something to speed everything up Malcolm.', [LSpeedPercentage]));
   CheckEquals(LPassCount, LOldStylePassCount);
 end;
 
