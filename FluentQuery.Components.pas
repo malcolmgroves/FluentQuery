@@ -269,6 +269,8 @@ function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.GetOperationPath: S
 begin
   Result := FQuery.OperationPath;
 end;
+
+{$ENDIF}
 function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.HasProperty(
   const Name: string; PropertyType: TTypeKind): TReturnType;
 begin
@@ -277,8 +279,6 @@ begin
   Result.OperationName := 'HasProperty(Name, PropertyType)';
 {$ENDIF}
 end;
-
-{$ENDIF}
 
 function TComponentQuery<T>.TComponentQueryImpl<TReturnType>.IntegerProperty(
   const Name: string; const Value: Integer): TReturnType;

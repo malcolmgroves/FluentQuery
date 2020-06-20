@@ -316,6 +316,8 @@ function TDBRecordQuery.TDBRecordQueryImpl<T>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
+{$ENDIF}
+
 
 function TDBRecordQuery.TDBRecordQueryImpl<T>.IntegerField(const Name: string;
   Query: IUnboundIntegerQuery): T;
@@ -500,8 +502,6 @@ begin
   Result.OperationName := Format('StringField(%s, %s)', [Name, Query.OperationPath]);
 {$ENDIF}
 end;
-
-{$ENDIF}
 
 function TDBRecordQuery.TDBRecordQueryImpl<T>.Where(
   Predicate: TPredicate<TDBRecord>): T;

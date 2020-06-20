@@ -1014,6 +1014,7 @@ begin
   Result := IBoundJSONValueQuery(Skip(Index)).First;
 end;
 
+{$IFDEF DEBUG}
 function TJSONArrayQuery.TJSONArrayQueryImpl<T, T2>.GetOperationName: String;
 begin
   Result := FQuery.OperationName;
@@ -1023,6 +1024,7 @@ function TJSONArrayQuery.TJSONArrayQueryImpl<T, T2>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
+{$ENDIF}
 
 function TJSONArrayQuery.TJSONArrayQueryImpl<T, T2>.JSONArray: T;
 var

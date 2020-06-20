@@ -444,6 +444,8 @@ function TFileSystemQuery.TQueryImpl<TReturnType>.GetOperationPath: String;
 begin
   Result := FQuery.OperationPath;
 end;
+
+{$ENDIF}
 function TFileSystemQuery.TQueryImpl<TReturnType>.GetSize(
   const Path: string): Int64;
 var
@@ -533,8 +535,6 @@ begin
   Result.OperationName := Format('LastAccessedBefore(''%s'')', [DateTimeToStr(DateTime)]);
 {$ENDIF}
 end;
-
-{$ENDIF}
 
 function TFileSystemQuery.TQueryImpl<TReturnType>.Map(
   Transformer: TFunc<String, String>): TReturnType;
