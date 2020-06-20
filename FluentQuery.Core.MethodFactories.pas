@@ -26,13 +26,13 @@ uses
 type
   TMethodFactory<T> = class
   public
-    class function UpToNumberOfTimes(Count : Integer) : TPredicate<T>;
+    class function UpToNumberOfTimes(const Count : Integer) : TPredicate<T>;
     class function QuerySingleValue(UnboundQuery : IBaseQuery<T>) : TPredicate<T>;
     class function &Not(Predicate : TPredicate<T>) : TPredicate<T>;
     class function InPlaceTransformer(TransformProc : TProc<T>) : TFunc<T, T>;
     class function &Or(PredicateA, PredicateB : TPredicate<T>) : TPredicate<T>;
     class function &And(PredicateA, PredicateB : TPredicate<T>) : TPredicate<T>;
-    class function Step(StepSize : Integer) : TPredicate<T>;
+    class function Step(const StepSize : Integer) : TPredicate<T>;
   end;
 
 implementation
@@ -78,8 +78,7 @@ begin
             end;
 end;
 
-class function TMethodFactory<T>.UpToNumberOfTimes(
-  Count: Integer): TPredicate<T>;
+class function TMethodFactory<T>.UpToNumberOfTimes(const Count: Integer): TPredicate<T>;
 var
   LCount : Integer;
 begin
@@ -91,8 +90,7 @@ begin
             end;
 end;
 
-class function TMethodFactory<T>.QuerySingleValue(
-  UnboundQuery: IBaseQuery<T>): TPredicate<T>;
+class function TMethodFactory<T>.QuerySingleValue(UnboundQuery: IBaseQuery<T>): TPredicate<T>;
 begin
   Result := function (CurrentValue : T) : Boolean
             begin
@@ -101,7 +99,7 @@ begin
             end;
 end;
 
-class function TMethodFactory<T>.Step(StepSize: Integer): TPredicate<T>;
+class function TMethodFactory<T>.Step(const StepSize: Integer): TPredicate<T>;
 var
   LCounter : Integer;
 begin

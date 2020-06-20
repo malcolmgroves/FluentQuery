@@ -28,9 +28,9 @@ type
   TIntegerMethodFactory = class(TMethodFactory<Integer>)
   public
     // predicates
-    class function GreaterThanOrEquals(Amount : Integer): TPredicate<Integer>;
-    class function LessThanOrEquals(Amount : Integer): TPredicate<Integer>;
-    class function Equals(Amount : Integer): TPredicate<Integer>; reintroduce;
+    class function GreaterThanOrEquals(const Amount : Integer): TPredicate<Integer>;
+    class function LessThanOrEquals(const Amount : Integer): TPredicate<Integer>;
+    class function Equals(const Amount : Integer): TPredicate<Integer>; reintroduce;
     class function Even: TPredicate<Integer>;
   end;
 
@@ -38,8 +38,7 @@ implementation
 
 { TIntegerMethodFactory }
 
-class function TIntegerMethodFactory.Equals(
-  Amount: Integer): TPredicate<Integer>;
+class function TIntegerMethodFactory.Equals(const Amount: Integer): TPredicate<Integer>;
 begin
   Result := function (Value : Integer) : Boolean
             begin
@@ -55,8 +54,7 @@ begin
             end;
 end;
 
-class function TIntegerMethodFactory.GreaterThanOrEquals(
-  Amount: Integer): TPredicate<Integer>;
+class function TIntegerMethodFactory.GreaterThanOrEquals(const Amount: Integer): TPredicate<Integer>;
 begin
   Result := function (Value : Integer) : Boolean
             begin
@@ -64,8 +62,7 @@ begin
             end;
 end;
 
-class function TIntegerMethodFactory.LessThanOrEquals(
-  Amount: Integer): TPredicate<Integer>;
+class function TIntegerMethodFactory.LessThanOrEquals(const Amount: Integer): TPredicate<Integer>;
 begin
   Result := function (Value : Integer) : Boolean
             begin

@@ -46,14 +46,14 @@ type
     function NotEquals(const Value : Integer) : IBoundIntegerQuery;
     function Odd : IBoundIntegerQuery;
     function Positive : IBoundIntegerQuery;
-    function Skip(Count : Integer): IBoundIntegerQuery;
+    function Skip(const Count : Integer): IBoundIntegerQuery;
     function SkipUntil(const Value : Integer): IBoundIntegerQuery; overload;
     function SkipUntil(Predicate : TPredicate<Integer>): IBoundIntegerQuery; overload;
     function SkipUntil(UnboundQuery : IUnboundIntegerQuery): IBoundIntegerQuery; overload;
     function SkipWhile(Predicate : TPredicate<Integer>) : IBoundIntegerQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundIntegerQuery) : IBoundIntegerQuery; overload;
     function Step(const StepSize : Integer) : IBoundIntegerQuery;
-    function Take(Count : Integer): IBoundIntegerQuery;
+    function Take(const Count : Integer): IBoundIntegerQuery;
     function TakeBetween(StartPredicate, EndPredicate : TPredicate<Integer>) : IBoundIntegerQuery; overload;
     function TakeBetween(StartQuery, EndQuery : IUnboundIntegerQuery) : IBoundIntegerQuery; overload;
     function TakeBetween(const StartValue, EndValue : Integer) : IBoundIntegerQuery; overload;
@@ -90,14 +90,14 @@ type
     function NotEquals(const Value : Integer) : IUnboundIntegerQuery;
     function Odd : IUnboundIntegerQuery;
     function Positive : IUnboundIntegerQuery;
-    function Skip(Count : Integer): IUnboundIntegerQuery;
+    function Skip(const Count : Integer): IUnboundIntegerQuery;
     function SkipUntil(const Value : Integer): IUnboundIntegerQuery; overload;
     function SkipUntil(Predicate : TPredicate<Integer>): IUnboundIntegerQuery; overload;
     function SkipUntil(UnboundQuery : IUnboundIntegerQuery): IUnboundIntegerQuery; overload;
     function SkipWhile(Predicate : TPredicate<Integer>) : IUnboundIntegerQuery; overload;
     function SkipWhile(UnboundQuery : IUnboundIntegerQuery) : IUnboundIntegerQuery; overload;
     function Step(const StepSize : Integer) : IUnboundIntegerQuery;
-    function Take(Count : Integer): IUnboundIntegerQuery;
+    function Take(const Count : Integer): IUnboundIntegerQuery;
     function TakeBetween(StartPredicate, EndPredicate : TPredicate<Integer>) : IUnboundIntegerQuery; overload;
     function TakeBetween(StartQuery, EndQuery : IUnboundIntegerQuery) : IUnboundIntegerQuery; overload;
     function TakeBetween(const StartValue, EndValue : Integer) : IUnboundIntegerQuery; overload;
@@ -114,8 +114,8 @@ type
 
   function IntegerQuery : IUnboundIntegerQuery;
 
-  function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery; deprecated; // Range is deprecated. Use IntegerRange instead
-  function IntegerRange(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
+  function Range(const Start : Integer = 0; const Finish : Integer = MaxInt) : IBoundIntegerQuery; deprecated; // Range is deprecated. Use IntegerRange instead
+  function IntegerRange(const Start : Integer = 0; const Finish : Integer = MaxInt) : IBoundIntegerQuery;
 
 implementation
 
@@ -148,12 +148,12 @@ type
         // Derivative Operations
         function Equals(const Value : Integer) : T; reintroduce;
         function NotEquals(const Value : Integer) : T;
-        function Skip(Count : Integer): T;
+        function Skip(const Count : Integer): T;
         function SkipUntil(const Value : Integer): T; overload;
         function SkipUntil(Predicate : TPredicate<Integer>): T; overload;
         function SkipUntil(UnboundQuery : IUnboundIntegerQuery): T; overload;
         function SkipWhile(UnboundQuery : IUnboundIntegerQuery) : T; overload;
-        function Take(Count : Integer): T;
+        function Take(const Count : Integer): T;
         function TakeBetween(StartPredicate, EndPredicate : TPredicate<Integer>) : T; overload;
         function TakeBetween(StartQuery, EndQuery : IUnboundIntegerQuery) : T; overload;
         function TakeBetween(const StartValue, EndValue : Integer) : T; overload;
@@ -208,7 +208,7 @@ begin
 end;
 
 
-function Range(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
+function Range(const Start : Integer = 0; const Finish : Integer = MaxInt) : IBoundIntegerQuery;
 begin
   Result := IntegerRange(Start, Finish);
 {$IFDEF DEBUG}
@@ -216,7 +216,7 @@ begin
 {$ENDIF}
 end;
 
-function IntegerRange(Start : Integer = 0; Finish : Integer = MaxInt) : IBoundIntegerQuery;
+function IntegerRange(const Start : Integer = 0; const Finish : Integer = MaxInt) : IBoundIntegerQuery;
 var
   RangeEnumerator : IMinimalEnumerator<Integer>;
 begin
@@ -472,7 +472,7 @@ begin
   Result := TIntegerMethodFactory.QuerySingleValue(FQuery);
 end;
 
-function TIntegerQuery.TIntegerQueryImpl<T>.Skip(Count: Integer): T;
+function TIntegerQuery.TIntegerQueryImpl<T>.Skip(const Count: Integer): T;
 begin
   Result := SkipWhile(TIntegerMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
@@ -545,7 +545,7 @@ begin
 {$ENDIF}
 end;
 
-function TIntegerQuery.TIntegerQueryImpl<T>.Take(Count: Integer): T;
+function TIntegerQuery.TIntegerQueryImpl<T>.Take(const Count: Integer): T;
 begin
   Result := TakeWhile(TIntegerMethodFactory.UpToNumberOfTimes(Count));
 {$IFDEF DEBUG}
