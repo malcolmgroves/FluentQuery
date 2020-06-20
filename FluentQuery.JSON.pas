@@ -193,7 +193,7 @@ uses
 
 type
 {$IF CompilerVersion >= 33} // TJSONPairEnumerator removed in Rio
-  TJSONPairEnumerator = TJSONObject.TEnumerator deprecated;
+  TJSONPairEnumerator = TJSONObject.TEnumerator;
 {$ENDIF}
   TJSONPairEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<TJSONPair>)
   protected
@@ -207,7 +207,7 @@ type
   end;
 
 {$IF CompilerVersion >= 33}  // TJSONArrayEnumerator removed in Rio
-  TJSONArrayEnumerator = TJSONArray.TEnumerator deprecated;
+  TJSONArrayEnumerator = TJSONArray.TEnumerator;
 {$ENDIF}
   TJSONValueEnumeratorAdapter = class(TInterfacedObject, IMinimalEnumerator<TJSONValue>)
   protected

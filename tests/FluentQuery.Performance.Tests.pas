@@ -63,7 +63,7 @@ begin
   // time fluentquery
   LStopWatch := TStopwatch.StartNew;
   try
-    for I in Range(-1000000, 1000000).Positive.Even.GreaterThan(3000) do
+    for I in IntegerRange(-1000000, 1000000).Positive.Even.GreaterThan(3000) do
     begin
       Inc(LPassCount);
       DummyInt := i;   // just to suppress warning about not using I
@@ -89,8 +89,7 @@ begin
 
   LSpeedPercentage := LStopWatch.ElapsedMilliseconds / LOldStyleStopWatch.ElapsedMilliseconds;
   Check(LSpeedPercentage < 270, Format('%f percent. If this fails consistently, you''ve done something to slow everything down Malcolm', [LSpeedPercentage]));
-//  Check(LSpeedPercentage > 170, Format('%f percent. If this fails consistently, you''ve done something to speed everything up Malcolm.', [LSpeedPercentage]));
-  Check(LSpeedPercentage > 270, Format('%f percent. If this fails consistently, you''ve done something to speed everything up Malcolm.', [LSpeedPercentage]));
+  Check(LSpeedPercentage > 170, Format('%f percent. If this fails consistently, you''ve done something to speed everything up Malcolm.', [LSpeedPercentage]));
   CheckEquals(LPassCount, LOldStylePassCount);
 end;
 
